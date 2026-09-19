@@ -1,0 +1,19 @@
+name: Build staging iOS + Android
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_ios:
+    name: Build iOS (staging)
+    type: build
+    params:
+      platform: ios
+      profile: staging
+
+  build_android:
+    name: Build Android (staging)
+    type: build
+    params:
+      platform: android
+      profile: staging

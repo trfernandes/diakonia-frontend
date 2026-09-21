@@ -18,7 +18,9 @@
     "staging": {
       "distribution": "internal",
       "channel": "staging",
+      "environment": "preview",
       "env": {
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
         "EXPO_PUBLIC_API_URL": "https://diakonia-backend-staging.onrender.com",
         "EXPO_PUBLIC_POSTHOG_KEY": "phc_xF3huomoZ6tcVdULRUMMB2j3wCXRCzdS8uSkjEM9sAqe"
       },

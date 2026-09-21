@@ -1,4 +1,5 @@
 import { EscalaTemplateExperienciaEnum } from '../../enums/EscalaTemplate/escala-template-experiencia.enum';
+import { EscalaTemplateComparacaoExperienciaEnum } from '../../enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
 import { ResponseMinisterioFuncaoDto } from '../MinisterioFuncao/ministerio-funcao.response';
 import type { ResponseEscalaTemplateDto } from './escala-template.response';
 
@@ -20,4 +21,5 @@ export type ResponseEscalaTemplateFuncaoDto = {
   opcoes: ResponseEscalaTemplateFuncaoOpcaoDto[];
   quantidade: number;
   experiencia: EscalaTemplateExperienciaEnum;
+  comparacaoExperiencia: EscalaTemplateComparacaoExperienciaEnum;
 };

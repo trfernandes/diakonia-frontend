@@ -13,6 +13,10 @@ import {
 import { FancyAlert } from '../../../../modal/FancyAlert';
 import { ResponseMinisterioFuncaoDto } from '../../../../../domain/dtos/MinisterioFuncao/ministerio-funcao.response';
 import { EscalaTemplateExperienciaLabel } from '../../../../../domain/enums/EscalaTemplate/escala-template-experiencia.enum';
+import {
+  EscalaTemplateComparacaoExperienciaEnum,
+  EscalaTemplateComparacaoExperienciaLabel,
+} from '../../../../../domain/enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
 
 interface EscalaFormFuncaoListProps {
   ministerioId: string;
@@ -133,10 +137,14 @@ export const EscalaFormFuncaoList = React.memo(function EscalaFormFuncaoList({
         data={sortedFuncoesFields}
         keyExtractor={({ funKey }) => funKey}
         renderItem={({ item }) => {
+          const comparacaoLabel =
+            item.comparacaoExperiencia === EscalaTemplateComparacaoExperienciaEnum.Igual
+              ? EscalaTemplateComparacaoExperienciaLabel[item.comparacaoExperiencia].toLowerCase()
+              : null;
           return (
             <FancyCard.Simple
               title={nomesDaVaga(item.funcaoIds)}
-              subtitle={`${EscalaTemplateExperienciaLabel[item.experiencia]} · Qtd. ${item.quantidade}`}
+              subtitle={`${comparacaoLabel ? `${comparacaoLabel} a ` : ''}${EscalaTemplateExperienciaLabel[item.experiencia]} · Qtd. ${item.quantidade}`}
               containerStyle={{ paddingVertical: 6 }}
               contentContainerStyle={{ paddingVertical: 0, gap: 4 }}
               actionButtons={[

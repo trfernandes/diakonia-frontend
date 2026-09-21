@@ -15,6 +15,10 @@ import Toast from 'react-native-toast-message';
 import { FancyAlert } from '../../../modal/FancyAlert';
 import { EscalaTemplateExperienciaLabel } from '../../../../domain/enums/EscalaTemplate/escala-template-experiencia.enum';
 import { EscalaTemplateExperienciaEnum } from '../../../../domain/enums/EscalaTemplate/escala-template-experiencia.enum';
+import {
+  EscalaTemplateComparacaoExperienciaEnum,
+  EscalaTemplateComparacaoExperienciaLabel,
+} from '../../../../domain/enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
 import { useFuncoesDoMinisterio } from '../../../../hooks/useFuncoesDoMinisterio';
 import FancyLoading from '../../../FancyLoading';
 import { usePallete } from '../../../../hooks/usePallete';
@@ -32,6 +36,7 @@ interface TemplateFuncoesListProps {
 
 const FORM_DEFAULT_VALUES: Partial<EscalaTemplateFuncaoFormData> = {
   experiencia: EscalaTemplateExperienciaEnum.Iniciante,
+  comparacaoExperiencia: EscalaTemplateComparacaoExperienciaEnum.MaiorIgual,
   quantidade: 1,
 };
 
@@ -102,6 +107,7 @@ export default function TemplateFuncoesList({
             id: data.id,
             funcaoIds: data.funcaoIds,
             experiencia: data.experiencia,
+            comparacaoExperiencia: data.comparacaoExperiencia,
             quantidade: data.quantidade,
           });
         } else if (mode === 'edit') {
@@ -201,11 +207,15 @@ export default function TemplateFuncoesList({
             );
             const funcaoNome = nomes.join(' ou ');
             const experienciaLabel = EscalaTemplateExperienciaLabel[item.experiencia];
+            const comparacaoLabel =
+              item.comparacaoExperiencia === EscalaTemplateComparacaoExperienciaEnum.Igual
+                ? EscalaTemplateComparacaoExperienciaLabel[item.comparacaoExperiencia].toLowerCase()
+                : null;
             return (
               <FancyListItemCard
                 key={item.id ?? index}
                 title={funcaoNome}
-                subtitle={`${experienciaLabel} · ${item.quantidade} ${item.quantidade === 1 ? 'pessoa' : 'pessoas'}`}
+                subtitle={`${comparacaoLabel ? `${comparacaoLabel} a ` : ''}${experienciaLabel} · ${item.quantidade} ${item.quantidade === 1 ? 'pessoa' : 'pessoas'}`}
                 leading={{ type: 'letter', letter: funcaoNome.charAt(0) }}
                 trailing={
                   disabled

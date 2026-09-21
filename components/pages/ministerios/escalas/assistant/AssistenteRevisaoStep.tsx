@@ -14,6 +14,10 @@ import { ThemePalette } from '../../../../../constants/colors';
 import { useAssistenteEscala } from '../../../../../contexts/pages/escalas/AssistantContext';
 import { EscalaTemplateTipoEnum } from '../../../../../domain/enums/EscalaTemplate/escala-template-tipo.enum';
 import { EscalaTemplateExperienciaLabel } from '../../../../../domain/enums/EscalaTemplate/escala-template-experiencia.enum';
+import {
+  EscalaTemplateComparacaoExperienciaEnum,
+  EscalaTemplateComparacaoExperienciaLabel,
+} from '../../../../../domain/enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
 import { EscalaFormData } from '../../../../../domain/schemas/escalaSchema';
 import { useFuncoesDoMinisterio } from '../../../../../hooks/useFuncoesDoMinisterio';
 import { usePallete } from '../../../../../hooks/usePallete';
@@ -206,6 +210,12 @@ function EventItem({
                   EscalaTemplateExperienciaLabel[
                     f.experiencia as keyof typeof EscalaTemplateExperienciaLabel
                   ];
+                const comparacaoLabel =
+                  f.comparacaoExperiencia === EscalaTemplateComparacaoExperienciaEnum.Igual
+                    ? `${EscalaTemplateComparacaoExperienciaLabel[
+                        f.comparacaoExperiencia as keyof typeof EscalaTemplateComparacaoExperienciaLabel
+                      ].toLowerCase()} a `
+                    : '';
 
                 return (
                   <View key={idx} style={styles.detailRow}>
@@ -218,7 +228,8 @@ function EventItem({
                       {funcaoNome}
                       <FancyText size='extraSmall' color={palette.fonts.inactive}>
                         {' '}
-                        • {f.quantidade}x {expLabel}
+                        • {f.quantidade}x {comparacaoLabel}
+                        {expLabel}
                       </FancyText>
                     </FancyText>
                   </View>

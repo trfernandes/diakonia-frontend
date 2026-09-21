@@ -13,6 +13,10 @@ import {
   EscalaTemplateExperienciaEnum,
   EscalaTemplateExperienciaLabel,
 } from '../../../../domain/enums/EscalaTemplate/escala-template-experiencia.enum';
+import {
+  EscalaTemplateComparacaoExperienciaEnum,
+  EscalaTemplateComparacaoExperienciaLabel,
+} from '../../../../domain/enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
 import ControlledNumberInput from '../../../forms/ControlledNumberInput';
 
 interface TemplateFuncoesFormProps {
@@ -48,6 +52,15 @@ export default function TemplateFuncoesForm({
     ).sort(
       (a, b) => Number(a.value) - Number(b.value),
     ) as DropDownItemProps<EscalaTemplateExperienciaEnum>[];
+  }, []);
+
+  const comparacaoExperienciaList = useMemo<
+    DropDownItemProps<EscalaTemplateComparacaoExperienciaEnum>[]
+  >(() => {
+    return EnumUtils.getDropDownItems(
+      EscalaTemplateComparacaoExperienciaEnum,
+      EscalaTemplateComparacaoExperienciaLabel,
+    ) as DropDownItemProps<EscalaTemplateComparacaoExperienciaEnum>[];
   }, []);
 
   return (
@@ -91,6 +104,12 @@ export default function TemplateFuncoesForm({
           name='experiencia'
           label='Experiência'
           listItems={experiencaList}
+        />
+        <ControlledBottomSheetSelect
+          control={control}
+          name='comparacaoExperiencia'
+          label='Comparação de experiência'
+          listItems={comparacaoExperienciaList}
         />
         <ControlledNumberInput
           control={control}

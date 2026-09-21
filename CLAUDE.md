@@ -13,7 +13,8 @@ curto.
 
 - `.eas/workflows/*.yml`: `on: workflow_dispatch: {}` (objeto vazio) — nunca `workflow_dispatch:` sem valor (vira `null`, EAS rejeita com "Invalid workflow definition").
 - `google-services.json` (gitignored) some em cloud build: criar EAS env var tipo `file`, `eas env:set` (não `env:create`, deprecated), environment `preview` (só `production`/`preview`/`development` disponíveis — nome custom exige plano Enterprise); `app.json` → `app.config.js` pra ler `process.env.GOOGLE_SERVICES_JSON`; `eas.json` no profile: `"environment": "preview"`.
-- Dashboard do Workflow: botão **Retry**/**re-run from failed jobs** reusa o commit ORIGINAL do run — não pega push novo. Pra buildar commit atualizado: "Run workflow" do zero, ou `eas-cli build --profile <x> --platform <y>` direto.
+- Dashboard do Workflow: botão **Retry**/**re-run from failed jobs** reusa o commit ORIGINAL do run — não pega push novo. Pra buildar commit atualizado: "Run workflow" do zero, ou `eas-cli build --profile <x> --platform <y>` direto. `--platform all` builda Android+iOS junto.
+- `eas-cli device:list` (checar UDID registrado pra build iOS ad-hoc) falha em modo não-interativo sem `--apple-team-id <id>` — pegar o Team ID no erro da primeira tentativa.
 
 ## Estado do trabalho e fluxo de branches
 
@@ -111,6 +112,10 @@ Wrappers disponíveis em `components/forms/`: ControlledTextInput, ControlledPas
 ControlledDropDown, ControlledBottomSheetSelect, ControlledTextArea, ControlledNumberInput,
 ControlledMaskedTextInput, ControlledImagePicker, ControlledSearchSelect, ControlledSelectField,
 ControlledFancyToggle, ControlledDateInput, ControlledColorPicker.
+
+Sem `Switch` nativo no app. Campo boolean (ex. `ativo`, `recorrente`) usa `ControlledFancyToggle`
+com `option1={{ title: 'Não', value: false }}` / `option2={{ title: 'Sim', value: true }}` — mesmo
+componente usado pra toggle 2-valor de enum.
 
 ## Padrões mobile — dados
 

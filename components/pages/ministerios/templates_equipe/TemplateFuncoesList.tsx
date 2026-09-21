@@ -22,6 +22,8 @@ import {
 import { useFuncoesDoMinisterio } from '../../../../hooks/useFuncoesDoMinisterio';
 import FancyLoading from '../../../FancyLoading';
 import { usePallete } from '../../../../hooks/usePallete';
+import { ColorUtils } from '../../../../utils/color_utils';
+import DefaultIcons from '../../../FancyIcons';
 import FancyText from '../../../FancyText';
 import FancyButton from '../../../buttons/FancyButton';
 import FancyListItemCard from '../../../cards/FancyListItemCard';
@@ -38,6 +40,7 @@ const FORM_DEFAULT_VALUES: Partial<EscalaTemplateFuncaoFormData> = {
   experiencia: EscalaTemplateExperienciaEnum.Iniciante,
   comparacaoExperiencia: EscalaTemplateComparacaoExperienciaEnum.MaiorIgual,
   quantidade: 1,
+  apenasJaEscalado: false,
 };
 
 export default function TemplateFuncoesList({
@@ -109,6 +112,7 @@ export default function TemplateFuncoesList({
             experiencia: data.experiencia,
             comparacaoExperiencia: data.comparacaoExperiencia,
             quantidade: data.quantidade,
+            apenasJaEscalado: data.apenasJaEscalado,
           });
         } else if (mode === 'edit') {
           if (editingIndex == null) {
@@ -217,6 +221,26 @@ export default function TemplateFuncoesList({
                 title={funcaoNome}
                 subtitle={`${comparacaoLabel ? `${comparacaoLabel} a ` : ''}${experienciaLabel} · ${item.quantidade} ${item.quantidade === 1 ? 'pessoa' : 'pessoas'}`}
                 leading={{ type: 'letter', letter: funcaoNome.charAt(0) }}
+                meta={
+                  item.apenasJaEscalado ? (
+                    <View
+                      style={[
+                        styles.badge,
+                        { backgroundColor: ColorUtils.withAlpha(palette.warning, 0.12) },
+                      ]}
+                    >
+                      <DefaultIcons.Custom
+                        library='MaterialCommunityIcons'
+                        name='lock-outline'
+                        size={11}
+                        color={palette.warning}
+                      />
+                      <FancyText size='extraSmall' type='bold' color={palette.warning}>
+                        só já escalado
+                      </FancyText>
+                    </View>
+                  ) : undefined
+                }
                 trailing={
                   disabled
                     ? undefined
@@ -297,5 +321,14 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     minHeight: 120,
+  },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'flex-start',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
   },
 });

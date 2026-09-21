@@ -41,6 +41,7 @@ export const escalaTemplateFuncaoSchema = z.object({
   quantidade: z.coerce
     .number<number>('Campo obrigatório')
     .min(1, { message: 'A quantidade deve ser no mínimo 1' }),
+  apenasJaEscalado: z.boolean().optional(),
 });
 
 export const escalaTemplateSchema = z
@@ -67,6 +68,13 @@ export const escalaTemplateSchema = z
           code: 'custom',
           path: ['funcoes'],
           message: 'Adicione pelo menos uma função para templates por funções',
+        });
+      } else if (funcoes.length > 0 && funcoes.every((f) => f.apenasJaEscalado)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['funcoes'],
+          message:
+            'Pelo menos uma função não pode ter a restrição "só quem já está na escala" — sem isso, nenhuma vaga consegue ser preenchida na geração automática.',
         });
       }
     } else if (data.tipo === EscalaTemplateTipoEnum.Fixo) {

@@ -22,4 +22,5 @@ export type ResponseEscalaTemplateFuncaoDto = {
   quantidade: number;
   experiencia: EscalaTemplateExperienciaEnum;
   comparacaoExperiencia: EscalaTemplateComparacaoExperienciaEnum;
+  apenasJaEscalado: boolean;
 };

@@ -6,4 +6,5 @@ export type CreateEscalaTemplateFuncaoDto = {
   quantidade: number;
   experiencia: EscalaTemplateExperienciaEnum;
   comparacaoExperiencia?: EscalaTemplateComparacaoExperienciaEnum;
+  apenasJaEscalado?: boolean;
 };

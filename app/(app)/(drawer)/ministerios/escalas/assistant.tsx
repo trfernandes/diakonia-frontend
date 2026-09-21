@@ -100,6 +100,7 @@ const mapEscalaFormToDto = (
                     funcaoIds: funcao.funcaoIds!,
                     quantidade: funcao.quantidade,
                     experienciaMinima: funcao.experiencia,
+                    comparacaoExperiencia: funcao.comparacaoExperiencia,
                   }))
                 : undefined,
             fixos:

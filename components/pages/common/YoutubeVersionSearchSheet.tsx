@@ -7,6 +7,7 @@ import FancyListEmpty from '../../list/FancyListEmpty';
 import FancyTextInput from '../../fields/FancyTextInput';
 import FancyText from '../../FancyText';
 import DefaultIcons from '../../FancyIcons';
+import { AxiosError } from 'axios';
 import { useYoutubeVersionSearch } from '../../../hooks/useRepertorio';
 import { ResponseYoutubeSearchItemDto } from '../../../domain/dtos/Repertorio/youtube-search-item.response';
 import { usePallete } from '../../../hooks/usePallete';
@@ -43,7 +44,13 @@ export default function YoutubeVersionSearchSheet({
     return () => clearTimeout(timeout);
   }, [searchText, visible]);
 
-  const { data = [], isFetching, isError } = useYoutubeVersionSearch(debouncedQuery, visible, 6);
+  const {
+    data = [],
+    isFetching,
+    isError,
+    error,
+  } = useYoutubeVersionSearch(debouncedQuery, visible, 6);
+  const isRateLimited = (error as AxiosError)?.response?.status === 429;
 
   const searchUrl = useMemo(() => {
     const normalized = searchText.trim();
@@ -79,11 +86,15 @@ export default function YoutubeVersionSearchSheet({
     if (isError) {
       return (
         <FancyListEmpty
-          label='Serviço indisponível'
-          helperText='Não foi possível buscar agora. Tente abrir no YouTube ou continue manualmente.'
+          label={isRateLimited ? 'Muitas buscas agora' : 'Serviço indisponível'}
+          helperText={
+            isRateLimited
+              ? 'Muita gente buscando no YouTube ao mesmo tempo. Tente novamente em alguns minutos, ou continue manualmente.'
+              : 'Não foi possível buscar agora. Tente abrir no YouTube ou continue manualmente.'
+          }
           icon={{
             library: 'MaterialCommunityIcons',
-            name: 'wifi-off',
+            name: isRateLimited ? 'clock-outline' : 'wifi-off',
             size: 48,
             color: palette.warning,
           }}

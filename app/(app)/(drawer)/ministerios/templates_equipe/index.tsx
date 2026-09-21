@@ -185,7 +185,11 @@ export default function MinisterioTemplateEquipeIndex() {
       searchBarProps={{ value: searchText, onSearch: handleSearch }}
       topContent={
         <View style={styles.topContainer}>
-          {tour.showBanner && <TutorialBanner onStart={tour.start} onDismiss={tour.skip} />}
+          {tour.showBanner && (
+            <View style={styles.bannerWrapper}>
+              <TutorialBanner onStart={tour.start} onDismiss={tour.skip} />
+            </View>
+          )}
           <FancyListStats
             items={[
               { label: 'Total', value: stats.total },
@@ -273,6 +277,9 @@ export default function MinisterioTemplateEquipeIndex() {
 
 const styles = StyleSheet.create({
   topContainer: { gap: 12 },
+  bannerWrapper: {
+    paddingHorizontal: 15,
+  },
   filtroContainer: {
     paddingHorizontal: 15,
   },

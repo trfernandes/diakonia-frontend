@@ -6,4 +6,5 @@ export interface CreateIgrejaConviteDto {
   roleSugerida?: IgrejaVoluntarioRoleEnum;
   maxUses?: number;
   expiresAt?: string;
+  ministerioIds?: string[];
 }

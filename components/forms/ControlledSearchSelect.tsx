@@ -22,6 +22,7 @@ interface ControlledSearchSelectProps<
   | 'retryLabel'
   | 'labelProps'
   | 'onClosed'
+  | 'multiSelect'
 > {
   control: Control<TFormValues>;
   name: TName;

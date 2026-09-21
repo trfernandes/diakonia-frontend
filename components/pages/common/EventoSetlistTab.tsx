@@ -971,40 +971,26 @@ export default function EventoSetlistTab({
         ministerioId={ministerioId}
         onClose={() => setEditorVisible(false)}
         onSave={async (payload) => {
+          const dto = {
+            ministerioId: ministerioId || '',
+            dataOcorrencia: dataOcorrenciaIso,
+            tipoOrigem: payload.tipoOrigem,
+            repertorioMusicaId: payload.repertorioMusicaId,
+            nome: payload.nome,
+            interprete: payload.interprete,
+            versaoUrl: payload.versaoUrl,
+            tom: payload.tom,
+            bpm: payload.bpm,
+            letraMarkdown: payload.letraMarkdown,
+            cifraMarkdown: payload.cifraMarkdown,
+            observacoes: payload.observacoes,
+          };
+
           try {
             if (payload.itemId) {
-              await atualizarSetlistItem({
-                itemId: payload.itemId,
-                dto: {
-                  ministerioId: ministerioId || '',
-                  dataOcorrencia: dataOcorrenciaIso,
-                  tipoOrigem: payload.tipoOrigem,
-                  repertorioMusicaId: payload.repertorioMusicaId,
-                  nome: payload.nome,
-                  interprete: payload.interprete,
-                  versaoUrl: payload.versaoUrl,
-                  tom: payload.tom,
-                  bpm: payload.bpm,
-                  letraMarkdown: payload.letraMarkdown,
-                  cifraMarkdown: payload.cifraMarkdown,
-                  observacoes: payload.observacoes,
-                },
-              });
+              await atualizarSetlistItem({ itemId: payload.itemId, dto });
             } else {
-              await criarSetlistItem({
-                ministerioId: ministerioId || '',
-                dataOcorrencia: dataOcorrenciaIso,
-                tipoOrigem: payload.tipoOrigem,
-                repertorioMusicaId: payload.repertorioMusicaId,
-                nome: payload.nome,
-                interprete: payload.interprete,
-                versaoUrl: payload.versaoUrl,
-                tom: payload.tom,
-                bpm: payload.bpm,
-                letraMarkdown: payload.letraMarkdown,
-                cifraMarkdown: payload.cifraMarkdown,
-                observacoes: payload.observacoes,
-              });
+              await criarSetlistItem(dto);
             }
           } catch (error) {
             Toast.show({

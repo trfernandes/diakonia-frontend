@@ -2,7 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import FancyBottomSheetModal from '../../../modal/FancyBottomSheetModal';
 import FancyButton from '../../../buttons/FancyButton';
-import { MinVoluntarioFuncaoFormData } from '../../../../domain/schemas/ministerioVoluntariosSchema';
+import { MinVoluntarioFuncaoModalFormData } from '../../../../domain/schemas/ministerioVoluntariosSchema';
 import { DropDownItemProps } from '../../../fields/FancyDropDownItem';
 import { useMemo } from 'react';
 import { EnumUtils } from '../../../../utils/enum_utils';
@@ -30,7 +30,7 @@ export default function IntegranteFormModal({
   onButton1Press,
   onButton2Press,
 }: IntegranteFormModalProps) {
-  const { control } = useFormContext<MinVoluntarioFuncaoFormData>();
+  const { control } = useFormContext<MinVoluntarioFuncaoModalFormData>();
 
   const experiencaList = useMemo<DropDownItemProps<EscalaTemplateExperienciaEnum>[]>(() => {
     return EnumUtils.getDropDownItems(
@@ -60,10 +60,11 @@ export default function IntegranteFormModal({
     >
       <ControlledSearchSelect
         name='id'
-        label='Função'
+        label={mode === 'add' ? 'Funções' : 'Função'}
         control={control}
         listItems={funcoesDropDownList}
         disabled={mode === 'edit'}
+        multiSelect={mode === 'add'}
         searchPlaceholder='Buscar função...'
       />
       <ControlledBottomSheetSelect

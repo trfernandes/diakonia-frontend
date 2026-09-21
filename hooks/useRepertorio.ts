@@ -103,5 +103,9 @@ export function useYoutubeVersionSearch(query?: string, enabled = true, limit = 
     enabled: !!igrejaAtiva && enabled && normalizedQuery.length >= 2,
     queryFn: () =>
       RepertorioRepository.searchYoutubeVersions(igrejaAtiva!.id, normalizedQuery, limit),
+    // A chave de API do YouTube é compartilhada por todas as igrejas — retentar
+    // automaticamente (padrão do react-query: 3x com backoff) contra um 429 de rate
+    // limit só multiplica chamadas durante a janela de bloqueio e piora o problema.
+    retry: false,
   });
 }

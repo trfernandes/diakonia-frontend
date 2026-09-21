@@ -5,7 +5,7 @@ import { DefaultIconsNames } from '../../../../constants/icons';
 import {
   MinVoluntarioFormData,
   MinVoluntarioFuncaoFormData,
-  minVoluntarioFuncaoSchema,
+  minVoluntarioFuncaoModalSchema,
 } from '../../../../domain/schemas/ministerioVoluntariosSchema';
 import { useMemo, useState } from 'react';
 import IntegranteFormModal from './FormModal';
@@ -81,25 +81,28 @@ export default function IntegranteFormFields({
   });
 
   const formModal = useForm({
-    resolver: zodResolver(minVoluntarioFuncaoSchema),
+    resolver: zodResolver(minVoluntarioFuncaoModalSchema),
   });
 
   const handleSave = formModal.handleSubmit((data) => {
     // console.log('Saving funcao data:', strfyObj({ data, funcoesList }));
 
-    const findedFuncao = funcoesList.find((f) => f.id === data.id);
     const current = getValues('funcoes') as MinVoluntarioFuncaoFormData[];
+    const selectedIds = Array.isArray(data.id) ? data.id : [data.id];
 
-    const existingIndex = current.findIndex((f) => f.id === data.id);
+    selectedIds.forEach((funcaoId) => {
+      const findedFuncao = funcoesList.find((f) => f.id === funcaoId);
+      const existingIndex = current.findIndex((f) => f.id === funcaoId);
 
-    const newItem: MinVoluntarioFuncaoFormData = {
-      id: data.id,
-      experiencia: data.experiencia,
-      nome: findedFuncao?.nome || 'Nome não encontrado',
-    };
+      const newItem: MinVoluntarioFuncaoFormData = {
+        id: funcaoId,
+        experiencia: data.experiencia,
+        nome: findedFuncao?.nome || 'Nome não encontrado',
+      };
 
-    if (existingIndex === -1) append(newItem);
-    else update(existingIndex, newItem);
+      if (existingIndex === -1) append(newItem);
+      else update(existingIndex, newItem);
+    });
 
     handleClearForm();
     setFormModalOptions({ visible: false, mode: 'add' });

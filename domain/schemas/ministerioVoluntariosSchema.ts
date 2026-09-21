@@ -10,6 +10,16 @@ export const minVoluntarioFuncaoSchema = z.object({
   status: z.enum(MinisterioVoluntarioFuncaoStatusEnum).optional(),
 });
 
+// Schema do formulário transiente de adicionar/editar função (FormModal). Ao adicionar,
+// o campo `id` aceita várias funções de uma vez (array); ao editar uma função já
+// associada, continua sendo uma única string — igual a minVoluntarioFuncaoSchema.
+export const minVoluntarioFuncaoModalSchema = z.object({
+  id: z.union([z.string('Campo obrigatório'), z.array(z.string()).min(1, 'Campo obrigatório')]),
+  nome: z.string().optional(),
+  experiencia: z.enum(EscalaTemplateExperienciaEnum, 'Campo obrigatório'),
+  status: z.enum(MinisterioVoluntarioFuncaoStatusEnum).optional(),
+});
+
 export const minVoluntarioSchema = z.object({
   voluntarioId: z.uuid('Campo obrigatório'),
   voluntarioFoto: z.string().optional(),
@@ -21,3 +31,4 @@ export const minVoluntarioSchema = z.object({
 
 export type MinVoluntarioFormData = z.infer<typeof minVoluntarioSchema>;
 export type MinVoluntarioFuncaoFormData = z.infer<typeof minVoluntarioFuncaoSchema>;
+export type MinVoluntarioFuncaoModalFormData = z.infer<typeof minVoluntarioFuncaoModalSchema>;

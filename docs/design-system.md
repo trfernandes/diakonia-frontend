@@ -723,23 +723,23 @@ estados positivos/finalizados.
 ## Log de Telas Revisadas
 
 | Tela                  | Data       | Findings                                                                                                                                                                                                                  | Resultado                                   |
-| --------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| --------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
 | AgendaDetailsDadosTab | 2026-08-26 | F1 (chip origem isolado em bloco próprio), F2 (Horário de ensaio com label duplicada), F3 (Template com dropdown inline em vez de trigger+sheet), F4 (ícones todos primary, sem categoria), F5 (header sem fundo próprio) | Todos aprovados e implementados — tsc limpo |
 
 ---
 
 # Design System — Onboarding guiado (wizard Admin/Líder)
 
-> Escopo: telas do wizard `FancySteps` do guia automático de onboarding, Admin (6 passos) e Líder
-> (5 passos). Decisão de backend/escopo: ADR-0011 (`backend/docs/adr/0011-onboarding-guiado-admin-lider.md`).
-> Canvas de variantes: 3 opções lado a lado (A/B/C), passo "Ministério" como referência. Aprovado
-> 2026-09-09.
+> Escopo: telas do wizard `FancySteps` do guia automático de onboarding, Admin (6 passos) e Líder (5
+> passos). Decisão de backend/escopo: ADR-0011
+> (`backend/docs/adr/0011-onboarding-guiado-admin-lider.md`). Canvas de variantes: 3 opções lado a
+> lado (A/B/C), passo "Ministério" como referência. Aprovado 2026-09-09.
 
 ## Regras de Design Confirmadas
 
-- **[confirmed 2026-09-09]** Indicador de progresso do wizard é **texto "Passo N de M" + barra fina**
-  (não pontos tipo stories, não círculos numerados com check) — nomeia o passo atual e ocupa menos
-  altura vertical que as alternativas.
+- **[confirmed 2026-09-09]** Indicador de progresso do wizard é **texto "Passo N de M" + barra
+  fina** (não pontos tipo stories, não círculos numerados com check) — nomeia o passo atual e ocupa
+  menos altura vertical que as alternativas.
 - **[confirmed 2026-09-09]** Chips de sugestão (Ministério/Função/Evento) ficam em **uma linha só,
   com scroll horizontal e fade indicando "tem mais"** — não quebram em várias linhas (cresceria o
   card conforme o catálogo aumenta) e não viram lista vertical de rádio.
@@ -750,8 +750,8 @@ estados positivos/finalizados.
 
 ## Log de Telas Revisadas
 
-| Tela                                | Data       | Findings                                                                 | Resultado                                              |
-| ------------------------------------ | ---------- | ------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Tela                                 | Data       | Findings                                                                                                                   | Resultado                                  |
+| ------------------------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
 | Wizard onboarding — passo Ministério | 2026-09-09 | Canvas A (pontos+card+chips wrap) vs B (texto+barra+scroll+sem card) vs C (círculos+lista rádio+card) — usuário escolheu B | Aprovado — implementação é o próximo passo |
 
 ---
@@ -766,24 +766,24 @@ estados positivos/finalizados.
 ## Regras de Design Confirmadas
 
 - **[confirmed 2026-09-07]** Card de acesso em Minhas Escalas evolui `PendenciasChip` pro peso
-  visual do `GerenciarEscalaLink` (ícone + título + chevron). Some por completo quando não há
-  pedido nenhum — nunca aparece card vazio.
+  visual do `GerenciarEscalaLink` (ícone + título + chevron). Some por completo quando não há pedido
+  nenhum — nunca aparece card vazio.
 - **[confirmed 2026-09-07]** Card de acesso muda pra tom de destaque (`warning` tint) só quando há
-  pendência do próprio usuário («X pedidos esperando você»), com número. Sem pendência própria,
-  fica neutro mesmo havendo pedidos de terceiros em andamento.
+  pendência do próprio usuário («X pedidos esperando você»), com número. Sem pendência própria, fica
+  neutro mesmo havendo pedidos de terceiros em andamento.
 - **[confirmed 2026-09-07]** Aba Pendentes (voluntário e líder) sempre com 2 sub-grupos: o que
   precisa de ação do usuário agora (destaque) primeiro, o que só está em andamento depois — nunca
   lista única sem separação.
-- **[confirmed 2026-09-07]** Card de pedido/Tentativa expande a timeline **inline**, sem navegar
-  pra tela separada. Timeline mostra todas as tentativas (aceite, recusa, expiração) em ordem
+- **[confirmed 2026-09-07]** Card de pedido/Tentativa expande a timeline **inline**, sem navegar pra
+  tela separada. Timeline mostra todas as tentativas (aceite, recusa, expiração) em ordem
   cronológica, mesmo peso visual — recusa/expiração não é "falha" destacada em vermelho.
 - **[confirmed 2026-09-07]** Toda troca é sempre da **mesma função** (quem pede Vocal só recebe
-  candidato/convite de quem também toca Vocal). Todo card de pedido exibe a função como tag ao
-  lado do evento — nunca só o nome do evento, que sozinho lê como "vaga genérica do culto".
+  candidato/convite de quem também toca Vocal). Todo card de pedido exibe a função como tag ao lado
+  do evento — nunca só o nome do evento, que sozinho lê como "vaga genérica do culto".
 - **[confirmed 2026-09-07]** Tela do líder é separada da do voluntário (sem ações condicionais numa
-  tela só). Lista Pendentes do líder agrupa pedidos de várias pessoas/funções simultaneamente,
-  mesmo componente de card colapsado da tela do voluntário, sub-agrupado por "Aguardando você"
-  (aprovar convite / sem candidato) vs. "Em andamento" (sem ação do líder agora).
+  tela só). Lista Pendentes do líder agrupa pedidos de várias pessoas/funções simultaneamente, mesmo
+  componente de card colapsado da tela do voluntário, sub-agrupado por "Aguardando você" (aprovar
+  convite / sem candidato) vs. "Em andamento" (sem ação do líder agora).
 - **[confirmed 2026-09-07]** Fila de candidatos é somente leitura pro líder antes de aprovar — não
   escolhe manualmente, só aprova ou veta o próximo da fila (ordenada por score de aceite).
 - **[confirmed 2026-09-07]** Estado "ninguém disponível" (fila esgotada) sempre oferece 3 saídas:
@@ -797,6 +797,6 @@ estados positivos/finalizados.
 
 ## Log de Telas Revisadas
 
-| Tela                                          | Data       | Findings                                                                                                                                                   | Resultado                                             |
-| ---------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Tela                                                           | Data       | Findings                                                                                                                           | Resultado                                              |
+| -------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | Substituições (acesso, voluntário, líder, drawer, solicitação) | 2026-09-07 | Wireframe com 4→5 seções, 3 rodadas de ajuste (histórico pro líder, badge no drawer, múltiplos pedidos/função, motivo obrigatório) | Protótipos aprovados — implementação é o próximo passo |

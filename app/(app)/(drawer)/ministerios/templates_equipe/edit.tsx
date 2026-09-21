@@ -11,14 +11,39 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { DynamicQuery, Operator, ValueType } from '../../../../../domain/utils/query_utils';
 import FancyLoading from '../../../../../components/FancyLoading';
 import { strfyObj } from '../../../../../utils/text_utils';
-import { EscalaTemplateTipoEnumMap } from '../../../../../domain/enums/EscalaTemplate/escala-template-tipo.enum';
+import {
+  EscalaTemplateTipoEnum,
+  EscalaTemplateTipoEnumMap,
+} from '../../../../../domain/enums/EscalaTemplate/escala-template-tipo.enum';
+import { MinisterioTipoEnum } from '../../../../../domain/enums/Ministerio/ministerio-tipo.enum';
 import { useLoading } from '../../../../../contexts/LoadingContext';
+import { useMinisteriosCrud } from '../../../../../hooks/useMinisteriosCrud';
 
 export default function MinisterioTemplatesEditPage() {
   const { ministerioId, templateId } = useLocalSearchParams<{
     ministerioId: string;
     templateId: string;
   }>();
+
+  const ministerioSearchParams = useMemo<DynamicQuery>(
+    () => ({
+      where: {
+        conditions: [
+          {
+            path: 'id',
+            operator: Operator.EQUALS,
+            value: { type: ValueType.LITERAL, value: ministerioId },
+          },
+        ],
+      },
+    }),
+    [ministerioId],
+  );
+
+  const { data: ministeriosData } = useMinisteriosCrud({
+    initialParams: ministerioSearchParams,
+  });
+  const ministerio = ministeriosData[0];
 
   const dataParams = useMemo(() => {
     if (!templateId) return undefined;
@@ -93,6 +118,29 @@ export default function MinisterioTemplatesEditPage() {
       async (data) => {
         if (!data.id) return;
 
+        if (ministerio?.tipo === MinisterioTipoEnum.Louvor) {
+          if (
+            data.tipo === EscalaTemplateTipoEnum.Fixo &&
+            !data.respSetListVoluntariosId
+          ) {
+            form.setError('respSetListVoluntariosId', {
+              type: 'custom',
+              message: 'Informe o responsável pelo setlist para ministérios de louvor.',
+            });
+            return;
+          }
+          if (
+            data.tipo === EscalaTemplateTipoEnum.Funcoes &&
+            !data.respSetListFuncoesId
+          ) {
+            form.setError('respSetListFuncoesId', {
+              type: 'custom',
+              message: 'Informe o responsável pelo setlist para ministérios de louvor.',
+            });
+            return;
+          }
+        }
+
         showLoading('Salvando...');
         try {
           const { respSetListVoluntariosId, respSetListFuncoesId, ...rest } = data;
@@ -128,6 +176,7 @@ export default function MinisterioTemplatesEditPage() {
       <TemplateForm
         mode='edit'
         ministerioId={ministerioId}
+        ministerioTipo={ministerio?.tipo}
         onSave={handleOnSave}
         isLoading={isLoadingMutation}
       />

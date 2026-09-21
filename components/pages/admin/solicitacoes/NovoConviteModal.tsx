@@ -1,10 +1,11 @@
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import FancyText from '../../../FancyText';
 import FancyTextInput from '../../../fields/FancyTextInput';
 import FancyChips from '../../../FancyChips';
 import FancyBottomSheetModal from '../../../modal/FancyBottomSheetModal';
 import FancyButton from '../../../buttons/FancyButton';
+import FancySearchSelect from '../../../fields/FancySearchSelect';
 import DefaultIcons from '../../../FancyIcons';
 import { ThemePalette } from '../../../../constants/colors';
 import { CreateIgrejaConviteDto } from '../../../../domain/dtos/Igreja/create-igreja-convite.dto';
@@ -12,6 +13,8 @@ import { addDays } from 'date-fns';
 import { usePallete } from '../../../../hooks/usePallete';
 import { useThemedStyles } from '../../../../hooks/useThemedStyles';
 import { ColorUtils } from '../../../../utils/color_utils';
+import { useMinisteriosCrud } from '../../../../hooks/useMinisteriosCrud';
+import { DropDownItemProps } from '../../../fields/FancyDropDownItem';
 
 type NovoConviteModalProps = {
   visible: boolean;
@@ -47,6 +50,13 @@ export default function NovoConviteModal({
   const [autoApprove, setAutoApprove] = useState(false);
   const [maxUses, setMaxUses] = useState<number | null>(1);
   const [validadeDias, setValidadeDias] = useState<number | null>(7);
+  const [ministerioIds, setMinisterioIds] = useState<string[]>([]);
+
+  const { data: ministeriosData } = useMinisteriosCrud({ autoFetch: true });
+  const ministeriosDropDownList = useMemo<DropDownItemProps<string>[]>(
+    () => (ministeriosData ?? []).map((m) => ({ title: m.nome, value: m.id })),
+    [ministeriosData],
+  );
 
   const handleCriar = () => {
     const dto: CreateIgrejaConviteDto = {
@@ -54,6 +64,7 @@ export default function NovoConviteModal({
       autoApprove,
       maxUses: maxUses ?? undefined,
       expiresAt: validadeDias ? addDays(new Date(), validadeDias).toISOString() : undefined,
+      ministerioIds: ministerioIds.length > 0 ? ministerioIds : undefined,
     };
     onCriar(dto);
   };
@@ -64,6 +75,7 @@ export default function NovoConviteModal({
     setAutoApprove(false);
     setMaxUses(1);
     setValidadeDias(7);
+    setMinisterioIds([]);
     onClose();
   };
 
@@ -110,6 +122,27 @@ export default function NovoConviteModal({
             onChangeText: setDescricao,
             maxLength: 100,
           }}
+        />
+      </View>
+
+      {/* Ministérios (opcional) */}
+      <View style={styles.section}>
+        <FancyText
+          size='small'
+          type='semiBold'
+          color={palette.fonts.inactive}
+          style={styles.sectionLabel}
+        >
+          Ministérios (opcional)
+        </FancyText>
+        <FancySearchSelect
+          multiSelect
+          placeholder='Nenhum — só entra na igreja'
+          searchPlaceholder='Buscar ministério...'
+          listItems={ministeriosDropDownList}
+          value={ministerioIds}
+          onChange={(value) => setMinisterioIds(Array.isArray(value) ? value : [])}
+          disabled={isLoading}
         />
       </View>
 

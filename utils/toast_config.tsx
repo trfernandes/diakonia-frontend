@@ -25,7 +25,11 @@ export function createToastConfig(palette: ThemePalette): ToastConfig {
         }}
         color={palette.confirm}
         lightColorPercent={64}
-        backgroundColor={isDarkPalette ? ColorUtils.withAlpha(palette.confirm, 0.34) : undefined}
+        backgroundColor={
+          isDarkPalette
+            ? ColorUtils.blendOver(palette.confirm, 0.34, palette.backgroundColor2)
+            : undefined
+        }
       />
     ),
     error: (props: ToastConfigParams<any>) => (
@@ -46,7 +50,11 @@ export function createToastConfig(palette: ThemePalette): ToastConfig {
         }}
         color={palette.error}
         lightColorPercent={42}
-        backgroundColor={isDarkPalette ? ColorUtils.withAlpha(palette.error, 0.34) : undefined}
+        backgroundColor={
+          isDarkPalette
+            ? ColorUtils.blendOver(palette.error, 0.34, palette.backgroundColor2)
+            : undefined
+        }
       />
     ),
     info: (props: ToastConfigParams<any>) => (
@@ -66,7 +74,11 @@ export function createToastConfig(palette: ThemePalette): ToastConfig {
         }}
         color={palette.primary}
         lightColorPercent={38}
-        backgroundColor={isDarkPalette ? ColorUtils.withAlpha(palette.primary, 0.34) : undefined}
+        backgroundColor={
+          isDarkPalette
+            ? ColorUtils.blendOver(palette.primary, 0.34, palette.backgroundColor2)
+            : undefined
+        }
       />
     ),
   };

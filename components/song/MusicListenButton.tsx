@@ -68,7 +68,7 @@ export default function MusicListenButton({ url, showLabel = false }: Props) {
 const styles = StyleSheet.create({
   iconWrap: {
     width: 30,
-    height: 38,
+    height: 30,
     borderRadius: 12,
     borderWidth: 0.6,
     alignItems: 'center',

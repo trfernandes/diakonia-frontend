@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,10 +11,33 @@ import { AxiosError } from 'axios';
 import TemplateForm from '../../../../../components/pages/ministerios/templates_equipe/TemplateForm';
 import { strfyObj } from '../../../../../utils/text_utils';
 import { EscalaTemplateTipoEnum } from '../../../../../domain/enums/EscalaTemplate/escala-template-tipo.enum';
+import { MinisterioTipoEnum } from '../../../../../domain/enums/Ministerio/ministerio-tipo.enum';
 import { useLoading } from '../../../../../contexts/LoadingContext';
+import { useMinisteriosCrud } from '../../../../../hooks/useMinisteriosCrud';
+import { DynamicQuery, Operator, ValueType } from '../../../../../domain/utils/query_utils';
 
 export default function MinisterioTemplatesAddPage() {
   const { ministerioId } = useLocalSearchParams<{ ministerioId: string }>();
+
+  const ministerioSearchParams = useMemo<DynamicQuery>(
+    () => ({
+      where: {
+        conditions: [
+          {
+            path: 'id',
+            operator: Operator.EQUALS,
+            value: { type: ValueType.LITERAL, value: ministerioId },
+          },
+        ],
+      },
+    }),
+    [ministerioId],
+  );
+
+  const { data: ministeriosData } = useMinisteriosCrud({
+    initialParams: ministerioSearchParams,
+  });
+  const ministerio = ministeriosData[0];
 
   const form = useForm<EscalaTemplateFormData>({
     resolver: zodResolver(escalaTemplateSchema),
@@ -32,6 +55,29 @@ export default function MinisterioTemplatesAddPage() {
   const handleOnSave = useCallback(
     form.handleSubmit(
       async (data) => {
+        if (ministerio?.tipo === MinisterioTipoEnum.Louvor) {
+          if (
+            data.tipo === EscalaTemplateTipoEnum.Fixo &&
+            !data.respSetListVoluntariosId
+          ) {
+            form.setError('respSetListVoluntariosId', {
+              type: 'custom',
+              message: 'Informe o responsável pelo setlist para ministérios de louvor.',
+            });
+            return;
+          }
+          if (
+            data.tipo === EscalaTemplateTipoEnum.Funcoes &&
+            !data.respSetListFuncoesId
+          ) {
+            form.setError('respSetListFuncoesId', {
+              type: 'custom',
+              message: 'Informe o responsável pelo setlist para ministérios de louvor.',
+            });
+            return;
+          }
+        }
+
         showLoading('Salvando...');
         try {
           const { respSetListVoluntariosId, respSetListFuncoesId, ...rest } = data;
@@ -70,6 +116,7 @@ export default function MinisterioTemplatesAddPage() {
       <TemplateForm
         mode='add'
         ministerioId={ministerioId}
+        ministerioTipo={ministerio?.tipo}
         onSave={handleOnSave}
         isLoading={isLoadingMutation}
       />

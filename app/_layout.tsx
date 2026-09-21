@@ -23,6 +23,7 @@ import { refreshFontScale } from '../constants/font';
 import { registerForPushNotificationsAsync } from '../services/notifications';
 import { NotificationsManager } from '../components/Notification_manager';
 import { AppReviewManager } from '../components/AppReviewManager';
+import { ChangelogManager } from '../components/ChangelogManager';
 import * as Sentry from '@sentry/react-native';
 import * as Updates from 'expo-updates';
 import { ConnectivityProvider } from '../core/network/connectivity/ConnectivityProvider';
@@ -340,6 +341,7 @@ function RootLayoutNav({
       <View style={styles.rootContainer}>
         <NotificationsManager />
         {user && <AppReviewManager />}
+        {user && <ChangelogManager />}
         <StatusBar backgroundColor='transparent' style={statusBarStyle} translucent />
         <SafeAreaView
           style={[styles.navigationContainer, { backgroundColor: safeAreaBackgroundColor }]}

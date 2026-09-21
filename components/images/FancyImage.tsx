@@ -70,7 +70,7 @@ export default function FancyImage({
     >
       <Image
         contentFit='cover'
-        transition={100}
+        transition={isEmptyProfilePlaceholder ? 0 : 100}
         priority='low'
         cachePolicy='memory-disk'
         source={isEmptyProfilePlaceholder ? undefined : resolvedSource}

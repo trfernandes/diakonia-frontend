@@ -316,10 +316,9 @@ qualquer build/submit.
 
 Pra investigações ("onde X é definido", "o que chama Y", localizar código antes de editar): usar o
 skill `cavecrew-investigator` (pacote `caveman`) em vez do `Explore` padrão — saída comprimida,
-economiza contexto principal. Se o harness não expuser `cavecrew-investigator` como
-`subagent_type` selecionável direto na tool `Agent`, usar `Explore` ou `general-purpose` mas seguir
-o contrato de saída comprimido descrito no skill `cavecrew` (path:line primeiro, símbolo entre
-crases, sem prosa).
+economiza contexto principal. Se o harness não expuser `cavecrew-investigator` como `subagent_type`
+selecionável direto na tool `Agent`, usar `Explore` ou `general-purpose` mas seguir o contrato de
+saída comprimido descrito no skill `cavecrew` (path:line primeiro, símbolo entre crases, sem prosa).
 
 Rodar esses subagentes de investigação no modelo **Haiku** (`model: "haiku"` na tool `Agent`) pra
 economizar tokens — reservar Sonnet/Opus pro thread principal e pra edição/review.

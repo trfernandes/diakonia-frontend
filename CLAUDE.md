@@ -9,6 +9,12 @@ serviços que ele pode não conhecer — não assumir familiaridade. Em pergunta
 especialmente decisões complexas, dar contexto e exemplo concreto em cada opção, não só o rótulo
 curto.
 
+## EAS Build / Workflows — gotchas
+
+- `.eas/workflows/*.yml`: `on: workflow_dispatch: {}` (objeto vazio) — nunca `workflow_dispatch:` sem valor (vira `null`, EAS rejeita com "Invalid workflow definition").
+- `google-services.json` (gitignored) some em cloud build: criar EAS env var tipo `file`, `eas env:set` (não `env:create`, deprecated), environment `preview` (só `production`/`preview`/`development` disponíveis — nome custom exige plano Enterprise); `app.json` → `app.config.js` pra ler `process.env.GOOGLE_SERVICES_JSON`; `eas.json` no profile: `"environment": "preview"`.
+- Dashboard do Workflow: botão **Retry**/**re-run from failed jobs** reusa o commit ORIGINAL do run — não pega push novo. Pra buildar commit atualizado: "Run workflow" do zero, ou `eas-cli build --profile <x> --platform <y>` direto.
+
 ## Estado do trabalho e fluxo de branches
 
 Cada frente de trabalho = 1 tarefa na base Notion **"Tarefas Diakonia"**

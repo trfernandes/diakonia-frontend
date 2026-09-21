@@ -44,7 +44,12 @@ export default function QuizVendasIntroPage() {
       }
     >
       <View style={styles.body}>
-        <View style={[styles.iconCircle, { backgroundColor: ColorUtils.withAlpha(Pallete.primary, 0.1) }]}>
+        <View
+          style={[
+            styles.iconCircle,
+            { backgroundColor: ColorUtils.withAlpha(Pallete.primary, 0.1) },
+          ]}
+        >
           <DefaultIcons.Custom
             library='MaterialCommunityIcons'
             name='clipboard-list-outline'
@@ -57,8 +62,7 @@ export default function QuizVendasIntroPage() {
           Quanto tempo sua escala está te custando?
         </FancyText>
         <FancyText size='small' color={Pallete.fonts.inactive} style={styles.subtitle}>
-          6 perguntas rápidas revelam seu perfil de organização e o que mais consome seu tempo
-          hoje.
+          6 perguntas rápidas revelam seu perfil de organização e o que mais consome seu tempo hoje.
         </FancyText>
 
         <View style={styles.meta}>

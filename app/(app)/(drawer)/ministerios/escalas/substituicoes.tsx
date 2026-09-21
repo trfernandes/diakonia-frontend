@@ -65,9 +65,7 @@ export default function MinisterioSubstituicoesScreen() {
   // Ministério da vaga vem da função (escalaItem.funcao), não do voluntário.
   const doMinisterio = useMemo(
     () =>
-      pendentesParaLider.filter(
-        (p) => p.pedido.escalaItem?.funcao?.ministerioId === ministerioId,
-      ),
+      pendentesParaLider.filter((p) => p.pedido.escalaItem?.funcao?.ministerioId === ministerioId),
     [pendentesParaLider, ministerioId],
   );
 

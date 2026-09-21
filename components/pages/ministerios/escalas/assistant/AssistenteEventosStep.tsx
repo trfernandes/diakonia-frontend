@@ -102,6 +102,7 @@ export default function AssistenteEventosStep() {
                     ({
                       funcaoIds: f.opcoes?.map((o) => o.funcaoId) ?? [],
                       experiencia: f.experiencia,
+                      comparacaoExperiencia: f.comparacaoExperiencia,
                       quantidade: f.quantidade,
                     }) as EscalaEventoTemplateFuncaoFormData,
                 ),

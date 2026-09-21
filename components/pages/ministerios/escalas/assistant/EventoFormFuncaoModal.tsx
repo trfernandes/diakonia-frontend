@@ -22,6 +22,10 @@ import {
   EscalaTemplateExperienciaEnum,
   EscalaTemplateExperienciaLabel,
 } from '../../../../../domain/enums/EscalaTemplate/escala-template-experiencia.enum';
+import {
+  EscalaTemplateComparacaoExperienciaEnum,
+  EscalaTemplateComparacaoExperienciaLabel,
+} from '../../../../../domain/enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
 
 export interface EventoFormFuncaoModalProps {
   visible: boolean;
@@ -48,14 +52,18 @@ export default function EventoFormFuncaoModal({
   onSubmit,
 }: EventoFormFuncaoModalProps) {
   const palette = usePallete();
+  const defaultValues = {
+    quantidade: 1,
+    comparacaoExperiencia: EscalaTemplateComparacaoExperienciaEnum.MaiorIgual,
+  };
   const form = useForm<EscalaEventoTemplateFuncaoFormData>({
     resolver: zodResolver(EscalaEventoTemplateFuncaoSchema),
-    defaultValues: data || { quantidade: 1 },
+    defaultValues: data || defaultValues,
   });
 
   useEffect(() => {
     if (!visible) return;
-    form.reset(data || { quantidade: 1 });
+    form.reset(data || defaultValues);
   }, [visible, data]);
 
   const handleConfirm = () => {
@@ -119,6 +127,15 @@ export default function EventoFormFuncaoModal({
           listItems={EnumUtils.getDropDownItems(
             EscalaTemplateExperienciaEnum,
             EscalaTemplateExperienciaLabel,
+          )}
+        />
+        <ControlledBottomSheetSelect
+          control={form.control}
+          name='comparacaoExperiencia'
+          label='Comparação de experiência'
+          listItems={EnumUtils.getDropDownItems(
+            EscalaTemplateComparacaoExperienciaEnum,
+            EscalaTemplateComparacaoExperienciaLabel,
           )}
         />
         <Controller

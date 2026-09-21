@@ -1,6 +1,7 @@
 import z from 'zod';
 import { EscalaTemplateTipoEnum } from '../enums/EscalaTemplate/escala-template-tipo.enum';
 import { EscalaTemplateExperienciaEnum } from '../enums/EscalaTemplate/escala-template-experiencia.enum';
+import { EscalaTemplateComparacaoExperienciaEnum } from '../enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
 
 export const EscalaEventoTemplateFuncaoSchema = z.object({
   funcaoIds: z.array(z.uuidv4('Campo obrigatório')).min(1, 'Selecione ao menos uma função'),
@@ -9,6 +10,7 @@ export const EscalaEventoTemplateFuncaoSchema = z.object({
     .min(1, 'Valor mínimo permitido é 1')
     .max(10, 'Valor máximo permitido é 10'),
   experiencia: z.enum(EscalaTemplateExperienciaEnum, 'Campo obrigatório'),
+  comparacaoExperiencia: z.enum(EscalaTemplateComparacaoExperienciaEnum).optional(),
 });
 
 export const EscalaEventoTemplateFixoSchema = z.object({

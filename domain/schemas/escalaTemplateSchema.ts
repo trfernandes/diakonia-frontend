@@ -1,5 +1,6 @@
 import z from 'zod';
 import { EscalaTemplateExperienciaEnum } from '../enums/EscalaTemplate/escala-template-experiencia.enum';
+import { EscalaTemplateComparacaoExperienciaEnum } from '../enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
 import { EscalaTemplateTipoEnum } from '../enums/EscalaTemplate/escala-template-tipo.enum';
 
 const UUID_REGEX =
@@ -36,6 +37,7 @@ export const escalaTemplateFuncaoSchema = z.object({
     .min(1, { message: 'Selecione ao menos uma função' }),
   funcoesAceitas: z.array(z.object({ id: z.string(), nome: z.string() })).optional(),
   experiencia: z.enum(EscalaTemplateExperienciaEnum),
+  comparacaoExperiencia: z.enum(EscalaTemplateComparacaoExperienciaEnum).optional(),
   quantidade: z.coerce
     .number<number>('Campo obrigatório')
     .min(1, { message: 'A quantidade deve ser no mínimo 1' }),

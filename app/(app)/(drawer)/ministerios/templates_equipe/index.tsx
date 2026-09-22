@@ -35,9 +35,11 @@ import {
   TEMPLATES_EQUIPE_TOUR_TITLE,
 } from '../../../../../components/tutorial/tours/templatesEquipeTour';
 import { useJourney } from '../../../../../contexts/JourneyContext';
+import { useAuth } from '../../../../../contexts/AuthContext';
 
 export default function MinisterioTemplateEquipeIndex() {
   const Pallete = usePallete();
+  const { igrejaAtiva } = useAuth();
   const [searchText, setSearchText] = useState('');
   const [actionsTemplate, setActionsTemplate] = useState<ResponseEscalaTemplateDto | null>(null);
   const [tipoFiltro, setTipoFiltro] = useState<'todos' | EscalaTemplateTipoEnum>('todos');
@@ -61,7 +63,7 @@ export default function MinisterioTemplateEquipeIndex() {
   }, [isJourneyStep, tour.ready]);
 
   const searchParams = useMemo(() => {
-    if (!ministerioId) return undefined;
+    if (!ministerioId || !igrejaAtiva?.id) return undefined;
 
     const normalizedSearch = searchText.trim();
 
@@ -85,13 +87,14 @@ export default function MinisterioTemplateEquipeIndex() {
     }
 
     return {
+      igrejaId: igrejaAtiva.id,
       where: {
         conditions,
       },
       relations: ['voluntarios', 'funcoes'],
       orderBy: [{ path: 'nome', direction: OrderDirection.ASC }],
     } as DynamicQuery;
-  }, [ministerioId, searchText]);
+  }, [ministerioId, igrejaAtiva?.id, searchText]);
 
   const {
     data: templatesData,
@@ -100,7 +103,7 @@ export default function MinisterioTemplateEquipeIndex() {
     isLoadingMutation,
     refetch,
   } = useEscalaTemplatesCrud({
-    autoFetch: Boolean(ministerioId),
+    autoFetch: Boolean(ministerioId && igrejaAtiva?.id),
     initialParams: searchParams,
   });
 

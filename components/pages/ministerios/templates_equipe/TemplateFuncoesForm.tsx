@@ -18,11 +18,58 @@ import {
   EscalaTemplateExperienciaEnum,
   EscalaTemplateExperienciaLabel,
 } from '../../../../domain/enums/EscalaTemplate/escala-template-experiencia.enum';
-import {
-  EscalaTemplateComparacaoExperienciaEnum,
-  EscalaTemplateComparacaoExperienciaLabel,
-} from '../../../../domain/enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
+import { EscalaTemplateComparacaoExperienciaEnum } from '../../../../domain/enums/EscalaTemplate/escala-template-comparacao-experiencia.enum';
 import ControlledNumberInput from '../../../forms/ControlledNumberInput';
+import FancySegmentedControl from '../../../fields/FancySegmentedControl';
+
+const EXPERIENCIA_ORDER: EscalaTemplateExperienciaEnum[] = [
+  EscalaTemplateExperienciaEnum.Iniciante,
+  EscalaTemplateExperienciaEnum.Intermediario,
+  EscalaTemplateExperienciaEnum.Avancado,
+];
+
+function joinPt(labels: string[]): string {
+  if (labels.length <= 1) return labels[0] ?? '';
+  if (labels.length === 2) return `${labels[0]} ou ${labels[1]}`;
+  return `${labels.slice(0, -1).join(', ')} ou ${labels[labels.length - 1]}`;
+}
+
+function buildComparacaoHelperText(
+  comparacao: EscalaTemplateComparacaoExperienciaEnum,
+  experienciaMinima: EscalaTemplateExperienciaEnum,
+): string {
+  const minimaLabel = EscalaTemplateExperienciaLabel[experienciaMinima];
+
+  if (comparacao === EscalaTemplateComparacaoExperienciaEnum.Igual) {
+    return `Serão escalados somente voluntários com experiência exatamente ${minimaLabel} nesta função.`;
+  }
+
+  const minIndex = EXPERIENCIA_ORDER.indexOf(experienciaMinima);
+  const included =
+    comparacao === EscalaTemplateComparacaoExperienciaEnum.MenorIgual
+      ? EXPERIENCIA_ORDER.slice(0, minIndex + 1)
+      : EXPERIENCIA_ORDER.slice(minIndex);
+  const excluded =
+    comparacao === EscalaTemplateComparacaoExperienciaEnum.MenorIgual
+      ? EXPERIENCIA_ORDER.slice(minIndex + 1)
+      : EXPERIENCIA_ORDER.slice(0, minIndex);
+
+  const includedText = joinPt(included.map((e) => EscalaTemplateExperienciaLabel[e]));
+
+  if (included.length <= 1 || excluded.length === 0) {
+    return `Serão escalados voluntários com experiência ${includedText} nesta função.`;
+  }
+
+  const excludedText = joinPt(excluded.map((e) => EscalaTemplateExperienciaLabel[e]));
+  const quem = excluded.length === 1 ? `quem já é ${excludedText}` : `quem é ${excludedText}`;
+  return `Serão escalados voluntários com experiência ${includedText} nesta função — ${quem} não entra nessa vaga.`;
+}
+
+const COMPARACAO_OPTIONS: { label: string; value: EscalaTemplateComparacaoExperienciaEnum }[] = [
+  { label: '≤  Menor ou igual', value: EscalaTemplateComparacaoExperienciaEnum.MenorIgual },
+  { label: '=  Igual', value: EscalaTemplateComparacaoExperienciaEnum.Igual },
+  { label: '≥  Maior ou igual', value: EscalaTemplateComparacaoExperienciaEnum.MaiorIgual },
+];
 
 interface TemplateFuncoesFormProps {
   mode: 'add' | 'edit';
@@ -42,6 +89,8 @@ export default function TemplateFuncoesForm({
   const { control } = useFormContext<EscalaTemplateFuncaoFormData>();
   const palette = usePallete();
   const apenasJaEscalado = useWatch({ control, name: 'apenasJaEscalado' });
+  const experiencia = useWatch({ control, name: 'experiencia' });
+  const comparacaoExperiencia = useWatch({ control, name: 'comparacaoExperiencia' });
   const sortedFuncoesList = useMemo(
     () =>
       [...(funcoesList ?? [])].sort((a, b) =>
@@ -59,15 +108,6 @@ export default function TemplateFuncoesForm({
     ).sort(
       (a, b) => Number(a.value) - Number(b.value),
     ) as DropDownItemProps<EscalaTemplateExperienciaEnum>[];
-  }, []);
-
-  const comparacaoExperienciaList = useMemo<
-    DropDownItemProps<EscalaTemplateComparacaoExperienciaEnum>[]
-  >(() => {
-    return EnumUtils.getDropDownItems(
-      EscalaTemplateComparacaoExperienciaEnum,
-      EscalaTemplateComparacaoExperienciaLabel,
-    ) as DropDownItemProps<EscalaTemplateComparacaoExperienciaEnum>[];
   }, []);
 
   return (
@@ -112,12 +152,38 @@ export default function TemplateFuncoesForm({
           label='Experiência'
           listItems={experiencaList}
         />
-        <ControlledBottomSheetSelect
-          control={control}
-          name='comparacaoExperiencia'
-          label='Comparação de experiência'
-          listItems={comparacaoExperienciaList}
-        />
+        <View>
+          <Controller
+            control={control}
+            name='comparacaoExperiencia'
+            render={({ field: { value, onChange } }) => (
+              <FancySegmentedControl
+                label='Comparação de experiência'
+                options={COMPARACAO_OPTIONS}
+                value={value}
+                onChange={onChange}
+              />
+            )}
+          />
+          {experiencia && comparacaoExperiencia && (
+            <View
+              style={[
+                styles.infoCard,
+                { backgroundColor: ColorUtils.withAlpha(palette.primary, 0.12) },
+              ]}
+            >
+              <DefaultIcons.Custom
+                library='MaterialCommunityIcons'
+                name='information-outline'
+                size={16}
+                color={palette.primary}
+              />
+              <FancyText size='extraSmall' type='medium' style={styles.infoCardText}>
+                {buildComparacaoHelperText(comparacaoExperiencia, experiencia)}
+              </FancyText>
+            </View>
+          )}
+        </View>
         <ControlledNumberInput
           control={control}
           name='quantidade'

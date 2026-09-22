@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { View } from 'react-native';
 import FuncaoFormModal from '../../../../../components/pages/ministerios/funcoes/FuncaoFormModal';
 import FancyListPage from '../../../../../components/pages/base/FancyBaseListPage';
 import { useMinisterioFuncoesCrud } from '../../../../../hooks/useMinisterioFuncoesCrud';
@@ -197,7 +198,11 @@ export default function MinisterioFuncoesIndex() {
         onSearch: setSearchText,
       }}
       topContent={
-        tour.showBanner ? <TutorialBanner onStart={tour.start} onDismiss={tour.skip} /> : undefined
+        tour.showBanner ? (
+          <View style={{ paddingHorizontal: 15 }}>
+            <TutorialBanner onStart={tour.start} onDismiss={tour.skip} />
+          </View>
+        ) : undefined
       }
       listProps={{
         onRefresh: handlePullRefresh,

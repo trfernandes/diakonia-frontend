@@ -196,18 +196,16 @@ export default function MinisterioTemplateEquipeIndex() {
               { label: 'Por Funções', value: stats.funcoes, color: Pallete.secondary },
             ]}
           />
-          <View style={styles.filtroContainer}>
-            <FancySegmentedControl<'todos' | EscalaTemplateTipoEnum>
-              size='sm'
-              options={[
-                { label: 'Todos', value: 'todos' },
-                { label: 'Equipe Fixa', value: EscalaTemplateTipoEnum.Fixo },
-                { label: 'Por Funções', value: EscalaTemplateTipoEnum.Funcoes },
-              ]}
-              value={tipoFiltro}
-              onChange={setTipoFiltro}
-            />
-          </View>
+          <FancySegmentedControl<'todos' | EscalaTemplateTipoEnum>
+            size='sm'
+            options={[
+              { label: 'Todos', value: 'todos' },
+              { label: 'Equipe Fixa', value: EscalaTemplateTipoEnum.Fixo },
+              { label: 'Por Funções', value: EscalaTemplateTipoEnum.Funcoes },
+            ]}
+            value={tipoFiltro}
+            onChange={setTipoFiltro}
+          />
         </View>
       }
       listProps={{
@@ -275,10 +273,7 @@ export default function MinisterioTemplateEquipeIndex() {
 }
 
 const styles = StyleSheet.create({
-  topContainer: { gap: 12 },
-  filtroContainer: {
-    paddingHorizontal: 15,
-  },
+  topContainer: { gap: 12, paddingHorizontal: 15 },
   meta: {
     lineHeight: 15,
     includeFontPadding: false,

@@ -242,18 +242,16 @@ export default function MinisterioIntegrantesIndex() {
                 { label: 'Inativos', value: stats.inativos, color: palette.error },
               ]}
             />
-            <View style={styles.filtroContainer}>
-              <FancySegmentedControl<StatusFiltro>
-                size='sm'
-                options={[
-                  { label: 'Todos', value: 'todos' },
-                  { label: 'Ativos', value: 'ativos' },
-                  { label: 'Inativos', value: 'inativos' },
-                ]}
-                value={statusFiltro}
-                onChange={setStatusFiltro}
-              />
-            </View>
+            <FancySegmentedControl<StatusFiltro>
+              size='sm'
+              options={[
+                { label: 'Todos', value: 'todos' },
+                { label: 'Ativos', value: 'ativos' },
+                { label: 'Inativos', value: 'inativos' },
+              ]}
+              value={statusFiltro}
+              onChange={setStatusFiltro}
+            />
           </View>
         }
         listProps={{
@@ -372,10 +370,7 @@ export default function MinisterioIntegrantesIndex() {
 }
 
 const styles = StyleSheet.create({
-  topContainer: { gap: 12 },
-  filtroContainer: {
-    paddingHorizontal: 15,
-  },
+  topContainer: { gap: 12, paddingHorizontal: 15 },
   metaChips: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
   funcoesLabel: { flex: 1, minWidth: 0 },
 });

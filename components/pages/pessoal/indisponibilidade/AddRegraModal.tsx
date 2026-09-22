@@ -13,6 +13,7 @@ import ControlledNumberInput from '../../../forms/ControlledNumberInput';
 import ControlledFancyToggle from '../../../forms/ControlledFancyToggle';
 import ControlledDropDown from '../../../forms/ControlledDropDown';
 import FancyText from '../../../FancyText';
+import FancyInfoNote from '../../../FancyInfoNote';
 import FancyButton from '../../../buttons/FancyButton';
 import FancySegmentedControl from '../../../fields/FancySegmentedControl';
 import FancyChips from '../../../FancyChips';
@@ -476,9 +477,7 @@ export default function AddRegraModal({
             isLoading={isLoadingMinisteios}
             placeholder='Sem restrição (bloqueia tudo)'
           />
-          <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
-            Deixe em branco para bloquear em todos os ministérios.
-          </FancyText>
+          <FancyInfoNote>Deixe em branco para bloquear em todos os ministérios.</FancyInfoNote>
         </View>
 
         {/* FUNÇÕES (só aparece se ministério selecionado e tipo != LIMITE_MENSAL) */}
@@ -526,9 +525,7 @@ export default function AddRegraModal({
                 Nenhuma função encontrada para este ministério.
               </FancyText>
             )}
-            <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
-              Deixe em branco para bloquear o ministério inteiro.
-            </FancyText>
+            <FancyInfoNote>Deixe em branco para bloquear o ministério inteiro.</FancyInfoNote>
           </View>
         )}
 
@@ -649,11 +646,11 @@ export default function AddRegraModal({
               label='A partir de'
               disabled={isSubmitting}
             />
-            <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
+            <FancyInfoNote>
               {voluntarioNome
                 ? `${voluntarioNome.split(' ')[0]} não poderá ser escalado mais que este número de vezes neste ministério em um mesmo mês, a partir da data escolhida.`
                 : 'Você não será escalado mais que este número de vezes em um mesmo mês, a partir da data escolhida.'}
-            </FancyText>
+            </FancyInfoNote>
           </View>
         )}
 

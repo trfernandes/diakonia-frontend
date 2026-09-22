@@ -9,11 +9,10 @@ import ControlledFancyToggle from '../../../forms/ControlledFancyToggle';
 import FancyBottomSheetModal from '../../../modal/FancyBottomSheetModal';
 import FancyButton from '../../../buttons/FancyButton';
 import FancyText from '../../../FancyText';
-import DefaultIcons from '../../../FancyIcons';
+import FancyInfoNote from '../../../FancyInfoNote';
 import { useMemo } from 'react';
 import { EnumUtils } from '../../../../utils/enum_utils';
 import { usePallete } from '../../../../hooks/usePallete';
-import { ColorUtils } from '../../../../utils/color_utils';
 import {
   EscalaTemplateExperienciaEnum,
   EscalaTemplateExperienciaLabel,
@@ -40,7 +39,6 @@ export default function TemplateFuncoesForm({
   funcoesList,
 }: TemplateFuncoesFormProps) {
   const { control } = useFormContext<EscalaTemplateFuncaoFormData>();
-  const palette = usePallete();
   const apenasJaEscalado = useWatch({ control, name: 'apenasJaEscalado' });
   const sortedFuncoesList = useMemo(
     () =>
@@ -134,25 +132,12 @@ export default function TemplateFuncoesForm({
             option2={{ title: 'Sim', value: true }}
           />
           {apenasJaEscalado && (
-            <View
-              style={[
-                styles.infoCard,
-                { backgroundColor: ColorUtils.withAlpha(palette.primary, 0.12) },
-              ]}
-            >
-              <DefaultIcons.Custom
-                library='MaterialCommunityIcons'
-                name='information-outline'
-                size={16}
-                color={palette.primary}
-              />
-              <FancyText size='extraSmall' type='medium' style={styles.infoCardText}>
-                Ativado: essa vaga fica reservada. A geração automática de escala só escala aqui
-                quem já ganhou outra função nesta mesma Ocorrência — útil pra vaga extra (ex.: solo,
-                apoio) que só faz sentido se a pessoa já estiver no evento. Não afeta atribuição
-                manual.
-              </FancyText>
-            </View>
+            <FancyInfoNote containerStyle={styles.infoNote}>
+              Ativado: essa vaga fica reservada. A geração automática de escala só escala aqui
+              quem já ganhou outra função nesta mesma Ocorrência — útil pra vaga extra (ex.: solo,
+              apoio) que só faz sentido se a pessoa já estiver no evento. Não afeta atribuição
+              manual.
+            </FancyInfoNote>
           )}
         </View>
       </View>
@@ -169,17 +154,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 36,
   },
-  infoCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+  infoNote: {
     marginTop: 8,
-  },
-  infoCardText: {
-    flex: 1,
-    lineHeight: 16,
   },
 });

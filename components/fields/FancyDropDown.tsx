@@ -132,7 +132,12 @@ export default function FancyDropDown<ValueItem>({
 function createStyles(Pallete: ThemePalette) {
   return StyleSheet.create({
     container: { gap: 5 },
-    listContainer: { borderWidth: 1, borderColor: Pallete.border, borderRadius: 10 },
+    listContainer: {
+      borderWidth: 1,
+      borderColor: Pallete.border,
+      borderRadius: 10,
+      backgroundColor: Pallete.backgroundColor,
+    },
     inputContainer: {
       backgroundColor: Pallete.backgroundColor,
       borderWidth: 0.6,

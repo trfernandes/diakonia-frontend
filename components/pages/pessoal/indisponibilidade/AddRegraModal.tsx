@@ -468,7 +468,7 @@ export default function AddRegraModal({
         {/* MINISTÉRIO */}
         <View style={styles.secao}>
           <ControlledDropDown
-            label='Aplicar a'
+            label='Restringir a'
             listItems={ministeriosList}
             control={control}
             name='ministerioId'

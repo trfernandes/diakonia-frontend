@@ -1,0 +1,143 @@
+appId: com.church.artos
+---
+# ═════════════════════════════════════════════════════════════════════════
+# Teste ADR-0012: Indisponibilidade período com escopo (ministério/função)
+#
+# Casos:
+#   1. Criar período de 3 dias com 1 função específica
+#   2. Reabrir e verificar função aparece
+#   3. Apagar o período
+#
+# Usuária: Mirian (Louvor, funções: Back vocal Contralto/Uníssono, Lanche, Ministro, Ministro Feminino)
+# ═════════════════════════════════════════════════════════════════════════
+
+# Cleanup inicial
+- openLink: diakonia:///pessoal/indisponibilidade
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- assertVisible:
+    text: 'Minhas Indisponibilidades'
+
+# ── Passo 1: Abrir modal de novo período (botão "Período") ────────────────
+- tapOn:
+    text: 'Período'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 2: Modal abre — verificar campos ───────────────────────────────
+- assertVisible:
+    text: 'Data inicial'
+
+# ── Passo 3: Preencher data inicial (dia 20 do próximo mês) ───────────────
+- runScript: |
+    const hoje = new Date();
+    const proxMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 20);
+    const dia = proxMes.getDate();
+    const mes = proxMes.getMonth() + 1;
+    const ano = proxMes.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+
+- tapOn:
+    text: 'Data inicial'
+- inputText: '20'
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ── Passo 4: Preencher data final (dia 22 do próximo mês = +2 dias) ──────
+- tapOn:
+    text: 'Data final'
+- inputText: '22'
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ── Passo 5: Tocar em "Onde vale" para selecionar função ──────────────────
+- tapOn:
+    text: 'Onde vale'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 6: Sheet abre — selecionar "Back vocal Contralto/Uníssono" ──────
+- assertVisible:
+    text: 'Back vocal Contralto/Uníssono'
+
+- tapOn:
+    text: 'Back vocal Contralto/Uníssono'
+- waitForAnimationToEnd:
+    timeout: 500
+
+# ── Passo 7: Confirmar ───────────────────────────────────────────────────
+- tapOn:
+    text: 'OK'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 8: Salvar período (botão "Confirmar" ou equivalente) ────────────
+- tapOn:
+    text: 'Confirmar'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 9: Verificar que não há erro ───────────────────────────────────
+- assertNotVisible:
+    text: 'Erro ao atualizar'
+
+# ── Passo 10: Reabrir o período para validar ───────────────────────────────
+# Tocar em um dos dias do período (ex. 21)
+- tapOn:
+    text: '21'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 11: Assert função está salva ───────────────────────────────────
+- assertVisible:
+    text: 'Louvor: Back vocal Contralto/Uníssono'
+
+# ── Passo 12: Fechar modal (Cancelar) ────────────────────────────────────
+- tapOn:
+    text: 'Cancelar'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 13: Abrir modal de novo período e buscar o criado ───────────────
+# A tela deve mostrar o período bloqueado no calendário
+- assertVisible:
+    text: '21'
+
+# ── Passo 14: Remover período (abrir > lixeira > confirmar) ──────────────
+# Encontrar ícone de lixeira ou botão remover
+- tapOn:
+    text: '21'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Swipe ou procurar ícone de remover (lixeira)
+- swipe:
+    direction: 'left'
+    xStart: '50%'
+    yStart: '50%'
+    xEnd: '20%'
+    yEnd: '50%'
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Procurar botão de remover (se swipe revelar)
+- tapOn:
+    text: 'Remover'
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 500
+
+# Se houver alerta confirmação
+- tapOn:
+    text: 'Sim'
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Cleanup
+- takeScreenshot

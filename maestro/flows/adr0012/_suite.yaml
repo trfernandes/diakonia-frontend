@@ -1,0 +1,18 @@
+appId: com.church.artos
+---
+# ═════════════════════════════════════════════════════════════════════════
+# Suite: Todos os testes ADR-0012 em sequência
+#
+# Executa os 4 roteiros um após o outro:
+# 1. Data avulsa com escopo
+# 2. Período com escopo
+# 3. Regra líder com escopo
+# 4. Regra pessoal com escopo
+#
+# Cada roteiro é idempotente (limpa seu próprio estado ao final)
+# ═════════════════════════════════════════════════════════════════════════
+
+- runFlow: adr0012/01-data-avulsa-escopo
+- runFlow: adr0012/02-periodo-escopo
+- runFlow: adr0012/03-regra-lider-escopo
+- runFlow: adr0012/04-regra-pessoal-escopo

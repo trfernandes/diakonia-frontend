@@ -1,0 +1,163 @@
+appId: com.church.artos
+---
+# ═════════════════════════════════════════════════════════════════════════
+# Teste ADR-0012: Indisponibilidade data avulsa com escopo (ministério/função)
+#
+# Casos:
+#   1. Marcar dia como indisponível, escolher funções específicas
+#   2. Reabrir o dia e verificar as funções aparecem no texto de resumo
+#   3. Remover todas as funções (volta a "Todos os ministérios")
+#   4. Desmarcar o dia completamente
+#
+# Usuária: Mirian (Louvor, funções: Back vocal Contralto/Uníssono, Lanche, Ministro, Ministro Feminino)
+# ═════════════════════════════════════════════════════════════════════════
+
+# Cleanup inicial: garantir que app está aberto e Metro respondendo
+- openLink: diakonia:///pessoal/indisponibilidade
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# ── Passo 1: Navegar para o calendário (já deve estar aberto) ─────────────
+- assertVisible:
+    text: 'Minhas Indisponibilidades'
+
+# ── Passo 2: Calcular data futura (dia 15 do próximo mês) ──────────────────
+# Usar runScript para obter data relativa estável (não fica passado em loop)
+- runScript: |
+    const hoje = new Date();
+    const proxMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 15);
+    const dia = proxMes.getDate();
+    const mes = proxMes.getMonth() + 1;
+    const ano = proxMes.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+
+# ── Passo 3: Tocar no dia calculado no calendário ──────────────────────────
+# Calendário mostra várias datas; procura pelo dia 15 do próximo mês
+- tapOn:
+    text: '15'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 4: Verificar modal aberta ("Detalhes da data") ───────────────────
+- assertVisible:
+    text: 'Detalhes da data'
+
+# Deve estar em "Indisponível" por padrão, e campo "Onde vale" deve aparecer
+- assertVisible:
+    text: 'Onde vale'
+
+# ── Passo 5: Tocar em "Onde vale" para abrir sheet de escopo ──────────────
+- tapOn:
+    text: 'Onde vale'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 6: Sheet de escopo abre ────────────────────────────────────────
+- assertVisible:
+    text: 'Louvor'
+
+# Verificar que NÃO contém "Hub" (Mirian não pertence ao Hub)
+- assertNotVisible:
+    text: 'Hub'
+
+# ── Passo 7: Escolher 2 funções: "Back vocal Contralto/Uníssono" e "Lanche"
+# Em simplifiedMode, funções aparecem como chips
+- tapOn:
+    text: 'Back vocal Contralto/Uníssono'
+- waitForAnimationToEnd:
+    timeout: 500
+
+- tapOn:
+    text: 'Lanche'
+- waitForAnimationToEnd:
+    timeout: 500
+
+# ── Passo 8: Confirmar seleção (botão "OK" ou swipe down) ────────────────
+- tapOn:
+    text: 'OK'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 9: De volta na modal, salvar ("Confirmar") ──────────────────────
+- assertVisible:
+    text: 'Louvor: Back vocal Contralto/Uníssono, Lanche'
+
+- tapOn:
+    text: 'Confirmar'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 10: Verificar que não há toast de erro ──────────────────────────
+- assertNotVisible:
+    text: 'Erro ao atualizar'
+
+# ── Passo 11: Reabrir o dia para validar persistência ─────────────────────
+- tapOn:
+    text: '15'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 12: Assert texto resumido com funções ───────────────────────────
+- assertVisible:
+    text: 'Louvor: Back vocal Contralto/Uníssono, Lanche'
+
+# ── Passo 13: Remover todas as funções (abrir sheet novamente) ────────────
+- tapOn:
+    text: 'Onde vale'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 14: Desselecionar as 2 funções ──────────────────────────────────
+- tapOn:
+    text: 'Back vocal Contralto/Uníssono'
+- waitForAnimationToEnd:
+    timeout: 500
+
+- tapOn:
+    text: 'Lanche'
+- waitForAnimationToEnd:
+    timeout: 500
+
+# ── Passo 15: Confirmar remoção ──────────────────────────────────────────
+- tapOn:
+    text: 'OK'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 16: Verificar que voltou a "Todos os ministérios" ────────────────
+- assertVisible:
+    text: 'Todos os ministérios'
+
+- tapOn:
+    text: 'Confirmar'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 17: Desmarcar o dia completamente ──────────────────────────────
+- tapOn:
+    text: '15'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Selecionar "Disponível"
+- tapOn:
+    text: 'Disponível'
+- waitForAnimationToEnd:
+    timeout: 500
+
+# Confirmar
+- tapOn:
+    text: 'Confirmar'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 18: Verificar que o dia não está mais marcado ─────────────────
+# (calendário volta ao normal)
+- assertNotVisible:
+    text: 'Louvor: Back vocal Contralto/Uníssono, Lanche'
+
+# Cleanup
+- takeScreenshot

@@ -11,8 +11,8 @@ import FancyToggle from '../../../fields/FancyToggle';
 import FancyButton from '../../../buttons/FancyButton';
 import { usePallete } from '../../../../hooks/usePallete';
 import DateUtils from '../../../../utils/date_utils';
-import { useMinisteriosCrud } from '../../../../hooks/useMinisteriosCrud';
-import { useMinisterioFuncoesCrud } from '../../../../hooks/useMinisterioFuncoesCrud';
+import { useEscopoOpcoesVoluntario } from '../../../../hooks/useEscopoOpcoesVoluntario';
+import { useAuth } from '../../../../contexts/AuthContext';
 import EscopoIndisponibilidadeField from './EscopoIndisponibilidadeField';
 import EscopoIndisponibilidadeSheet from './EscopoIndisponibilidadeSheet';
 
@@ -57,13 +57,10 @@ export default function DateAvailabilityAdjustmentModal({
   const [selectedStatus, setSelectedStatus] = useState<'available' | 'unavailable'>(data.status);
   const [showEscopoSheet, setShowEscopoSheet] = useState(false);
 
-  const { data: ministeriosData } = useMinisteriosCrud({
-    autoFetch: true,
-  });
-
-  const { data: allFuncoes } = useMinisterioFuncoesCrud({
-    autoFetch: true,
-  });
+  const { user } = useAuth();
+  const { ministerios: ministeriosData, funcoes: allFuncoes } = useEscopoOpcoesVoluntario(
+    user?.user?.id,
+  );
 
   const { control, handleSubmit, reset, watch, setValue } = useForm<DateAvailabilityForm>({
     resolver: zodResolver(schema),

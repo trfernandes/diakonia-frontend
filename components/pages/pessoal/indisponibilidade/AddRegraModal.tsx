@@ -24,9 +24,8 @@ import {
   RegraIndisponibilidadeTipo,
   ResponseRegraIndisponibilidadeVoluntarioDto,
 } from '../../../../domain/dtos/RegraIndisponibilidadeVoluntario/regra-indisponibilidade-voluntario.response';
-import { useMinisteriosCrud } from '../../../../hooks/useMinisteriosCrud';
+import { useEscopoOpcoesVoluntario } from '../../../../hooks/useEscopoOpcoesVoluntario';
 import { useMinisterioVoluntarioFuncoesCrud } from '../../../../hooks/useMinisterioVoluntarioFuncoesCrud';
-import { useMinisterioFuncoesCrud } from '../../../../hooks/useMinisterioFuncoesCrud';
 import { descreverRegra } from '../../../../domain/utils/regra_indisponibilidade_utils';
 import EscopoIndisponibilidadeField from './EscopoIndisponibilidadeField';
 import EscopoIndisponibilidadeSheet from './EscopoIndisponibilidadeSheet';
@@ -198,14 +197,11 @@ export default function AddRegraModal({
   const palette = usePallete();
   const styles = useThemedStyles(createStyles);
 
-  const { data: ministeriosData, isLoading: isLoadingMinisteios } = useMinisteriosCrud({
-    autoFetch: true,
-  });
-
-  // Buscar todas as funções para a Sheet
-  const { data: allFuncoes } = useMinisterioFuncoesCrud({
-    autoFetch: true,
-  });
+  const {
+    ministerios: ministeriosData,
+    funcoes: allFuncoes,
+    isLoading: isLoadingMinisteios,
+  } = useEscopoOpcoesVoluntario(voluntarioId);
 
   // Em modo simplificado, filtra funções só do ministério fixo
   const funcoesDoMinisterio = useMemo(() => {

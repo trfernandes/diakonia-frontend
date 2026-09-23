@@ -11,8 +11,8 @@ import { differenceInDays } from 'date-fns';
 import { FancyAlert } from '../../../modal/FancyAlert';
 import FancyText from '../../../FancyText';
 import FancyButton from '../../../buttons/FancyButton';
-import { useMinisteriosCrud } from '../../../../hooks/useMinisteriosCrud';
-import { useMinisterioFuncoesCrud } from '../../../../hooks/useMinisterioFuncoesCrud';
+import { useEscopoOpcoesVoluntario } from '../../../../hooks/useEscopoOpcoesVoluntario';
+import { useAuth } from '../../../../contexts/AuthContext';
 import EscopoIndisponibilidadeField from './EscopoIndisponibilidadeField';
 import EscopoIndisponibilidadeSheet from './EscopoIndisponibilidadeSheet';
 
@@ -53,13 +53,10 @@ export type AddPeriodoModalProps = {
 export default function AddPeriodoModal({ visible, modalProps, onConfirm }: AddPeriodoModalProps) {
   const [showEscopoSheet, setShowEscopoSheet] = useState(false);
 
-  const { data: ministeriosData } = useMinisteriosCrud({
-    autoFetch: true,
-  });
-
-  const { data: allFuncoes } = useMinisterioFuncoesCrud({
-    autoFetch: true,
-  });
+  const { user } = useAuth();
+  const { ministerios: ministeriosData, funcoes: allFuncoes } = useEscopoOpcoesVoluntario(
+    user?.user?.id,
+  );
 
   const { control, handleSubmit, setValue, trigger } = useForm({
     resolver: zodResolver(schema),

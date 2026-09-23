@@ -558,6 +558,7 @@ export default function MinisterioIndisponibilidadesIndex() {
           }}
           onConfirm={handleConfirmAddRegra}
           voluntarioNome={voluntarioSelecionado?.nome}
+          voluntarioId={voluntarioId}
           initialValues={pendingAddRegra ?? undefined}
           simplifiedMode={true}
           ministerioIdFixo={ministerioId}
@@ -569,8 +570,11 @@ export default function MinisterioIndisponibilidadesIndex() {
           visible={!!editingRegra}
           isEditing
           voluntarioNome={voluntarioSelecionado?.nome}
+          voluntarioId={voluntarioId}
           initialValues={{
             tipo: editingRegra.tipo,
+            ministeriosInteirosIds: editingRegra.ministeriosInteiros?.map((m) => m.id) ?? undefined,
+            funcoesIds: editingRegra.funcoes?.map((f) => f.id) ?? undefined,
             diasSemana: editingRegra.diasSemana ?? undefined,
             dataInicio: editingRegra.dataInicio ?? undefined,
             dataFim: editingRegra.dataFim ?? undefined,

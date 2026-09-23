@@ -3,4 +3,6 @@ export type CreateIndisponibilidadeVoluntarioDto = {
   voluntarioId: string;
   igrejaId: string;
   motivo?: string;
+  ministeriosInteirosIds?: string[] | null;
+  funcoesIds?: string[] | null;
 };

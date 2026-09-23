@@ -7,6 +7,8 @@ export type ResponseIndisponibilidadeVoluntarioDto = {
   igreja?: ResponseIgrejaDto;
   data: string;
   motivo?: string;
+  ministeriosInteirosIds?: string[] | null;
+  funcoesIds?: string[] | null;
   voluntario?: ResponseVoluntarioDto;
   voluntarioId: string;
   createdAt: string;

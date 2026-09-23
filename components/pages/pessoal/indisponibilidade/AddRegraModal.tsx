@@ -177,6 +177,8 @@ export type AddRegraModalProps = {
     ministeriosInteirosIds?: string[] | null;
     funcoesIds?: string[] | null;
   }>;
+  simplifiedMode?: boolean;
+  ministerioIdFixo?: string;
 };
 
 export default function AddRegraModal({
@@ -190,6 +192,8 @@ export default function AddRegraModal({
   voluntarioId,
   igrejaId,
   regrasExistentes = [],
+  simplifiedMode = false,
+  ministerioIdFixo,
 }: AddRegraModalProps) {
   const palette = usePallete();
   const styles = useThemedStyles(createStyles);
@@ -202,6 +206,12 @@ export default function AddRegraModal({
   const { data: allFuncoes } = useMinisterioFuncoesCrud({
     autoFetch: true,
   });
+
+  // Em modo simplificado, filtra funções só do ministério fixo
+  const funcoesDoMinisterio = useMemo(() => {
+    if (!simplifiedMode || !ministerioIdFixo) return allFuncoes ?? [];
+    return (allFuncoes ?? []).filter((f) => f.ministerioId === ministerioIdFixo);
+  }, [simplifiedMode, ministerioIdFixo, allFuncoes]);
 
   const { control, handleSubmit, setValue, reset, watch } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -435,18 +445,67 @@ export default function AddRegraModal({
           {/* ESCOPO: MINISTÉRIOS E FUNÇÕES */}
           {tipo !== 'LIMITE_MENSAL' && (
             <>
-              <EscopoIndisponibilidadeField
-                ministeriosInteirosIds={ministeriosInteirosIds}
-                funcoesIds={funcoesIds}
-                ministerios={ministeriosData ?? []}
-                funcoes={allFuncoes ?? []}
-                label='Onde vale'
-                disabled={isSubmitting}
-                onPress={() => setShowEscopoSheet(true)}
-              />
-              <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
-                Deixe em branco para bloquear em todos os ministérios.
-              </FancyText>
+              {simplifiedMode ? (
+                <>
+                  <View style={styles.secao}>
+                    <FancyText size='small' type='semiBold' color={palette.fonts.inactive}>
+                      Funções deste ministério
+                    </FancyText>
+                    <View style={styles.chipRow}>
+                      {funcoesDoMinisterio.map((funcao) => {
+                        const isSelected = funcoesIds?.includes(funcao.id) ?? false;
+                        return (
+                          <Pressable
+                            key={funcao.id}
+                            onPress={() => {
+                              const newFuncoes = isSelected
+                                ? (funcoesIds?.filter((f) => f !== funcao.id) ?? [])
+                                : [...(funcoesIds ?? []), funcao.id];
+                              setValue('funcoesIds', newFuncoes, { shouldValidate: true });
+                            }}
+                            disabled={isSubmitting}
+                            style={[
+                              styles.chip,
+                              isSelected
+                                ? { backgroundColor: palette.primary, borderColor: palette.primary }
+                                : {
+                                    backgroundColor: ColorUtils.withAlpha(palette.primary, 0.08),
+                                    borderColor: ColorUtils.withAlpha(palette.primary, 0.19),
+                                  },
+                            ]}
+                          >
+                            <FancyText
+                              size='small'
+                              type='semiBold'
+                              color={isSelected ? palette.fonts.light : palette.primary}
+                            >
+                              {funcao.nome}
+                            </FancyText>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  </View>
+                  <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
+                    Deixe em branco para bloquear o ministério inteiro.
+                  </FancyText>
+                </>
+              ) : (
+                <>
+                  <EscopoIndisponibilidadeField
+                    ministeriosInteirosIds={ministeriosInteirosIds}
+                    funcoesIds={funcoesIds}
+                    ministerios={ministeriosData ?? []}
+                    funcoes={allFuncoes ?? []}
+                    label='Onde vale'
+                    disabled={isSubmitting}
+                    onPress={() => setShowEscopoSheet(true)}
+                  />
+                  <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
+                    Deixe em branco para bloquear em todos os ministérios.
+                  </FancyText>
+                </>
+              )}
             </>
           )}
 
@@ -586,24 +645,26 @@ export default function AddRegraModal({
         </View>
       </FancyBottomSheetModal>
 
-      {/* Sheet de seleção de escopo */}
-      <EscopoIndisponibilidadeSheet
-        visible={showEscopoSheet}
-        onClose={() => setShowEscopoSheet(false)}
-        onConfirm={(novosMinisteios, novasFuncoes) => {
-          setValue(
-            'ministeriosInteirosIds',
-            novosMinisteios.length > 0 ? novosMinisteios : undefined,
-          );
-          setValue('funcoesIds', novasFuncoes);
-          setShowEscopoSheet(false);
-        }}
-        ministeriosInteirosIds={ministeriosInteirosIds}
-        funcoesIds={funcoesIds}
-        ministerios={ministeriosData ?? []}
-        funcoes={allFuncoes ?? []}
-        isLoading={isSubmitting}
-      />
+      {/* Sheet de seleção de escopo — só aparece em modo normal */}
+      {!simplifiedMode && (
+        <EscopoIndisponibilidadeSheet
+          visible={showEscopoSheet}
+          onClose={() => setShowEscopoSheet(false)}
+          onConfirm={(novosMinisteios, novasFuncoes) => {
+            setValue(
+              'ministeriosInteirosIds',
+              novosMinisteios.length > 0 ? novosMinisteios : undefined,
+            );
+            setValue('funcoesIds', novasFuncoes);
+            setShowEscopoSheet(false);
+          }}
+          ministeriosInteirosIds={ministeriosInteirosIds}
+          funcoesIds={funcoesIds}
+          ministerios={ministeriosData ?? []}
+          funcoes={allFuncoes ?? []}
+          isLoading={isSubmitting}
+        />
+      )}
     </>
   );
 }

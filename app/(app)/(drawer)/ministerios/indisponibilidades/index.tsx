@@ -559,6 +559,8 @@ export default function MinisterioIndisponibilidadesIndex() {
           onConfirm={handleConfirmAddRegra}
           voluntarioNome={voluntarioSelecionado?.nome}
           initialValues={pendingAddRegra ?? undefined}
+          simplifiedMode={true}
+          ministerioIdFixo={ministerioId}
         />
       )}
 
@@ -578,6 +580,8 @@ export default function MinisterioIndisponibilidadesIndex() {
           }}
           onClose={() => setEditingRegra(null)}
           onConfirm={handleConfirmEditRegra}
+          simplifiedMode={true}
+          ministerioIdFixo={ministerioId}
         />
       )}
 

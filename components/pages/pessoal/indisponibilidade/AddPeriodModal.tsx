@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +11,10 @@ import { differenceInDays } from 'date-fns';
 import { FancyAlert } from '../../../modal/FancyAlert';
 import FancyText from '../../../FancyText';
 import FancyButton from '../../../buttons/FancyButton';
+import { useMinisteriosCrud } from '../../../../hooks/useMinisteriosCrud';
+import { useMinisterioFuncoesCrud } from '../../../../hooks/useMinisterioFuncoesCrud';
+import EscopoIndisponibilidadeField from './EscopoIndisponibilidadeField';
+import EscopoIndisponibilidadeSheet from './EscopoIndisponibilidadeSheet';
 
 const schema = z
   .object({
@@ -26,6 +30,8 @@ const schema = z
       .string()
       .min(3, 'Informe pelo menos 3 caracteres')
       .max(500, 'Máximo de 500 caracteres'),
+    ministeriosInteirosIds: z.array(z.string()).optional(),
+    funcoesIds: z.array(z.string()).optional(),
   })
   .refine((data) => data.dataInicio && data.dataTermino && data.dataTermino >= data.dataInicio, {
     path: ['dataTermino'],
@@ -35,21 +41,42 @@ const schema = z
 export type AddPeriodoModalProps = {
   visible: boolean;
   modalProps?: FancyModalDialogProps<any>;
-  onConfirm: (inicio: Date, fim: Date, motivo: string) => void;
+  onConfirm: (
+    inicio: Date,
+    fim: Date,
+    motivo: string,
+    ministeriosInteirosIds?: string[],
+    funcoesIds?: string[],
+  ) => void;
 };
 
 export default function AddPeriodoModal({ visible, modalProps, onConfirm }: AddPeriodoModalProps) {
+  const [showEscopoSheet, setShowEscopoSheet] = useState(false);
+
+  const { data: ministeriosData } = useMinisteriosCrud({
+    autoFetch: true,
+  });
+
+  const { data: allFuncoes } = useMinisterioFuncoesCrud({
+    autoFetch: true,
+  });
+
   const { control, handleSubmit, setValue, trigger } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       dataInicio: new Date(),
       dataTermino: new Date(),
       motivo: '',
+      ministeriosInteirosIds: undefined,
+      funcoesIds: [],
     },
   });
 
   const dataInicio = useWatch({ control, name: 'dataInicio' });
   const dataTermino = useWatch({ control, name: 'dataTermino' });
+  const ministeriosInteirosIds = useWatch({ control, name: 'ministeriosInteirosIds' });
+  const funcoesIds = useWatch({ control, name: 'funcoesIds' });
+
   useEffect(() => {
     if (dataInicio && dataTermino && dataInicio > dataTermino) {
       setValue('dataTermino', dataInicio, { shouldValidate: true });
@@ -57,7 +84,13 @@ export default function AddPeriodoModal({ visible, modalProps, onConfirm }: AddP
   }, [dataInicio, dataTermino, setValue]);
 
   const submit = (values: z.infer<typeof schema>) => {
-    onConfirm(values.dataInicio as Date, values.dataTermino as Date, values.motivo);
+    onConfirm(
+      values.dataInicio as Date,
+      values.dataTermino as Date,
+      values.motivo,
+      values.ministeriosInteirosIds,
+      values.funcoesIds,
+    );
   };
 
   const currentDate = new Date();
@@ -139,8 +172,29 @@ export default function AddPeriodoModal({ visible, modalProps, onConfirm }: AddP
             },
           }}
         />
+        <EscopoIndisponibilidadeField
+          ministeriosInteirosIds={ministeriosInteirosIds}
+          funcoesIds={funcoesIds}
+          ministerios={ministeriosData ?? []}
+          funcoes={allFuncoes ?? []}
+          label='Onde vale'
+          onPress={() => setShowEscopoSheet(true)}
+        />
         <ControlledTextArea control={control} name='motivo' label='Motivo' />
       </View>
+      <EscopoIndisponibilidadeSheet
+        visible={showEscopoSheet}
+        onClose={() => setShowEscopoSheet(false)}
+        onConfirm={(mids, fids) => {
+          setValue('ministeriosInteirosIds', mids);
+          setValue('funcoesIds', fids);
+          setShowEscopoSheet(false);
+        }}
+        ministeriosInteirosIds={ministeriosInteirosIds}
+        funcoesIds={funcoesIds}
+        ministerios={ministeriosData ?? []}
+        funcoes={allFuncoes ?? []}
+      />
     </FancyBottomSheetModal>
   );
 }

@@ -37,7 +37,7 @@ import { ResponseIgrejaSolicitacaoDto } from '../../../../../domain/dtos/Igreja/
 import { CreateIgrejaConviteDto } from '../../../../../domain/dtos/Igreja/create-igreja-convite.dto';
 import { IgrejaVoluntarioRoleEnum } from '../../../../../domain/enums/Igreja/voluntario-role.enum';
 import { APP_TZ } from '../../../../../utils/date_utils';
-import { usePostHog } from 'posthog-react-native';
+import { useAnalytics } from '../../../../../core/analytics/AnalyticsContext';
 import { AnalyticsEvent, buildConviteEnviadoProps } from '../../../../../core/analytics/events';
 
 // Helper para determinar status do convite
@@ -58,7 +58,7 @@ export default function SolicitacoesConvitesPage() {
   const palette = usePallete();
   const { igrejaAtiva } = useAuth();
   const queryClient = useQueryClient();
-  const posthog = usePostHog();
+  const posthog = useAnalytics();
   const params = useLocalSearchParams<{ tab?: string }>();
   const initialTabIndex = params.tab === 'convites' ? 1 : 0;
 

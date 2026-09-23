@@ -5,12 +5,12 @@ import { emitNotificationEvent } from '../core/events/notification-events';
 import { openNotification } from '../services/notification-routing';
 import { NotificacaoTipoEnum } from '../domain/enums/Notificacao/tipo-notificacao.enum';
 import { useAuth } from '../contexts/AuthContext';
-import { usePostHog } from 'posthog-react-native';
+import { useAnalytics } from '../core/analytics/AnalyticsContext';
 import { AnalyticsEvent, buildPushAbertoProps } from '../core/analytics/events';
 
 export function NotificationsManager() {
   const { refreshMe } = useAuth();
-  const posthog = usePostHog();
+  const posthog = useAnalytics();
   const lastResponseHandled = useRef(false);
   const refreshMeRef = useRef(refreshMe);
   refreshMeRef.current = refreshMe;

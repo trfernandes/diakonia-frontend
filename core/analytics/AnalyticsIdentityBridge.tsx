@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { usePostHog } from 'posthog-react-native';
+import { useAnalytics } from './AnalyticsContext';
 import { useAuth } from '../../contexts/AuthContext';
 
 /**
@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
  * reset no logout. Sem traits com PII — só ids (voluntario.id, igreja.id).
  */
 export function AnalyticsIdentityBridge() {
-  const posthog = usePostHog();
+  const posthog = useAnalytics();
   const { user, igrejaAtiva } = useAuth();
   const voluntarioId = user?.user?.id;
   const igrejaId = igrejaAtiva?.id;

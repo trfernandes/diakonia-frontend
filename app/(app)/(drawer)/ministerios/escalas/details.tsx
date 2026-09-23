@@ -38,7 +38,7 @@ import { canManageEventoOcorrencia } from '../../../../../utils/ministerio_permi
 import { combineOccurrenceWithEventTime } from '../../../../../utils/evento-datetime';
 import { useLoading } from '../../../../../contexts/LoadingContext';
 import { UpdateEscalaItemDto } from '../../../../../domain/dtos/Escala/escala-item.update';
-import { usePostHog } from 'posthog-react-native';
+import { useAnalytics } from '../../../../../core/analytics/AnalyticsContext';
 import { AnalyticsEvent, buildEscalaPublicadaProps } from '../../../../../core/analytics/events';
 import ResolverConflitosModal from '../../../../../components/pages/ministerios/escalas/details/ResolverConflitosModal';
 import {
@@ -147,7 +147,7 @@ export default function MinisterioEscalasDetailsPage() {
     [escalaId],
   );
 
-  const posthog = usePostHog();
+  const posthog = useAnalytics();
 
   const {
     data: escalaData,

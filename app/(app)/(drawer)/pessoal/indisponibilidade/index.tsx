@@ -306,8 +306,8 @@ export default function IndisponibilidadeIndexPage() {
           date,
           status: registro ? 'unavailable' : 'available',
           motivo: registro?.motivo ?? null,
-          ministeriosInteirosIds: registro?.ministeriosInteirosIds ?? null,
-          funcoesIds: registro?.funcoesIds ?? null,
+          ministeriosInteirosIds: registro?.ministeriosInteiros?.map((m) => m.id) ?? null,
+          funcoesIds: registro?.funcoes?.map((f) => f.id) ?? null,
         });
       }
     },
@@ -849,8 +849,8 @@ export default function IndisponibilidadeIndexPage() {
           editingRegraId={editingRegra.id}
           initialValues={{
             tipo: editingRegra.tipo,
-            ministeriosInteirosIds: editingRegra.ministeriosInteirosIds ?? undefined,
-            funcoesIds: editingRegra.funcoesIds ?? undefined,
+            ministeriosInteirosIds: editingRegra.ministeriosInteiros?.map((m) => m.id) ?? undefined,
+            funcoesIds: editingRegra.funcoes?.map((f) => f.id) ?? undefined,
             diasSemana: editingRegra.diasSemana ?? undefined,
             dataInicio: editingRegra.dataInicio ?? undefined,
             dataFim: editingRegra.dataFim ?? undefined,

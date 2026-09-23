@@ -10,7 +10,6 @@ import DefaultIcons from '../../../FancyIcons';
 import { ResponseRegraIndisponibilidadeVoluntarioDto } from '../../../../domain/dtos/RegraIndisponibilidadeVoluntario/regra-indisponibilidade-voluntario.response';
 import { descreverRegra } from '../../../../domain/utils/regra_indisponibilidade_utils';
 import { DateUtilsApi } from '../../../../utils/date_utils';
-import { useMinisterioFuncoesCrud } from '../../../../hooks/useMinisterioFuncoesCrud';
 
 type RegraComEscopo = ResponseRegraIndisponibilidadeVoluntarioDto & {
   aplicaAoDia: boolean;
@@ -37,26 +36,6 @@ export default function BlockedDayDetailsModal({
 }) {
   const palette = usePallete();
   const styles = useThemedStyles(createStyles);
-
-  // Mapa de todas as funções por ID para lookup
-  const { data: allFuncoes } = useMinisterioFuncoesCrud({
-    autoFetch: true,
-  });
-
-  const funcaoNomeMap = useMemo(() => {
-    const map = new Map<string, string>();
-    if (allFuncoes) {
-      allFuncoes.forEach((f: any) => {
-        map.set(f.id, f.nome);
-      });
-    }
-    return map;
-  }, [allFuncoes]);
-
-  // Helper para resolver nome de função
-  const resolveFuncaoNome = (funcaoId: string): string => {
-    return funcaoNomeMap.get(funcaoId) || 'Função desconhecida';
-  };
 
   const groupedRegras = useMemo(() => {
     if (!selectedDate) return { geral: [], porFuncao: [] };
@@ -105,9 +84,9 @@ export default function BlockedDayDetailsModal({
       } else {
         // Sem ministério é mais restritivo (vazio ou bloqueia tudo)
         const regraTemMinisterio =
-          regra.ministeriosInteirosIds && regra.ministeriosInteirosIds.length > 0;
+          regra.ministeriosInteiros && regra.ministeriosInteiros.length > 0;
         const maisRestrivaTem =
-          maisRestritiva.ministeriosInteirosIds && maisRestritiva.ministeriosInteirosIds.length > 0;
+          maisRestritiva.ministeriosInteiros && maisRestritiva.ministeriosInteiros.length > 0;
 
         if (!regraTemMinisterio && maisRestrivaTem) {
           maisRestritiva = regra;
@@ -116,8 +95,8 @@ export default function BlockedDayDetailsModal({
         if (
           regraTemMinisterio &&
           maisRestrivaTem &&
-          !regra.funcoesIds?.length &&
-          maisRestritiva.funcoesIds?.length
+          !regra.funcoes?.length &&
+          maisRestritiva.funcoes?.length
         ) {
           maisRestritiva = regra;
         }
@@ -132,10 +111,10 @@ export default function BlockedDayDetailsModal({
 
     // Agrupa por tipo de escopo
     const geral = regrasComMarcacao.filter(
-      (r) => !r.ministeriosInteirosIds || r.ministeriosInteirosIds.length === 0,
+      (r) => !r.ministeriosInteiros || r.ministeriosInteiros.length === 0,
     );
     const porFuncao = regrasComMarcacao.filter(
-      (r) => r.ministeriosInteirosIds && r.ministeriosInteirosIds.length > 0,
+      (r) => r.ministeriosInteiros && r.ministeriosInteiros.length > 0,
     );
 
     return { geral, porFuncao };
@@ -155,13 +134,7 @@ export default function BlockedDayDetailsModal({
               Bloqueio geral
             </FancyText>
             {groupedRegras.geral.map((regra) => (
-              <RegraBloqueioItem
-                key={regra.id}
-                regra={regra}
-                palette={palette}
-                styles={styles}
-                resolveFuncaoNome={resolveFuncaoNome}
-              />
+              <RegraBloqueioItem key={regra.id} regra={regra} palette={palette} styles={styles} />
             ))}
           </View>
         )}
@@ -173,13 +146,7 @@ export default function BlockedDayDetailsModal({
               Por função
             </FancyText>
             {groupedRegras.porFuncao.map((regra) => (
-              <RegraBloqueioItem
-                key={regra.id}
-                regra={regra}
-                palette={palette}
-                styles={styles}
-                resolveFuncaoNome={resolveFuncaoNome}
-              />
+              <RegraBloqueioItem key={regra.id} regra={regra} palette={palette} styles={styles} />
             ))}
           </View>
         )}
@@ -198,17 +165,13 @@ function RegraBloqueioItem({
   regra,
   palette,
   styles,
-  resolveFuncaoNome,
 }: {
   regra: RegraComEscopo;
   palette: ReturnType<typeof usePallete>;
   styles: ReturnType<typeof createStyles>;
-  resolveFuncaoNome: (funcaoId: string) => string;
 }) {
   const descricao = descreverRegra(regra);
-  const nomeFuncao = regra.funcoesIds?.[0]
-    ? `Função: ${resolveFuncaoNome(regra.funcoesIds[0])}`
-    : undefined;
+  const nomeFuncao = regra.funcoes?.[0] ? `Função: ${regra.funcoes[0].nome}` : undefined;
 
   return (
     <View style={styles.regraItem}>

@@ -174,8 +174,8 @@ export type AddRegraModalProps = {
   regrasExistentes?: Array<{
     id?: string;
     tipo: RegraIndisponibilidadeTipo;
-    ministeriosInteirosIds?: string[] | null;
-    funcoesIds?: string[] | null;
+    ministeriosInteiros?: { id: string; nome: string }[] | null;
+    funcoes?: { id: string; nome: string }[] | null;
   }>;
   simplifiedMode?: boolean;
   ministerioIdFixo?: string;
@@ -288,9 +288,11 @@ export default function AddRegraModal({
 
       if (regra.tipo === 'LIMITE_MENSAL') return false; // ignora limite mensal
 
+      const regraMinisteriosIds = regra.ministeriosInteiros?.map((m) => m.id) ?? [];
+      const regraFuncoesIds = regra.funcoes?.map((f) => f.id) ?? [];
+
       const temMinisterios = ministeriosInteirosIds && ministeriosInteirosIds.length > 0;
-      const regraTemMinisterios =
-        regra.ministeriosInteirosIds && regra.ministeriosInteirosIds.length > 0;
+      const regraTemMinisterios = regraMinisteriosIds.length > 0;
 
       // Se ambas bloqueiam tudo (sem ministério)
       if (!temMinisterios && !regraTemMinisterios) return true;
@@ -298,14 +300,14 @@ export default function AddRegraModal({
       // Se ambas têm ministério em comum
       if (temMinisterios && regraTemMinisterios) {
         const ministInterseção = ministeriosInteirosIds.filter((m) =>
-          regra.ministeriosInteirosIds?.includes(m),
+          regraMinisteriosIds.includes(m),
         );
         if (ministInterseção.length === 0) return false;
 
         // Verifica funções desses ministérios em comum
         for (const ministId of ministInterseção) {
           const temFuncoesNeste = funcoesIds && funcoesIds.length > 0;
-          const regraTemFuncoesNeste = regra.funcoesIds && regra.funcoesIds.length > 0;
+          const regraTemFuncoesNeste = regraFuncoesIds.length > 0;
 
           // Se ambas bloqueiam o ministério inteiro (sem função)
           if (!temFuncoesNeste && !regraTemFuncoesNeste) return true;
@@ -316,7 +318,7 @@ export default function AddRegraModal({
 
           // Se ambas têm funções, verifica sobreposição
           if (temFuncoesNeste && regraTemFuncoesNeste) {
-            const overlap = funcoesIds.some((f) => regra.funcoesIds?.includes(f));
+            const overlap = funcoesIds.some((f) => regraFuncoesIds.includes(f));
             if (overlap) return true;
           }
         }

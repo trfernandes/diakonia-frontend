@@ -292,13 +292,15 @@ export default function IndisponibilidadeIndexPage() {
         return false;
       });
 
+      const registro = data.find((d) => DateUtilsApi.compareDateOnlyFromApi(d.data, date));
+
       if (regraAplicavel) {
-        // Abre o modal de detalhes de bloqueio
+        // Regra aplica ao dia — abre consulta somente-leitura (inclui o motivo
+        // pontual junto, se houver, em vez de escondê-lo atrás da regra).
         setSelectedBlockedDay(date);
         setShowBlockedDayModal(true);
       } else {
-        // Comportamento padrão (editar dia pontual)
-        const registro = data.find((d) => DateUtilsApi.compareDateOnlyFromApi(d.data, date));
+        // Sem regra: comportamento padrão (editar dia pontual)
         setModalState({
           visible: true,
           date,

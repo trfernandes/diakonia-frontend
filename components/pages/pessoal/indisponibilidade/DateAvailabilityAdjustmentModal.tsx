@@ -15,10 +15,9 @@ import DateUtils from '../../../../utils/date_utils';
 const schema = z.object({
   motivo: z
     .string()
-    .max(500, 'O motivo deve ter no maximo 500 caracteres')
-    .refine((value) => value.trim().length === 0 || value.trim().length >= 3, {
-      message: 'O motivo deve ter ao menos 3 caracteres',
-    }),
+    .trim()
+    .min(3, 'Informe o motivo (mínimo 3 caracteres)')
+    .max(500, 'O motivo deve ter no maximo 500 caracteres'),
 });
 
 type DateAvailabilityForm = z.infer<typeof schema>;

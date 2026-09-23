@@ -38,6 +38,7 @@ import {
 import AddRegraModal, {
   AddRegraModalResult,
 } from '../../../../../components/pages/pessoal/indisponibilidade/AddRegraModal';
+import BlockedDayDetailsModal from '../../../../../components/pages/pessoal/indisponibilidade/BlockedDayDetailsModal';
 import { FancyAlert } from '../../../../../components/modal/FancyAlert';
 import { ResponseRegraIndisponibilidadeVoluntarioDto } from '../../../../../domain/dtos/RegraIndisponibilidadeVoluntario/regra-indisponibilidade-voluntario.response';
 import {
@@ -68,6 +69,7 @@ export default function MinisterioIndisponibilidadesIndex() {
   const [pendingAddRegra, setPendingAddRegra] = useState<AddRegraModalResult | null>(null);
   const [editingRegra, setEditingRegra] =
     useState<ResponseRegraIndisponibilidadeVoluntarioDto | null>(null);
+  const [dayDetailsDate, setDayDetailsDate] = useState<Date | undefined>(undefined);
 
   const {
     voluntariosList,
@@ -170,6 +172,25 @@ export default function MinisterioIndisponibilidadesIndex() {
     palette.secondary,
     palette.fonts.inactive,
   ]);
+
+  const regrasParaDetalhe = useMemo(
+    () => [...pessoais, ...regrasMinisterio],
+    [pessoais, regrasMinisterio],
+  );
+
+  const pontuaisParaDetalhe = useMemo(
+    () => datasAvulsas.map((d) => ({ data: d.dataInicio!, motivo: d.motivo })),
+    [datasAvulsas],
+  );
+
+  const handleSelectDate = useCallback(
+    (date: Date) => {
+      const key = DateUtilsApi.dateOnlyToApi(date);
+      if (!markedDates.some((m) => DateUtilsApi.dateOnlyToApi(m.date) === key)) return;
+      setDayDetailsDate(date);
+    },
+    [markedDates],
+  );
 
   const criar = useCallback(
     async (result: AddRegraModalResult) => {
@@ -311,6 +332,7 @@ export default function MinisterioIndisponibilidadesIndex() {
             <View style={cardStyle}>
               <FancyCalendar
                 selectDateOnPress={false}
+                onChangeSelectedDate={handleSelectDate}
                 containerStyle={styles.calendarContainer}
                 minimumDate={startDate}
                 maximumDate={endDate}
@@ -573,6 +595,15 @@ export default function MinisterioIndisponibilidadesIndex() {
           onConfirm={handleConfirmEditRegra}
         />
       )}
+
+      <BlockedDayDetailsModal
+        visible={!!dayDetailsDate}
+        onClose={() => setDayDetailsDate(undefined)}
+        selectedDate={dayDetailsDate}
+        regras={regrasParaDetalhe}
+        indisponibilidadesPontuais={pontuaisParaDetalhe}
+        voluntarioNome={voluntarioSelecionado?.nome}
+      />
 
       <TutorialOverlay tour={tour} />
     </FancyPageView>

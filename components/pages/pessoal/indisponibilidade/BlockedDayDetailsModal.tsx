@@ -2,25 +2,31 @@ import { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import FancyBottomSheetModal from '../../../modal/FancyBottomSheetModal';
 import FancyText from '../../../FancyText';
+import FancyButton from '../../../buttons/FancyButton';
 import { usePallete } from '../../../../hooks/usePallete';
 import { useThemedStyles } from '../../../../hooks/useThemedStyles';
 import { ThemePalette } from '../../../../constants/colors';
 import { ColorUtils } from '../../../../utils/color_utils';
 import DefaultIcons from '../../../FancyIcons';
 import { ResponseRegraIndisponibilidadeVoluntarioDto } from '../../../../domain/dtos/RegraIndisponibilidadeVoluntario/regra-indisponibilidade-voluntario.response';
-import { descreverRegra } from '../../../../domain/utils/regra_indisponibilidade_utils';
+import { descreverRegra, regraIcone } from '../../../../domain/utils/regra_indisponibilidade_utils';
 import { DateUtilsApi } from '../../../../utils/date_utils';
 import { useMinisterioFuncoesCrud } from '../../../../hooks/useMinisterioFuncoesCrud';
+import { useMinisteriosCrud } from '../../../../hooks/useMinisteriosCrud';
 
-type RegraComEscopo = ResponseRegraIndisponibilidadeVoluntarioDto & {
-  aplicaAoDia: boolean;
-  ehMaisRestritiva: boolean;
+type CausaAvulsa = {
+  tipo: 'avulsa';
+  id: string;
+  motivo: string | null;
 };
 
-type GroupedRegras = {
-  geral: RegraComEscopo[];
-  porFuncao: RegraComEscopo[];
+type CausaRegra = {
+  tipo: 'regra';
+  id: string;
+  regra: ResponseRegraIndisponibilidadeVoluntarioDto;
 };
+
+type Causa = CausaAvulsa | CausaRegra;
 
 export default function BlockedDayDetailsModal({
   visible,
@@ -28,43 +34,45 @@ export default function BlockedDayDetailsModal({
   selectedDate,
   regras,
   indisponibilidadesPontuais,
+  voluntarioNome,
 }: {
   visible: boolean;
   onClose: () => void;
   selectedDate?: Date;
   regras: ResponseRegraIndisponibilidadeVoluntarioDto[];
   indisponibilidadesPontuais: Array<{ data: string; motivo?: string | null }>;
+  voluntarioNome?: string;
 }) {
   const palette = usePallete();
   const styles = useThemedStyles(createStyles);
 
-  // Mapa de todas as funções por ID para lookup
-  const { data: allFuncoes } = useMinisterioFuncoesCrud({
-    autoFetch: true,
-  });
+  const { data: allFuncoes } = useMinisterioFuncoesCrud({ autoFetch: true });
+  const { data: ministeriosData } = useMinisteriosCrud({ autoFetch: true });
 
   const funcaoNomeMap = useMemo(() => {
     const map = new Map<string, string>();
-    if (allFuncoes) {
-      allFuncoes.forEach((f: any) => {
-        map.set(f.id, f.nome);
-      });
-    }
+    allFuncoes?.forEach((f: any) => map.set(f.id, f.nome));
     return map;
   }, [allFuncoes]);
 
-  // Helper para resolver nome de função
-  const resolveFuncaoNome = (funcaoId: string): string => {
-    return funcaoNomeMap.get(funcaoId) || 'Função desconhecida';
-  };
+  const ministerioNomeMap = useMemo(() => {
+    const map = new Map<string, string>();
+    ministeriosData?.forEach((m: any) => map.set(m.id, m.nome));
+    return map;
+  }, [ministeriosData]);
 
-  const groupedRegras = useMemo(() => {
-    if (!selectedDate) return { geral: [], porFuncao: [] };
+  const resolveFuncaoNome = (funcaoId: string): string =>
+    funcaoNomeMap.get(funcaoId) || 'Função desconhecida';
 
-    // Verifica regras pontuais primeiro (têm prioridade)
-    const regrasAplicaveis = regras
+  const causas = useMemo<Causa[]>(() => {
+    if (!selectedDate) return [];
+
+    const avulsas: Causa[] = indisponibilidadesPontuais
+      .filter((item) => DateUtilsApi.compareDateOnlyFromApi(item.data, selectedDate))
+      .map((item) => ({ tipo: 'avulsa', id: item.data, motivo: item.motivo ?? null }));
+
+    const regrasAplicaveis: Causa[] = regras
       .filter((regra) => {
-        // Verifica se a regra aplica ao dia selecionado
         if (regra.tipo === 'DIAS_SEMANA' && regra.diasSemana?.length) {
           return regra.diasSemana.includes(selectedDate.getDay());
         }
@@ -80,171 +88,139 @@ export default function BlockedDayDetailsModal({
             return crossYear
               ? mmddSelecionado >= mmddInicio || mmddSelecionado <= mmddFim
               : mmddSelecionado >= mmddInicio && mmddSelecionado <= mmddFim;
-          } else {
-            return selectedDate >= inicio && selectedDate <= fim;
           }
+          return selectedDate >= inicio && selectedDate <= fim;
         }
         return false;
       })
-      .map((regra) => ({
-        ...regra,
-        aplicaAoDia: true,
-        ehMaisRestritiva: false,
-      }));
+      .map((regra) => ({ tipo: 'regra', id: regra.id, regra }));
 
-    if (regrasAplicaveis.length === 0) {
-      return { geral: [], porFuncao: [] };
-    }
-
-    // Identifica qual regra é mais restritiva
-    // Regra mais restritiva: bloqueia sem função > bloqueia com função
-    let maisRestritiva: RegraComEscopo | null = null;
-    for (const regra of regrasAplicaveis) {
-      if (!maisRestritiva) {
-        maisRestritiva = regra;
-      } else {
-        // Sem ministério é mais restritivo
-        if (!regra.ministerioId && maisRestritiva.ministerioId) {
-          maisRestritiva = regra;
-        }
-        // Ministério sem função é mais restritivo que com função
-        if (
-          regra.ministerioId === maisRestritiva.ministerioId &&
-          !regra.funcoes?.length &&
-          maisRestritiva.funcoes?.length
-        ) {
-          maisRestritiva = regra;
-        }
-      }
-    }
-
-    // Marca a mais restritiva
-    const regrasComMarcacao = regrasAplicaveis.map((regra) => ({
-      ...regra,
-      ehMaisRestritiva: maisRestritiva?.id === regra.id,
-    }));
-
-    // Agrupa por tipo de escopo
-    const geral = regrasComMarcacao.filter((r) => !r.ministerioId);
-    const porFuncao = regrasComMarcacao.filter((r) => r.ministerioId);
-
-    return { geral, porFuncao };
-  }, [selectedDate, regras]);
+    return [...avulsas, ...regrasAplicaveis];
+  }, [selectedDate, regras, indisponibilidadesPontuais]);
 
   return (
     <FancyBottomSheetModal
       visible={visible}
       onClose={onClose}
-      title={selectedDate ? `Bloqueio em ${selectedDate.toLocaleDateString('pt-BR')}` : 'Bloqueio'}
+      footer={
+        <FancyButton
+          label='Fechar'
+          type='outlined'
+          onPress={onClose}
+          containerStyle={styles.footerButton}
+        />
+      }
     >
-      <View style={styles.content}>
-        {/* Bloqueio geral */}
-        {groupedRegras.geral.length > 0 && (
-          <View style={styles.section}>
-            <FancyText type='semiBold' size='small' color={palette.fonts.dark}>
-              Bloqueio geral
-            </FancyText>
-            {groupedRegras.geral.map((regra) => (
-              <RegraBloqueioItem
-                key={regra.id}
-                regra={regra}
-                palette={palette}
-                styles={styles}
-                resolveFuncaoNome={resolveFuncaoNome}
-              />
-            ))}
-          </View>
-        )}
-
-        {/* Por função */}
-        {groupedRegras.porFuncao.length > 0 && (
-          <View style={styles.section}>
-            <FancyText type='semiBold' size='small' color={palette.fonts.dark}>
-              Por função
-            </FancyText>
-            {groupedRegras.porFuncao.map((regra) => (
-              <RegraBloqueioItem
-                key={regra.id}
-                regra={regra}
-                palette={palette}
-                styles={styles}
-                resolveFuncaoNome={resolveFuncaoNome}
-              />
-            ))}
-          </View>
-        )}
-
-        {groupedRegras.geral.length === 0 && groupedRegras.porFuncao.length === 0 && (
-          <FancyText type='medium' size='small' color={palette.fonts.inactive}>
-            Nenhuma regra aplicável a este dia.
+      <View style={styles.header}>
+        {selectedDate && (
+          <FancyText
+            type='semiBold'
+            size='extraSmall'
+            color={palette.secondary}
+            style={styles.eyebrow}
+          >
+            {selectedDate
+              .toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'long' })
+              .replace('.', '')}
           </FancyText>
         )}
+        <FancyText type='bold' size='large' color={palette.fonts.dark}>
+          Por que está indisponível
+        </FancyText>
+      </View>
+
+      <View style={styles.content}>
+        {causas.length === 0 && (
+          <FancyText type='medium' size='small' color={palette.fonts.inactive}>
+            Nenhuma causa encontrada para este dia.
+          </FancyText>
+        )}
+
+        {causas.map((causa, index) => (
+          <View key={`${causa.tipo}-${causa.id}`}>
+            {causa.tipo === 'avulsa' ? (
+              <CausaItem
+                icone={DefaultIcons.Custom({
+                  library: 'MaterialCommunityIcons',
+                  name: 'calendar-remove',
+                  size: 20,
+                  color: palette.secondary,
+                })}
+                cor={palette.secondary}
+                label={
+                  voluntarioNome
+                    ? `Bloqueio pontual — registrado por ${voluntarioNome}`
+                    : 'Bloqueio pontual'
+                }
+                corpo={causa.motivo?.trim() || 'Sem motivo informado.'}
+                palette={palette}
+                styles={styles}
+              />
+            ) : (
+              <CausaItem
+                icone={DefaultIcons.Custom({
+                  library: 'MaterialCommunityIcons',
+                  name: regraIcone(causa.regra),
+                  size: 20,
+                  color: palette.primary,
+                })}
+                cor={palette.primary}
+                label={
+                  causa.regra.ministerioId
+                    ? `Regra do ministério — ${ministerioNomeMap.get(causa.regra.ministerioId) ?? 'Ministério'}`
+                    : 'Regra geral'
+                }
+                corpo={descreverRegra(causa.regra)}
+                subcorpo={
+                  causa.regra.funcoes?.[0]
+                    ? `Função: ${resolveFuncaoNome(causa.regra.funcoes[0])}`
+                    : undefined
+                }
+                palette={palette}
+                styles={styles}
+              />
+            )}
+            {index < causas.length - 1 && <View style={styles.divider} />}
+          </View>
+        ))}
       </View>
     </FancyBottomSheetModal>
   );
 }
 
-function RegraBloqueioItem({
-  regra,
+function CausaItem({
+  icone,
+  cor,
+  label,
+  corpo,
+  subcorpo,
   palette,
   styles,
-  resolveFuncaoNome,
 }: {
-  regra: RegraComEscopo;
+  icone: React.ReactNode;
+  cor: string;
+  label: string;
+  corpo: string;
+  subcorpo?: string;
   palette: ReturnType<typeof usePallete>;
   styles: ReturnType<typeof createStyles>;
-  resolveFuncaoNome: (funcaoId: string) => string;
 }) {
-  const descricao = descreverRegra(regra);
-  const nomeFuncao = regra.funcoes?.[0]
-    ? `Função: ${resolveFuncaoNome(regra.funcoes[0])}`
-    : undefined;
-
   return (
-    <View style={styles.regraItem}>
-      <View style={styles.regraHeader}>
-        {/* Ponto colorido */}
-        <View
-          style={[
-            styles.ponto,
-            {
-              backgroundColor: regra.ehMaisRestritiva ? palette.error : palette.secondary,
-            },
-          ]}
-        />
-
-        {/* Descrição */}
-        <View style={styles.regraTexto}>
-          <FancyText type='medium' size='extraSmall' color={palette.fonts.dark}>
-            {descricao}
+    <View style={styles.causaItem}>
+      <View style={[styles.iconeCirculo, { backgroundColor: ColorUtils.withAlpha(cor, 0.12) }]}>
+        {icone}
+      </View>
+      <View style={styles.causaTexto}>
+        <FancyText type='semiBold' size='extraSmall' color={cor}>
+          {label}
+        </FancyText>
+        <FancyText type='medium' size='small' color={palette.fonts.dark}>
+          {corpo}
+        </FancyText>
+        {subcorpo && (
+          <FancyText type='medium' size='extraSmall' color={palette.fonts.inactive}>
+            {subcorpo}
           </FancyText>
-          {nomeFuncao && (
-            <FancyText type='medium' size='extraSmall' color={palette.fonts.inactive}>
-              {nomeFuncao}
-            </FancyText>
-          )}
-        </View>
-
-        {/* Selo */}
-        {regra.ehMaisRestritiva ? (
-          <View
-            style={[styles.selo, { backgroundColor: ColorUtils.withAlpha(palette.error, 0.1) }]}
-          >
-            <FancyText type='semiBold' size='extraSmall' color={palette.error}>
-              Vence
-            </FancyText>
-          </View>
-        ) : (
-          <View
-            style={[
-              styles.selo,
-              { backgroundColor: ColorUtils.withAlpha(palette.secondary, 0.12) },
-            ]}
-          >
-            <FancyText type='semiBold' size='extraSmall' color={palette.secondary}>
-              Coberta
-            </FancyText>
-          </View>
         )}
       </View>
     </View>
@@ -253,36 +229,42 @@ function RegraBloqueioItem({
 
 function createStyles(palette: ThemePalette) {
   return StyleSheet.create({
+    header: {
+      gap: 2,
+      marginBottom: 4,
+    },
+    eyebrow: {
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+    },
     content: {
       gap: 16,
     },
-    section: {
-      gap: 12,
-    },
-    regraItem: {
-      gap: 8,
-    },
-    regraHeader: {
+    causaItem: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      gap: 8,
+      gap: 12,
     },
-    ponto: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      marginTop: 5,
+    iconeCirculo: {
+      width: 40,
+      height: 40,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
       flexShrink: 0,
     },
-    regraTexto: {
+    causaTexto: {
       flex: 1,
-      gap: 2,
+      gap: 4,
+      paddingTop: 2,
     },
-    selo: {
-      paddingVertical: 4,
-      paddingHorizontal: 8,
-      borderRadius: 8,
-      flexShrink: 0,
+    divider: {
+      height: 1,
+      backgroundColor: palette.border,
+      marginTop: 16,
+    },
+    footerButton: {
+      flex: 1,
     },
   });
 }

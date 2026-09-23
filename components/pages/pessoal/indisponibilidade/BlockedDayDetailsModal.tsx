@@ -103,15 +103,21 @@ export default function BlockedDayDetailsModal({
       if (!maisRestritiva) {
         maisRestritiva = regra;
       } else {
-        // Sem ministério é mais restritivo
-        if (!regra.ministerioId && maisRestritiva.ministerioId) {
+        // Sem ministério é mais restritivo (vazio ou bloqueia tudo)
+        const regraTemMinisterio =
+          regra.ministeriosInteirosIds && regra.ministeriosInteirosIds.length > 0;
+        const maisRestrivaTem =
+          maisRestritiva.ministeriosInteirosIds && maisRestritiva.ministeriosInteirosIds.length > 0;
+
+        if (!regraTemMinisterio && maisRestrivaTem) {
           maisRestritiva = regra;
         }
         // Ministério sem função é mais restritivo que com função
         if (
-          regra.ministerioId === maisRestritiva.ministerioId &&
-          !regra.funcoes?.length &&
-          maisRestritiva.funcoes?.length
+          regraTemMinisterio &&
+          maisRestrivaTem &&
+          !regra.funcoesIds?.length &&
+          maisRestritiva.funcoesIds?.length
         ) {
           maisRestritiva = regra;
         }
@@ -125,8 +131,12 @@ export default function BlockedDayDetailsModal({
     }));
 
     // Agrupa por tipo de escopo
-    const geral = regrasComMarcacao.filter((r) => !r.ministerioId);
-    const porFuncao = regrasComMarcacao.filter((r) => r.ministerioId);
+    const geral = regrasComMarcacao.filter(
+      (r) => !r.ministeriosInteirosIds || r.ministeriosInteirosIds.length === 0,
+    );
+    const porFuncao = regrasComMarcacao.filter(
+      (r) => r.ministeriosInteirosIds && r.ministeriosInteirosIds.length > 0,
+    );
 
     return { geral, porFuncao };
   }, [selectedDate, regras]);
@@ -196,8 +206,8 @@ function RegraBloqueioItem({
   resolveFuncaoNome: (funcaoId: string) => string;
 }) {
   const descricao = descreverRegra(regra);
-  const nomeFuncao = regra.funcoes?.[0]
-    ? `Função: ${resolveFuncaoNome(regra.funcoes[0])}`
+  const nomeFuncao = regra.funcoesIds?.[0]
+    ? `Função: ${resolveFuncaoNome(regra.funcoesIds[0])}`
     : undefined;
 
   return (

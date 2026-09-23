@@ -11,8 +11,9 @@ export type ResponseRegraIndisponibilidadeVoluntarioDto = {
   motivo: string | null;
   voluntarioId: string;
   igrejaId: string;
-  ministerioId: string | null;
-  funcoes?: string[] | null; // IDs de funções (só preenchido se ministerioId presente)
+  ministeriosInteirosIds?: string[] | null;
+  funcoesIds?: string[] | null;
+  criadoPor?: string | null;
   createdAt: string;
   updatedAt: string;
 };

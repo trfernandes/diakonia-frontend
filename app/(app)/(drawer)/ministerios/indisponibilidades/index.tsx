@@ -174,7 +174,14 @@ export default function MinisterioIndisponibilidadesIndex() {
   const criar = useCallback(
     async (result: AddRegraModalResult) => {
       if (!voluntarioId || !igrejaId || !ministerioId) return;
-      await criarRegra({ ...result, voluntarioId, igrejaId, ministerioId });
+      // Força o resultado a incluir apenas este ministério
+      await criarRegra({
+        ...result,
+        ministeriosInteirosIds: [ministerioId],
+        funcoesIds: result.funcoesIds,
+        voluntarioId,
+        igrejaId,
+      });
       setShowRegraModal(false);
       setLazyToastOptions({ type: 'success', text1: 'Regra criada com sucesso!' });
     },

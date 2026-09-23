@@ -352,8 +352,8 @@ export default function IndisponibilidadeIndexPage() {
       // Normaliza o resultado: converte null/undefined
       const normalized = {
         ...result,
-        ministerioId: result.ministerioId || undefined,
-        funcoes: result.funcoes?.length ? result.funcoes : undefined,
+        ministeriosInteirosIds: result.ministeriosInteirosIds || undefined,
+        funcoesIds: result.funcoesIds?.length ? result.funcoesIds : undefined,
         voluntarioId: userId,
         igrejaId,
       };
@@ -423,12 +423,32 @@ export default function IndisponibilidadeIndexPage() {
   const handleConfirmEditRegra = async (result: AddRegraModalResult) => {
     if (!editingRegra || !userId || !igrejaId) return;
     const id = editingRegra.id;
-    const { tipo, diasSemana, dataInicio, dataFim, recorrente, limiteMensal, motivo } = result;
+    const {
+      tipo,
+      diasSemana,
+      dataInicio,
+      dataFim,
+      recorrente,
+      limiteMensal,
+      motivo,
+      ministeriosInteirosIds,
+      funcoesIds,
+    } = result;
 
     try {
       await updateRegra?.({
         id,
-        data: { tipo, diasSemana, dataInicio, dataFim, recorrente, limiteMensal, motivo },
+        data: {
+          tipo,
+          diasSemana,
+          dataInicio,
+          dataFim,
+          recorrente,
+          limiteMensal,
+          motivo,
+          ministeriosInteirosIds: ministeriosInteirosIds || undefined,
+          funcoesIds: funcoesIds || undefined,
+        },
       });
       setEditingRegra(null);
       setLazyToastOptions({
@@ -805,8 +825,8 @@ export default function IndisponibilidadeIndexPage() {
           editingRegraId={editingRegra.id}
           initialValues={{
             tipo: editingRegra.tipo,
-            ministerioId: editingRegra.ministerioId ?? undefined,
-            funcoes: editingRegra.funcoes ?? undefined,
+            ministeriosInteirosIds: editingRegra.ministeriosInteirosIds ?? undefined,
+            funcoesIds: editingRegra.funcoesIds ?? undefined,
             diasSemana: editingRegra.diasSemana ?? undefined,
             dataInicio: editingRegra.dataInicio ?? undefined,
             dataFim: editingRegra.dataFim ?? undefined,

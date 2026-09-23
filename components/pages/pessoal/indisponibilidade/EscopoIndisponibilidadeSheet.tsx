@@ -3,7 +3,6 @@ import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import FancyBottomSheetModal from '../../../modal/FancyBottomSheetModal';
 import FancyText from '../../../FancyText';
 import FancyButton from '../../../buttons/FancyButton';
-import FancyErrorBanner from '../../../forms/FancyErrorBanner';
 import FancyChips from '../../../FancyChips';
 import DefaultIcons from '../../../FancyIcons';
 import { usePallete } from '../../../../hooks/usePallete';
@@ -54,14 +53,12 @@ export default function EscopoIndisponibilidadeSheet({
     new Set(initialFuncoes?.filter((id) => id) ?? []),
   );
   const [expandedMinisterios, setExpandedMinisterios] = useState<Set<string>>(new Set());
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (visible) {
       setMinisteriosInteiros(new Set(initialMinisteriosInteiros?.filter((id) => id) ?? []));
       setFuncoesSelecionadas(new Set(initialFuncoes?.filter((id) => id) ?? []));
       setExpandedMinisterios(new Set());
-      setError(null);
     }
   }, [visible, initialMinisteriosInteiros, initialFuncoes]);
 
@@ -98,7 +95,6 @@ export default function EscopoIndisponibilidadeSheet({
 
     setMinisteriosInteiros(newMinisterios);
     setFuncoesSelecionadas(newFuncoes);
-    setError(null);
   };
 
   const toggleFuncao = (funcaoId: string, ministerioId: string) => {
@@ -115,7 +111,6 @@ export default function EscopoIndisponibilidadeSheet({
     }
 
     setFuncoesSelecionadas(newFuncoes);
-    setError(null);
   };
 
   const getMinisterioCheckboxState = (ministerioId: string) => {
@@ -133,10 +128,7 @@ export default function EscopoIndisponibilidadeSheet({
   };
 
   const handleConfirm = () => {
-    if (ministeriosInteiros.size === 0 && funcoesSelecionadas.size === 0) {
-      setError('Selecione ao menos um ministério ou uma função');
-      return;
-    }
+    // Nada marcado = vale pra todos os ministérios (ADR-0012)
     onConfirm(Array.from(ministeriosInteiros), Array.from(funcoesSelecionadas));
     onClose();
   };
@@ -166,13 +158,11 @@ export default function EscopoIndisponibilidadeSheet({
       }
     >
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {error && <FancyErrorBanner message={error} />}
-
         <View style={styles.descricao}>
           <FancyText size='small' type='medium' color={palette.fonts.inactive}>
             Selecione os ministérios ou funções para os quais esta indisponibilidade vale. Se marcar
             um ministério inteiro, o voluntário fica indisponível em todas as funções desse
-            ministério.
+            ministério. Deixe tudo desmarcado pra valer em todos os ministérios.
           </FancyText>
         </View>
 

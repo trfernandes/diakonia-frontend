@@ -41,7 +41,7 @@ import {
   ESCALAS_VOLUNTARIO_TOUR_TITLE,
 } from '../../../../../components/tutorial/tours/escalasVoluntarioTour';
 import { useJourney } from '../../../../../contexts/JourneyContext';
-import { usePostHog } from 'posthog-react-native';
+import { useAnalytics } from '../../../../../core/analytics/AnalyticsContext';
 import {
   AnalyticsEvent,
   buildDisponibilidadeRespondidaProps,
@@ -96,7 +96,7 @@ export default function MinhasEscalasIndexPage() {
   const [escalasDoUsuario, setEscalasDoUsuario] = useState<ResponseEscalaItemDto[]>([]);
   const [isLoadingEscalas, setIsLoadingEscalas] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const posthog = usePostHog();
+  const posthog = useAnalytics();
   const { update: updateEscala, isLoadingMutation: isLoading } = useEscalaItensCrud({
     muteMessages: true,
   });

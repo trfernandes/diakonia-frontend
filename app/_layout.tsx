@@ -8,6 +8,7 @@ import { PostHogProvider } from 'posthog-react-native';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { AnalyticsIdentityBridge } from '../core/analytics/AnalyticsIdentityBridge';
 import { POSTHOG_API_KEY, POSTHOG_HOST } from '../core/analytics/posthogConfig';
+import { PostHogClientBridge } from '../core/analytics/AnalyticsContext';
 import { TutorialCatalogProvider } from '../contexts/TutorialCatalogContext';
 import { JourneyProvider, useJourney } from '../contexts/JourneyContext';
 import { LoadingProvider } from '../contexts/LoadingContext';
@@ -105,8 +106,10 @@ function AnalyticsProvider({ children }: { children: React.ReactNode }) {
       apiKey={POSTHOG_API_KEY}
       options={{ host: POSTHOG_HOST, enableSessionReplay: false }}
     >
-      <AnalyticsIdentityBridge />
-      {children}
+      <PostHogClientBridge>
+        <AnalyticsIdentityBridge />
+        {children}
+      </PostHogClientBridge>
     </PostHogProvider>
   );
 }

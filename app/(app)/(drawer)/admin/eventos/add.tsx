@@ -15,7 +15,7 @@ import { DefaultIconsNames } from '../../../../../constants/icons';
 import { useAuth } from '../../../../../contexts/AuthContext';
 import Toast from 'react-native-toast-message';
 import { usePallete } from '../../../../../hooks/usePallete';
-import { usePostHog } from 'posthog-react-native';
+import { useAnalytics } from '../../../../../core/analytics/AnalyticsContext';
 import { AnalyticsEvent, buildEventoCriadoProps } from '../../../../../core/analytics/events';
 
 export function getDefaultEventoTimes() {
@@ -52,7 +52,7 @@ export default function EventosAddPage() {
   });
 
   const { add, isError, isLoading, isLoadingMutation } = useEventosCrud();
-  const posthog = usePostHog();
+  const posthog = useAnalytics();
 
   const handleSubmit = async () => {
     form.handleSubmit(

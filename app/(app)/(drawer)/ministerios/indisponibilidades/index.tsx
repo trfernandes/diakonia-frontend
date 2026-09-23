@@ -171,21 +171,32 @@ export default function MinisterioIndisponibilidadesIndex() {
     palette.fonts.inactive,
   ]);
 
+  // Escopo sempre restrito a este ministério. Backend faz união de ministeriosInteiros + funcoes,
+  // então mandar o ministério inteiro junto com funções anularia a escolha das funções.
+  // Limite mensal não aceita funções (vale pelo ministério todo).
+  const escopoDoMinisterio = useCallback(
+    (result: AddRegraModalResult) => {
+      const funcoesIds = result.tipo === 'LIMITE_MENSAL' ? [] : (result.funcoesIds ?? []);
+      return funcoesIds.length
+        ? { ministeriosInteirosIds: [], funcoesIds }
+        : { ministeriosInteirosIds: ministerioId ? [ministerioId] : [], funcoesIds: [] };
+    },
+    [ministerioId],
+  );
+
   const criar = useCallback(
     async (result: AddRegraModalResult) => {
       if (!voluntarioId || !igrejaId || !ministerioId) return;
-      // Força o resultado a incluir apenas este ministério
       await criarRegra({
         ...result,
-        ministeriosInteirosIds: [ministerioId],
-        funcoesIds: result.funcoesIds,
+        ...escopoDoMinisterio(result),
         voluntarioId,
         igrejaId,
       });
       setShowRegraModal(false);
       setLazyToastOptions({ type: 'success', text1: 'Regra criada com sucesso!' });
     },
-    [criarRegra, voluntarioId, igrejaId, ministerioId],
+    [criarRegra, escopoDoMinisterio, voluntarioId, igrejaId, ministerioId],
   );
 
   const handleConfirmAddRegra = async (result: AddRegraModalResult) => {
@@ -242,7 +253,16 @@ export default function MinisterioIndisponibilidadesIndex() {
     // erro exibido inline no próprio modal; modal fica aberto p/ o usuário corrigir
     await atualizarRegra({
       id,
-      dto: { tipo, diasSemana, dataInicio, dataFim, recorrente, limiteMensal, motivo },
+      dto: {
+        tipo,
+        diasSemana,
+        dataInicio,
+        dataFim,
+        recorrente,
+        limiteMensal,
+        motivo,
+        ...escopoDoMinisterio(result),
+      },
     });
     setEditingRegra(null);
     setLazyToastOptions({ type: 'success', text1: 'Regra atualizada com sucesso!' });

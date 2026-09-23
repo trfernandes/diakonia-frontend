@@ -18,6 +18,14 @@ class IndisponibilidadesVoluntariosRepositoryClass extends BaseRepository<
     return IndisponibilidadesVoluntariosApi.upsertMany(payload);
   }
 
+  update(
+    id: string,
+    data: UpdateIndisponibilidadeVoluntarioDto,
+    igrejaId?: string,
+  ): Promise<ResponseIndisponibilidadeVoluntarioDto> {
+    return IndisponibilidadesVoluntariosApi.update(id, data, igrejaId);
+  }
+
   remove(id: string, igrejaId?: string): Promise<void> {
     return IndisponibilidadesVoluntariosApi.delete(id, igrejaId);
   }

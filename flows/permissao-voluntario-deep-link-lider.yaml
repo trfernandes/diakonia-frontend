@@ -1,0 +1,43 @@
+# Flow: Voluntário comum abre tela de líder/admin por deep link (caso E2E 5.1)
+#
+# Pré-condição: e2e.voluntario@diakonia.app é voluntário comum na igreja E2E (E2ETEST),
+# sem liderança e sem papel de admin.
+# Rodar com -e APP_EMAIL=e2e.voluntario@diakonia.app -e APP_PASSWORD=...
+#
+# O que verifica: ao abrir por deep link as telas de administração (voluntários, ministérios,
+# configurações de assinatura), o voluntário não vê a lista de gestão nem os botões de líder.
+# Conferência visual pelos screenshots, porque cada tela pode bloquear de um jeito
+# (redirecionar, mostrar aviso ou tela vazia).
+# Limpeza: nenhuma (não cria nem altera dado).
+
+appId: com.church.artos
+---
+- launchApp
+- runFlow: _login.yaml
+- openLink: diakonia:///inicio
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+- openLink: diakonia:///admin/voluntarios
+- waitForAnimationToEnd:
+    timeout: 15000
+- takeScreenshot: vol-deeplink-admin-voluntarios
+# Comportamento visto em 24/09: rota de admin redireciona o voluntário para Início
+- assertVisible: 'Minhas escalas'
+# Lista de gestão mostra os outros membros da igreja: não pode aparecer
+- assertNotVisible: '.*E2E Volunt.*2.*'
+- assertNotVisible: '.*Convidar.*'
+
+- openLink: diakonia:///admin/ministerios
+- waitForAnimationToEnd:
+    timeout: 15000
+- takeScreenshot: vol-deeplink-admin-ministerios
+- assertVisible: 'Minhas escalas'
+- assertNotVisible: '.*Novo ministério.*'
+
+- openLink: diakonia:///configuracoes
+- waitForAnimationToEnd:
+    timeout: 15000
+- takeScreenshot: vol-deeplink-configuracoes
+- assertNotVisible: 'Gerenciar assinatura'

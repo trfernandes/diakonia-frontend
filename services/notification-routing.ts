@@ -274,6 +274,12 @@ function resolveByTipo(payload: Record<string, any>): NotificationNavigationTarg
         resolveEscalaSpecificTarget(payload) ?? { pathname: '/(app)/(drawer)/pessoal/escalas' }
       );
 
+    // Pedido do líder pra cadastrar indisponibilidades: card "Já lancei" fica no topo dessa tela.
+    case NotificacaoTipoEnum.LancamentoIndisponibilidadeCriado:
+    case NotificacaoTipoEnum.LancamentoIndisponibilidadeLembrete:
+    case NotificacaoTipoEnum.LancamentoIndisponibilidadeVespera:
+      return { pathname: '/(app)/(drawer)/pessoal/indisponibilidade' };
+
     case NotificacaoTipoEnum.MinisterioNovoIntegrante:
     case 'COMUNICADO_LIDER':
       return { pathname: '/(app)/(drawer)/ministerios' };
@@ -314,6 +320,9 @@ const TYPE_CANONICAL_TARGETS = new Set<string>([
   NotificacaoTipoEnum.EscalaSubstituicaoSolicitadaLider,
   NotificacaoTipoEnum.EscalaSubstituicaoResolvidaLider,
   NotificacaoTipoEnum.IndisponibilidadeConflito,
+  NotificacaoTipoEnum.LancamentoIndisponibilidadeCriado,
+  NotificacaoTipoEnum.LancamentoIndisponibilidadeLembrete,
+  NotificacaoTipoEnum.LancamentoIndisponibilidadeVespera,
   NotificacaoTipoEnum.MinisterioNovoIntegrante,
   NotificacaoTipoEnum.ComunicadoLider,
   NotificacaoTipoEnum.IgrejaVinculoSolicitado,

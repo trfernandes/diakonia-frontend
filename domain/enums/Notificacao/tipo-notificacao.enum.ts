@@ -21,6 +21,9 @@ export enum NotificacaoTipoEnum {
   MinisterioNovoIntegrante = 'MINISTERIO_NOVO_INTEGRANTE',
   IndisponibilidadeConflito = 'INDISPONIBILIDADE_CONFLITO',
   ComunicadoLider = 'COMUNICADO_LIDER',
+  LancamentoIndisponibilidadeCriado = 'LANCAMENTO_INDISPONIBILIDADE_CRIADO',
+  LancamentoIndisponibilidadeLembrete = 'LANCAMENTO_INDISPONIBILIDADE_LEMBRETE',
+  LancamentoIndisponibilidadeVespera = 'LANCAMENTO_INDISPONIBILIDADE_VESPERA',
 
   // Responsável da Igreja (Admin)
   IgrejaConviteAceito = 'IGREJA_CONVITE_ACEITO',

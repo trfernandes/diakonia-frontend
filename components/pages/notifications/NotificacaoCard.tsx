@@ -99,6 +99,21 @@ export const NOTIFICACAO_THEMES: Record<NotificacaoTipoEnum, NotificationCardThe
     tone: 'red',
     label: 'Conflito de escala',
   },
+  [NotificacaoTipoEnum.LancamentoIndisponibilidadeCriado]: {
+    icon: makeIcon('calendar-edit'),
+    tone: 'blue',
+    label: 'Cadastre suas indisponibilidades',
+  },
+  [NotificacaoTipoEnum.LancamentoIndisponibilidadeLembrete]: {
+    icon: makeIcon('calendar-edit'),
+    tone: 'blue',
+    label: 'Lembrete de indisponibilidades',
+  },
+  [NotificacaoTipoEnum.LancamentoIndisponibilidadeVespera]: {
+    icon: makeIcon('calendar-clock'),
+    tone: 'amber',
+    label: 'Prazo termina amanhã',
+  },
 
   // ── Confirmação de presença (âmbar — aguardando ação) ───────────────────
   [NotificacaoTipoEnum.EscalaConfirmacaoSolicitada]: {

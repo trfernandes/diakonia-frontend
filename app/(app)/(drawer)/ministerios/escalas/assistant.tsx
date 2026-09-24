@@ -416,6 +416,7 @@ function AssistenteWrapper() {
           <AssistenteParametrosStep
             isCheckingName={isCheckingName}
             onNomeBlur={handleNomeBlurValidation}
+            ministerioId={ministerioId}
           />
         ),
         actions: [

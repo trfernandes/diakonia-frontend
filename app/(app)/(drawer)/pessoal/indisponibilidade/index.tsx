@@ -39,6 +39,8 @@ import {
   INDISPONIBILIDADES_TOUR_TITLE,
 } from '../../../../../components/tutorial/tours/indisponibilidadesTour';
 import { useJourney } from '../../../../../contexts/JourneyContext';
+import { useMeusLancamentos } from '../../../../../hooks/useLancamentosIndisponibilidade';
+import LancamentoPendenteCard from '../../../../../components/pages/lancamentos-indisponibilidade/LancamentoPendenteCard';
 import {
   descreverRegra,
   descreverDetalheRegra,
@@ -77,6 +79,8 @@ export default function IndisponibilidadeIndexPage() {
     useState<ResponseRegraIndisponibilidadeVoluntarioDto | null>(null);
   const [hasSettled, setHasSettled] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const meusLancamentos = useMeusLancamentos();
+  const lancamentosDaIgreja = meusLancamentos.lancamentos.filter((l) => l.igrejaId === igrejaId);
   const fabAnim = useRef(new Animated.Value(1)).current;
 
   const journey = useJourney();
@@ -749,6 +753,19 @@ export default function IndisponibilidadeIndexPage() {
       )}
 
       <View style={{ flex: 1, opacity: isBusy ? 0 : 1 }}>
+        {lancamentosDaIgreja.length > 0 && (
+          <View style={{ paddingHorizontal: 15, paddingTop: 10, gap: 10 }}>
+            {lancamentosDaIgreja.map((lancamento) => (
+              <LancamentoPendenteCard
+                key={lancamento.lancamentoId}
+                lancamento={lancamento}
+                onMarcar={meusLancamentos.marcarJaLancei}
+                onDesfazer={meusLancamentos.desfazerJaLancei}
+                isMutating={meusLancamentos.isMutating}
+              />
+            ))}
+          </View>
+        )}
         <FancyTabs
           keepMounted
           contentGutter={false}

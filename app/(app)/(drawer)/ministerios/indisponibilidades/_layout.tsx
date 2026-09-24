@@ -19,6 +19,8 @@ export default function MinisterioIndisponibilidadesLayout() {
           headerRight: () => <MainHeaderButtons />,
         }}
       />
+      <Stack.Screen name='novo-lancamento' options={{ title: 'Novo lançamento' }} />
+      <Stack.Screen name='automatico' options={{ title: 'Lançamento automático' }} />
     </Stack>
   );
 }

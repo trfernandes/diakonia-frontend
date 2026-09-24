@@ -14,19 +14,19 @@
 #   -- Obs: status permanece 'active' (isBlocked=false).
 #   UPDATE subscriptions
 #   SET plan = 'starter'
-#   WHERE "churchId" = (SELECT id FROM igrejas WHERE codigo = 'teste-church');
+#   WHERE "churchId" = '00000000-e2e0-4000-8000-000000000001';
 #   UPDATE igrejas
 #   SET "maxVoluntarios" = 30
-#   WHERE codigo = 'teste-church';
+#   WHERE id = '00000000-e2e0-4000-8000-000000000001';
 #
 # SQL REVERT (rodar apos):
 #
 #   UPDATE subscriptions
 #   SET plan = 'crescimento'
-#   WHERE "churchId" = (SELECT id FROM igrejas WHERE codigo = 'teste-church');
+#   WHERE "churchId" = '00000000-e2e0-4000-8000-000000000001';
 #   UPDATE igrejas
 #   SET "maxVoluntarios" = 180
-#   WHERE codigo = 'teste-church';
+#   WHERE id = '00000000-e2e0-4000-8000-000000000001';
 # ════════════════════════════════════════════════
 #
 # O que verifica:

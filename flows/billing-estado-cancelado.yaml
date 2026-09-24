@@ -11,16 +11,16 @@
 #   UPDATE subscriptions
 #   SET status = 'cancelled',
 #       "currentPeriodEnd" = NOW() + INTERVAL '30 days'
-#   WHERE "churchId" = (SELECT id FROM igrejas WHERE codigo = 'teste-church');
-#   UPDATE igrejas SET "subscriptionStatus" = 'cancelled' WHERE codigo = 'teste-church';
+#   WHERE "churchId" = '00000000-e2e0-4000-8000-000000000001';
+#   UPDATE igrejas SET "subscriptionStatus" = 'cancelled' WHERE id = '00000000-e2e0-4000-8000-000000000001';
 #
 # SQL REVERT (rodar apos):
 #
 #   UPDATE subscriptions
 #   SET status = 'active',
 #       "currentPeriodEnd" = '2026-07-18'
-#   WHERE "churchId" = (SELECT id FROM igrejas WHERE codigo = 'teste-church');
-#   UPDATE igrejas SET "subscriptionStatus" = 'active' WHERE codigo = 'teste-church';
+#   WHERE "churchId" = '00000000-e2e0-4000-8000-000000000001';
+#   UPDATE igrejas SET "subscriptionStatus" = 'active' WHERE id = '00000000-e2e0-4000-8000-000000000001';
 # ════════════════════════════════════════════════
 #
 # O que verifica:

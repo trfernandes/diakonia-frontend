@@ -12,8 +12,8 @@
 #   SET status = 'trial',
 #       "trialEndsAt" = NOW() + INTERVAL '5 days',
 #       "currentPeriodEnd" = NOW() + INTERVAL '5 days'
-#   WHERE "churchId" = (SELECT id FROM igrejas WHERE codigo = 'teste-church');
-#   UPDATE igrejas SET "subscriptionStatus" = 'trial' WHERE codigo = 'teste-church';
+#   WHERE "churchId" = '00000000-e2e0-4000-8000-000000000001';
+#   UPDATE igrejas SET "subscriptionStatus" = 'trial' WHERE id = '00000000-e2e0-4000-8000-000000000001';
 #
 # SQL REVERT (rodar apos):
 #
@@ -21,8 +21,8 @@
 #   SET status = 'active',
 #       "trialEndsAt" = NULL,
 #       "currentPeriodEnd" = '2026-07-18'
-#   WHERE "churchId" = (SELECT id FROM igrejas WHERE codigo = 'teste-church');
-#   UPDATE igrejas SET "subscriptionStatus" = 'active' WHERE codigo = 'teste-church';
+#   WHERE "churchId" = '00000000-e2e0-4000-8000-000000000001';
+#   UPDATE igrejas SET "subscriptionStatus" = 'active' WHERE id = '00000000-e2e0-4000-8000-000000000001';
 # ════════════════════════════════════════════════
 #
 # O que verifica:

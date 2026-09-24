@@ -20,10 +20,9 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 15000
 
-# Visita 1: aba Assinatura (index 1 pois index 0 eh o card de status no topo)
+# Visita 1: aba Assinatura (accessibilityText da aba = '<icone>, Assinatura'; o card de status do topo tem so o texto)
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 - assertVisible: 'Gerenciar assinatura'
@@ -36,13 +35,14 @@ appId: com.church.artos
 
 # Voltar para Assinatura (visita 2)
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 
 # [ADVERSARIAL] Status deve continuar correto - sem stale
 - assertVisible: 'Gerenciar assinatura'
 - assertVisible: 'Assinatura em dia'
+# Status pill persiste mesmo apos re-navegacao
+- assertVisible: 'Ativa'
 
 - takeScreenshot: billing-nav-visita-2

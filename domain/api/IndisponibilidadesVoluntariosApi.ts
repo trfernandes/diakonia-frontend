@@ -48,12 +48,16 @@ class IndisponibilidadesVoluntariosApiClass extends BaseApi<
   async update(
     id: string,
     data: UpdateIndisponibilidadeVoluntarioDto,
+    igrejaId?: string,
   ): Promise<ResponseIndisponibilidadeVoluntarioDto> {
     if (__DEV__) {
       console.log('[IndisponibilidadesApi] UPDATE -', id);
     }
-    const result = await super.update(id, data);
-    return result;
+    // IgrejaAccessGuard exige igrejaId; o DTO de update não aceita no body, então vai na query
+    const response = await apiClient.put(`/indisponibilidades-voluntarios/${id}`, data, {
+      params: igrejaId ? { igrejaId } : undefined,
+    });
+    return response.data.data;
   }
 
   async delete(id: string, igrejaId?: string): Promise<void> {

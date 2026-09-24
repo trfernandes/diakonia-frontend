@@ -11,8 +11,6 @@ import DefaultIcons from '../../../FancyIcons';
 import { ResponseRegraIndisponibilidadeVoluntarioDto } from '../../../../domain/dtos/RegraIndisponibilidadeVoluntario/regra-indisponibilidade-voluntario.response';
 import { descreverRegra, regraIcone } from '../../../../domain/utils/regra_indisponibilidade_utils';
 import { DateUtilsApi } from '../../../../utils/date_utils';
-import { useMinisterioFuncoesCrud } from '../../../../hooks/useMinisterioFuncoesCrud';
-import { useMinisteriosCrud } from '../../../../hooks/useMinisteriosCrud';
 
 type CausaAvulsa = {
   tipo: 'avulsa';
@@ -45,24 +43,6 @@ export default function BlockedDayDetailsModal({
 }) {
   const palette = usePallete();
   const styles = useThemedStyles(createStyles);
-
-  const { data: allFuncoes } = useMinisterioFuncoesCrud({ autoFetch: true });
-  const { data: ministeriosData } = useMinisteriosCrud({ autoFetch: true });
-
-  const funcaoNomeMap = useMemo(() => {
-    const map = new Map<string, string>();
-    allFuncoes?.forEach((f: any) => map.set(f.id, f.nome));
-    return map;
-  }, [allFuncoes]);
-
-  const ministerioNomeMap = useMemo(() => {
-    const map = new Map<string, string>();
-    ministeriosData?.forEach((m: any) => map.set(m.id, m.nome));
-    return map;
-  }, [ministeriosData]);
-
-  const resolveFuncaoNome = (funcaoId: string): string =>
-    funcaoNomeMap.get(funcaoId) || 'Função desconhecida';
 
   const causas = useMemo<Causa[]>(() => {
     if (!selectedDate) return [];
@@ -166,14 +146,16 @@ export default function BlockedDayDetailsModal({
                 })}
                 cor={palette.primary}
                 label={
-                  causa.regra.ministerioId
-                    ? `Regra do ministério — ${ministerioNomeMap.get(causa.regra.ministerioId) ?? 'Ministério'}`
-                    : 'Regra geral'
+                  causa.regra.ministeriosInteiros?.length
+                    ? `Regra do ministério — ${causa.regra.ministeriosInteiros.map((m) => m.nome).join(', ')}`
+                    : causa.regra.funcoes?.length
+                      ? 'Regra por função'
+                      : 'Regra geral'
                 }
                 corpo={descreverRegra(causa.regra)}
                 subcorpo={
-                  causa.regra.funcoes?.[0]
-                    ? `Função: ${resolveFuncaoNome(causa.regra.funcoes[0])}`
+                  causa.regra.funcoes?.length
+                    ? `${causa.regra.funcoes.length > 1 ? 'Funções' : 'Função'}: ${causa.regra.funcoes.map((f) => f.nome).join(', ')}`
                     : undefined
                 }
                 palette={palette}

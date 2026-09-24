@@ -45,13 +45,16 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 3000
 - assertVisible: 'Crescimento'
+# Status pill visível em header card
+- assertVisible: 'Ativa'
 
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 3000
 - assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
 
 - openLink: diakonia:///inicio
 - waitForAnimationToEnd:
@@ -68,8 +71,8 @@ appId: com.church.artos
     timeout: 3000
 
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 

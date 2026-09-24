@@ -67,13 +67,15 @@ appId: com.church.artos
 # O app já filtra por role: voluntário vê status read-only mas NÃO o botão
 # "Gerenciar assinatura". Em vez disso exibe mensagem orientando a falar com admin.
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - extendedWaitUntil:
     visible: 'Assinatura em dia'
     timeout: 20000
 - assertVisible: 'Assinatura em dia'
+# Status pill visível mesmo para voluntário
+- assertVisible: 'Ativa'
 - assertVisible: 'Crescimento'
+# Mensagem de acesso apenas para admin
 - assertVisible: 'Fale com o administrador da igreja para gerenciar a assinatura.'
 - assertNotVisible: 'Gerenciar assinatura'
 - takeScreenshot: voluntario-assinatura-tab-readonly

@@ -28,13 +28,16 @@ appId: com.church.artos
     timeout: 15000
 
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 
 # Estado inicial: unico CTA visivel
 - assertVisible: 'Gerenciar assinatura'
+# Confirmar que status é ativo (baseline antes do scroll)
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
 - takeScreenshot: billing-scroll-topo
 
 # Scroll 1 — inicio do conteudo abaixo do fold
@@ -43,6 +46,8 @@ appId: com.church.artos
     duration: 700
 - waitForAnimationToEnd:
     timeout: 1000
+# Status persiste visível durante scroll
+- assertVisible: 'Assinatura em dia'
 - assertNotVisible: 'Cancelar assinatura'
 - assertNotVisible: 'Ver planos'
 - assertNotVisible: 'Trocar plano'
@@ -73,4 +78,6 @@ appId: com.church.artos
 - assertNotVisible: 'Cancelar assinatura'
 - assertNotVisible: 'Ver planos'
 - assertNotVisible: 'Trocar plano'
+# CTA persiste no final da tela
+- assertVisible: 'Gerenciar assinatura'
 - takeScreenshot: billing-scroll-fundo

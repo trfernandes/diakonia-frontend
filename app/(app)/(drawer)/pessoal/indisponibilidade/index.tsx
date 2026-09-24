@@ -53,6 +53,8 @@ type ModalState = {
   date?: Date;
   status?: 'available' | 'unavailable';
   motivo?: string | null;
+  ministeriosInteirosIds?: string[] | null;
+  funcoesIds?: string[] | null;
 };
 
 export default function IndisponibilidadeIndexPage() {
@@ -306,13 +308,21 @@ export default function IndisponibilidadeIndexPage() {
           date,
           status: registro ? 'unavailable' : 'available',
           motivo: registro?.motivo ?? null,
+          ministeriosInteirosIds: registro?.ministeriosInteiros?.map((m) => m.id) ?? null,
+          funcoesIds: registro?.funcoes?.map((f) => f.id) ?? null,
         });
       }
     },
     [data, regras],
   );
 
-  const handleConfirmAddPeriodo = async (inicio: Date, fim: Date, motivo: string) => {
+  const handleConfirmAddPeriodo = async (
+    inicio: Date,
+    fim: Date,
+    motivo: string,
+    ministeriosInteirosIds?: string[],
+    funcoesIds?: string[],
+  ) => {
     if (!userId || !igrejaId) return;
     setShowPeriodoModal(false);
 
@@ -323,6 +333,8 @@ export default function IndisponibilidadeIndexPage() {
         (d) => ({
           data: DateUtilsApi.dateOnlyToApi(d),
           motivo: motivo?.trim() || undefined,
+          ministeriosInteirosIds: ministeriosInteirosIds || undefined,
+          funcoesIds: funcoesIds || undefined,
         }),
       );
 
@@ -354,8 +366,8 @@ export default function IndisponibilidadeIndexPage() {
       // Normaliza o resultado: converte null/undefined
       const normalized = {
         ...result,
-        ministerioId: result.ministerioId || undefined,
-        funcoes: result.funcoes?.length ? result.funcoes : undefined,
+        ministeriosInteirosIds: result.ministeriosInteirosIds || undefined,
+        funcoesIds: result.funcoesIds?.length ? result.funcoesIds : undefined,
         voluntarioId: userId,
         igrejaId,
       };
@@ -425,12 +437,32 @@ export default function IndisponibilidadeIndexPage() {
   const handleConfirmEditRegra = async (result: AddRegraModalResult) => {
     if (!editingRegra || !userId || !igrejaId) return;
     const id = editingRegra.id;
-    const { tipo, diasSemana, dataInicio, dataFim, recorrente, limiteMensal, motivo } = result;
+    const {
+      tipo,
+      diasSemana,
+      dataInicio,
+      dataFim,
+      recorrente,
+      limiteMensal,
+      motivo,
+      ministeriosInteirosIds,
+      funcoesIds,
+    } = result;
 
     try {
       await updateRegra?.({
         id,
-        data: { tipo, diasSemana, dataInicio, dataFim, recorrente, limiteMensal, motivo },
+        data: {
+          tipo,
+          diasSemana,
+          dataInicio,
+          dataFim,
+          recorrente,
+          limiteMensal,
+          motivo,
+          ministeriosInteirosIds: ministeriosInteirosIds || undefined,
+          funcoesIds: funcoesIds || undefined,
+        },
       });
       setEditingRegra(null);
       setLazyToastOptions({
@@ -472,7 +504,13 @@ export default function IndisponibilidadeIndexPage() {
 
   const closeModal = () => setModalState((prev) => ({ ...prev, visible: false }));
 
-  const handleConfirm = async (mode: 'mark' | 'unmark', date: Date, motivo?: string) => {
+  const handleConfirm = async (
+    mode: 'mark' | 'unmark',
+    date: Date,
+    motivo?: string,
+    ministeriosInteirosIds?: string[],
+    funcoesIds?: string[],
+  ) => {
     if (!userId || !igrejaId) return;
     const registro = data.find((d) => DateUtilsApi.compareDateOnlyFromApi(d.data, date));
     closeModal();
@@ -485,6 +523,8 @@ export default function IndisponibilidadeIndexPage() {
             data: {
               data: DateUtilsApi.dateOnlyToApi(date),
               motivo,
+              ministeriosInteirosIds: ministeriosInteirosIds || undefined,
+              funcoesIds: funcoesIds || undefined,
             },
           });
           setLazyToastOptions({
@@ -498,6 +538,8 @@ export default function IndisponibilidadeIndexPage() {
             voluntarioId: userId,
             igrejaId,
             motivo,
+            ministeriosInteirosIds: ministeriosInteirosIds || undefined,
+            funcoesIds: funcoesIds || undefined,
           });
           setLazyToastOptions({
             type: 'info',
@@ -771,6 +813,8 @@ export default function IndisponibilidadeIndexPage() {
             date: modalState.date!,
             status: modalState.status!,
             motivo: modalState.motivo ?? undefined,
+            ministeriosInteirosIds: modalState.ministeriosInteirosIds,
+            funcoesIds: modalState.funcoesIds,
           }}
           modalProps={{ onButton1Press: closeModal }}
           onConfirm={handleConfirm}
@@ -807,8 +851,8 @@ export default function IndisponibilidadeIndexPage() {
           editingRegraId={editingRegra.id}
           initialValues={{
             tipo: editingRegra.tipo,
-            ministerioId: editingRegra.ministerioId ?? undefined,
-            funcoes: editingRegra.funcoes ?? undefined,
+            ministeriosInteirosIds: editingRegra.ministeriosInteiros?.map((m) => m.id) ?? undefined,
+            funcoesIds: editingRegra.funcoes?.map((f) => f.id) ?? undefined,
             diasSemana: editingRegra.diasSemana ?? undefined,
             dataInicio: editingRegra.dataInicio ?? undefined,
             dataFim: editingRegra.dataFim ?? undefined,

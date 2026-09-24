@@ -1,0 +1,54 @@
+# Flow: Checklist Onboarding — card de guia de onboarding pra admin
+#
+# Uso:
+#   maestro test maestro/flows/checklist-onboarding.yaml \
+#     -e APP_EMAIL=seu@email.com \
+#     -e APP_PASSWORD=SuaSenha123
+#
+# O que verifica:
+#   - ChecklistOnboardingCard aparece na dashboard de admin (se não estiver 100% completo)
+#   - Exibe o próximo passo pendente com hint e CTA
+#   - Clique na CTA navega para a rota esperada (ministério, eventos, etc.)
+#
+# Nota: Se a conta de teste já tiver completado todos os passos (100%),
+#       o card não aparece — documentado como pendência nesse caso.
+
+appId: com.church.artos
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+# Já está em Início após login — dashboard de admin é a própria home
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Dashboard admin carregou (DashboardAdmin.tsx:54). O card de checklist fica logo acima.
+- assertVisible: 'Visão geral'
+
+# Conta Mirian/BeOne (staging, 24/09/2026): checklist 6/6, proximoPendente=null — card
+# não renderiza e o bloco abaixo é pulado. Pra exercitar o caminho do card, usar conta
+# de igreja nova (checklist < 100%).
+# ChecklistOnboardingCard.tsx: retorna null se !proximoPendente || total === 0.
+# Quando renderizado, eyebrow "PRÓXIMO PASSO" e link "Ver checklist completo" são fixos
+# (independem de qual passo está pendente) — únicas asserções seguras sem saber o estado
+# real da conta de teste (ver CONTEUDO_ADMIN em ChecklistOnboardingCard.tsx:21-53).
+- runFlow:
+    when:
+      visible: 'PRÓXIMO PASSO'
+    commands:
+      - assertVisible: 'PRÓXIMO PASSO'
+      - assertVisible: 'Ver checklist completo'
+      - tapOn: 'Ver checklist completo'
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - takeScreenshot: checklist-onboarding-completo
+
+# Se card não aparece (checklist 100% completo) — também é válido, documenta no relatório final
+- takeScreenshot: checklist-onboarding

@@ -58,8 +58,7 @@ appId: com.church.artos
     visible: 'Assinatura'
     timeout: 15000
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - extendedWaitUntil:
     visible: 'Acesso mantido até o fim do ciclo'
     timeout: 30000
@@ -72,6 +71,8 @@ appId: com.church.artos
 # Sem texto de conta ativa
 - assertNotVisible: 'Assinatura em dia'
 - assertNotVisible: 'Ativa'
+- assertNotVisible: 'Expirada'
+- assertNotVisible: 'Teste'
 - takeScreenshot: billing-cancelado-configuracoes
 
 # ── Passo 2: Voluntarios — sem banner (isBlocked=false, periodo ainda valido) ─

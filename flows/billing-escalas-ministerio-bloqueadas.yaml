@@ -59,11 +59,12 @@ appId: com.church.artos
     visible: 'Assinatura'
     timeout: 15000
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 - assertVisible: 'Avaliação encerrada'
+# Status pill para estado expirado
+- assertVisible: 'Expirada'
 - takeScreenshot: billing-escalas-ministerio-billing-preaquecido
 
 # ── Passo 1: Escalas de ministerio bloqueadas ───────────────────────────────

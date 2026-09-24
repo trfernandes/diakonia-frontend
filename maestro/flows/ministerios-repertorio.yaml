@@ -1,18 +1,31 @@
+# Flow: Ministério Repertório — repertório de músicas de Louvor
+#
+# 'Repertório' só aparece no drawer pra ministério tipo Louvor.
+
 appId: com.church.artos
 ---
-# 'Repertório' só aparece no drawer pra ministério tipo Louvor.
-- openLink: diakonia:///inicio
-- waitForAnimationToEnd:
-    timeout: 5000
+- launchApp
+- waitForAnimationToEnd: { timeout: 5000 }
+- runFlow: _login.yaml
+- extendedWaitUntil: { visible: 'Início', timeout: 120000 }
+- waitForAnimationToEnd: { timeout: 4000 }
+- tapOn: { point: '6%,4%' }
+- waitForAnimationToEnd: { timeout: 2000 }
+# Mesmo padrão dos outros flows de ministério: casa pelo accessibilityText do item
+# do drawer ('Louvor,  - Líder, ...'), porque a Home atrás também tem texto 'Louvor'.
 - tapOn:
-    point: '6%,4%'
-- waitForAnimationToEnd:
-    timeout: 2000
+    text: 'Louvor, +- Líder.*'
+    retryTapIfNoChange: false
+- waitForAnimationToEnd: { timeout: 1500 }
+- scrollUntilVisible:
+    element: { text: '.+, Repertório' }
+    direction: DOWN
+    timeout: 10000
 - tapOn:
-    text: 'Ministério de Louvor'
-- waitForAnimationToEnd:
-    timeout: 1500
-- tapOn:
-    text: 'Repertório'
-- waitForAnimationToEnd:
-    timeout: 4000
+    text: '.+, Repertório'
+    retryTapIfNoChange: false
+- waitForAnimationToEnd: { timeout: 4000 }
+# Drawer fechou (item de topo do menu não aparece mais)
+- assertNotVisible: 'Minhas Indisponibilidades'
+- assertVisible: 'Repertório'
+- takeScreenshot: ministerios-repertorio

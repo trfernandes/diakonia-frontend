@@ -1,5 +1,38 @@
+# Flow: Admin Ministérios — lista geral de ministérios com status ativo/inativo
+#
+# Uso:
+#   maestro test maestro/flows/ministerios.yaml \
+#     -e APP_EMAIL=seu@email.com \
+#     -e APP_PASSWORD=SuaSenha123
+#
+# O que verifica:
+#   - Abertura da tela de administração de ministérios
+#   - Estado vazio ou lista de ministérios presentes
+#   - Verificação que a navegação não causa crash
+
 appId: com.church.artos
 ---
-- openLink: diakonia:///admin/ministerios
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
 - waitForAnimationToEnd:
     timeout: 4000
+
+- openLink: diakonia:///admin/ministerios
+# Conta de teste (Mirian / BeOne Church) tem o ministério "Louvor" — lista com dados,
+# não empty state. Header da tela: admin/ministerios/_layout.tsx:23.
+- extendedWaitUntil:
+    visible: 'Ministérios'
+    timeout: 20000
+- extendedWaitUntil:
+    visible: 'Louvor'
+    timeout: 20000
+- assertNotVisible: 'Nenhum ministério cadastrado'
+
+- takeScreenshot: ministerios-lista

@@ -31,6 +31,13 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 15000
 - assertVisible: 'Início'
+# Status: ativa (varredura sem banners)
+# BillingStatusPanel fica no fim do scroll do DashboardAdmin (abaixo da dobra)
+- scrollUntilVisible:
+    element: 'Assinatura em dia'
+    direction: DOWN
+    timeout: 20000
+- assertVisible: 'Assinatura em dia'
 - assertNotVisible: 'Avaliação encerrada'
 - assertNotVisible: 'Sua cobrança está pendente'
 - assertNotVisible: 'Pagamento em atraso'

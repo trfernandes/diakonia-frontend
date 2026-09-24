@@ -1,0 +1,142 @@
+appId: com.church.artos
+---
+# ═════════════════════════════════════════════════════════════════════════
+# Teste ADR-0012: Regra pessoal recorrente com escopo (ministério/função)
+#
+# Casos:
+#   1. Acessar Minhas Indisponibilidades > Regras
+#   2. Criar regra recorrente (ex. dia da semana) com 1 função
+#   3. Reabrir e verificar função vem selecionada
+#   4. Remover a regra
+#
+# Usuária: Mirian (Louvor)
+# ═════════════════════════════════════════════════════════════════════════
+
+# Cleanup
+- openLink: diakonia:///pessoal/indisponibilidade
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- assertVisible:
+    text: 'Minhas Indisponibilidades'
+
+# ── Passo 1: Navegar para aba "Regras" ────────────────────────────────────
+- tapOn:
+    text: 'Regras'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 2: Tocar em botão "+" para criar nova regra ──────────────────────
+- tapOn:
+    id: 'fab-add-regra'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 3: Modal abre — verificar que é modo normal (não simplificado) ──
+# Deve haver campo para selecionar ministérios (não apenas funções)
+- assertVisible:
+    text: 'Dias da semana'
+
+# ── Passo 4: Selecionar "Terça" ──────────────────────────────────────────
+- tapOn:
+    text: 'Ter'
+- waitForAnimationToEnd:
+    timeout: 500
+
+# ── Passo 5: Abrir "Onde vale" para selecionar função ──────────────────────
+- tapOn:
+    text: 'Onde vale'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 6: Sheet de escopo abre — selecionar "Louvor" + 1 função ────────
+- assertVisible:
+    text: 'Louvor'
+
+# Expandir Louvor se necessário (pode já estar expandido)
+- tapOn:
+    text: 'Louvor'
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ── Passo 7: Selecionar "Lanche" ─────────────────────────────────────────
+- tapOn:
+    text: 'Lanche'
+- waitForAnimationToEnd:
+    timeout: 500
+
+# ── Passo 8: Confirmar ("OK") ────────────────────────────────────────────
+- tapOn:
+    text: 'OK'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 9: Preencher motivo (obrigatório) ──────────────────────────────
+- tapOn:
+    text: 'Informe o motivo'
+- inputText: 'Teste pessoal ADR-0012'
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ── Passo 10: Confirmar regra ("Confirmar") ──────────────────────────────
+- tapOn:
+    text: 'Confirmar'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 11: Verificar que não há erro ──────────────────────────────────
+- assertNotVisible:
+    text: 'Erro ao criar'
+
+# ── Passo 12: Assert regra aparece na lista ──────────────────────────────
+- assertVisible:
+    text: 'Ter'
+
+# ── Passo 13: Reabrir a regra para verificar função ──────────────────────
+- tapOn:
+    text: 'Ter'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 14: Assert função está selecionada ────────────────────────────
+- assertVisible:
+    text: 'Lanche'
+
+# ── Passo 15: Cancelar (não editar) ──────────────────────────────────────
+- tapOn:
+    text: 'Cancelar'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 16: Remover a regra ────────────────────────────────────────────
+# Swipe left para revelar lixeira
+- swipe:
+    direction: 'left'
+    xStart: '80%'
+    yStart: '50%'
+    xEnd: '20%'
+    yEnd: '50%'
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ── Passo 17: Tocar em remover (lixeira) ─────────────────────────────────
+- tapOn:
+    accessibilityLabel: 'Remover regra'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 18: Confirmar remoção ("Sim") ──────────────────────────────────
+- tapOn:
+    text: 'Sim'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 19: Assert regra sumiu ──────────────────────────────────────
+- assertNotVisible:
+    text: 'Lanche'
+
+# Cleanup
+- takeScreenshot

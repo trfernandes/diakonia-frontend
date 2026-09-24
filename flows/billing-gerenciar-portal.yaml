@@ -29,15 +29,17 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 15000
 
-# Aba "Assinatura" (index 1 pois index 0 eh o card de status no topo)
+# Aba "Assinatura" (accessibilityText da aba = '<icone>, Assinatura'; o card de status do topo tem so o texto)
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 
 # Unico CTA de billing visivel (compliance 3.1.1)
 - assertVisible: 'Gerenciar assinatura'
+# Status: active (conta de staging)
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
 - takeScreenshot: billing-gerenciar-antes
 
 # Tocar abre browser externo — app nao deve crashar

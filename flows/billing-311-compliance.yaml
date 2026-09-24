@@ -29,12 +29,14 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 15000
 
-# Aba "Assinatura" (index 1 pois index 0 eh o card de status no topo)
+# Aba "Assinatura" (accessibilityText da aba = '<icone>, Assinatura'; o card de status do topo tem so o texto)
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
+
+# Status visível (baseline para compliance)
+- assertVisible: 'Assinatura em dia'
 
 # [COMPLIANCE 3.1.1] Unico botao de billing permitido no app
 - assertVisible: 'Gerenciar assinatura'
@@ -47,7 +49,7 @@ appId: com.church.artos
 - assertNotVisible: 'Escolher plano'
 - assertNotVisible: 'Atualizar plano'
 - assertNotVisible: 'Cancelar troca de plano'
-- assertNotVisible: 'Opcoes de Planos'
+- assertNotVisible: 'Opções de Planos'
 
 - takeScreenshot: billing-311-compliance
 
@@ -66,6 +68,6 @@ appId: com.church.artos
 - assertNotVisible: 'Retomar pagamento'
 - assertNotVisible: 'Reativar assinatura'
 - assertNotVisible: 'Cancelar troca de plano'
-- assertNotVisible: 'Opcoes de Planos'
+- assertNotVisible: 'Opções de Planos'
 
 - takeScreenshot: billing-311-compliance-dashboard

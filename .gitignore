@@ -48,6 +48,7 @@ logs/
 
 # maestro
 flows/.env
+maestro/results/
 .aider*
 
 # debug artifacts (screenshots, uiautomator dumps, logcat, adb pull temporários)

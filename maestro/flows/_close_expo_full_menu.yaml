@@ -1,0 +1,7 @@
+# Subflow: fecha o Expo Developer Menu completo pressionando Back
+# Acionado quando "Go home" e visivel (menu completo aberto sem onboarding)
+appId: com.church.artos
+---
+- pressKey: back
+- waitForAnimationToEnd:
+    timeout: 2000

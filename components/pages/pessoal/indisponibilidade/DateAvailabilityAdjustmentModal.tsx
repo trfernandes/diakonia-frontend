@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { FancyModalDialogProps } from '../../../modal/FancyModalDialog';
@@ -11,6 +11,10 @@ import FancyToggle from '../../../fields/FancyToggle';
 import FancyButton from '../../../buttons/FancyButton';
 import { usePallete } from '../../../../hooks/usePallete';
 import DateUtils from '../../../../utils/date_utils';
+import { useEscopoOpcoesVoluntario } from '../../../../hooks/useEscopoOpcoesVoluntario';
+import { useAuth } from '../../../../contexts/AuthContext';
+import EscopoIndisponibilidadeField from './EscopoIndisponibilidadeField';
+import EscopoIndisponibilidadeSheet from './EscopoIndisponibilidadeSheet';
 
 const schema = z.object({
   motivo: z
@@ -18,6 +22,8 @@ const schema = z.object({
     .trim()
     .min(3, 'Informe o motivo (mínimo 3 caracteres)')
     .max(500, 'O motivo deve ter no maximo 500 caracteres'),
+  ministeriosInteirosIds: z.array(z.string()).optional(),
+  funcoesIds: z.array(z.string()).optional(),
 });
 
 type DateAvailabilityForm = z.infer<typeof schema>;
@@ -28,9 +34,17 @@ export type DateAvailabilityAdjustmentModalProps = {
     date: Date;
     status: 'available' | 'unavailable';
     motivo?: string | null;
+    ministeriosInteirosIds?: string[] | null;
+    funcoesIds?: string[] | null;
   };
   modalProps?: FancyModalDialogProps<any>;
-  onConfirm: (mode: 'mark' | 'unmark', date: Date, motivo?: string) => void;
+  onConfirm: (
+    mode: 'mark' | 'unmark',
+    date: Date,
+    motivo?: string,
+    ministeriosInteirosIds?: string[],
+    funcoesIds?: string[],
+  ) => void;
 };
 
 export default function DateAvailabilityAdjustmentModal({
@@ -40,29 +54,64 @@ export default function DateAvailabilityAdjustmentModal({
 }: DateAvailabilityAdjustmentModalProps) {
   const palette = usePallete();
   const [selectedStatus, setSelectedStatus] = useState<'available' | 'unavailable'>(data.status);
+  const [showEscopoSheet, setShowEscopoSheet] = useState(false);
 
-  const { control, handleSubmit, reset, watch } = useForm<DateAvailabilityForm>({
+  const { user } = useAuth();
+  const { ministerios: ministeriosData, funcoes: allFuncoes } = useEscopoOpcoesVoluntario(
+    user?.user?.id,
+  );
+
+  const { control, handleSubmit, reset, watch, setValue } = useForm<DateAvailabilityForm>({
     resolver: zodResolver(schema),
-    defaultValues: { motivo: data.motivo ?? '' },
+    defaultValues: {
+      motivo: data.motivo ?? '',
+      ministeriosInteirosIds: data.ministeriosInteirosIds ?? undefined,
+      funcoesIds: data.funcoesIds ?? [],
+    },
   });
 
   useEffect(() => {
-    reset({ motivo: data.motivo ?? '' });
+    reset({
+      motivo: data.motivo ?? '',
+      ministeriosInteirosIds: data.ministeriosInteirosIds ?? undefined,
+      funcoesIds: data.funcoesIds ?? [],
+    });
     setSelectedStatus(data.status);
-  }, [data.date.getTime(), data.motivo, data.status, reset]);
+  }, [
+    data.date.getTime(),
+    data.motivo,
+    data.status,
+    data.ministeriosInteirosIds,
+    data.funcoesIds,
+    reset,
+  ]);
 
   const motivoValue = watch('motivo');
+  const ministeriosInteirosIds = watch('ministeriosInteirosIds');
+  const funcoesIds = watch('funcoesIds');
   const trimmedCurrentMotivo = (motivoValue ?? '').trim();
   const trimmedOriginalMotivo = (data.motivo ?? '').trim();
 
   const hasSelectionChanged = selectedStatus !== data.status;
   const hasMotivoChanged = trimmedCurrentMotivo !== trimmedOriginalMotivo;
-  const canSubmit = hasSelectionChanged || (selectedStatus === 'unavailable' && hasMotivoChanged);
+  const hasEscopoChanged =
+    JSON.stringify(ministeriosInteirosIds ?? []) !==
+      JSON.stringify(data.ministeriosInteirosIds ?? []) ||
+    JSON.stringify(funcoesIds ?? []) !== JSON.stringify(data.funcoesIds ?? []);
+  const canSubmit =
+    hasSelectionChanged ||
+    (selectedStatus === 'unavailable' && (hasMotivoChanged || hasEscopoChanged));
   const shouldShowMotivoForm = selectedStatus === 'unavailable';
 
   const submitToMarkUnavailable = handleSubmit((formData) => {
     const trimmedMotivo = formData.motivo.trim();
-    onConfirm('mark', data.date, trimmedMotivo.length > 0 ? trimmedMotivo : undefined);
+    onConfirm(
+      'mark',
+      data.date,
+      trimmedMotivo.length > 0 ? trimmedMotivo : undefined,
+      formData.ministeriosInteirosIds,
+      formData.funcoesIds,
+    );
   });
 
   const handleConfirmPress = () => {
@@ -79,7 +128,11 @@ export default function DateAvailabilityAdjustmentModal({
   };
 
   const handleModalClose = () => {
-    reset({ motivo: data.motivo ?? '' });
+    reset({
+      motivo: data.motivo ?? '',
+      ministeriosInteirosIds: data.ministeriosInteirosIds ?? undefined,
+      funcoesIds: data.funcoesIds ?? [],
+    });
     setSelectedStatus(data.status);
     modalProps?.onButton1Press?.();
   };
@@ -133,14 +186,37 @@ export default function DateAvailabilityAdjustmentModal({
         />
 
         {shouldShowMotivoForm && (
-          <ControlledTextArea
-            control={control}
-            name='motivo'
-            label='Motivo'
-            placeholder='Descreva o motivo'
-          />
+          <>
+            <EscopoIndisponibilidadeField
+              ministeriosInteirosIds={ministeriosInteirosIds}
+              funcoesIds={funcoesIds}
+              ministerios={ministeriosData ?? []}
+              funcoes={allFuncoes ?? []}
+              label='Onde vale'
+              onPress={() => setShowEscopoSheet(true)}
+            />
+            <ControlledTextArea
+              control={control}
+              name='motivo'
+              label='Motivo'
+              placeholder='Descreva o motivo'
+            />
+          </>
         )}
       </View>
+      <EscopoIndisponibilidadeSheet
+        visible={showEscopoSheet}
+        onClose={() => setShowEscopoSheet(false)}
+        onConfirm={(mids, fids) => {
+          setValue('ministeriosInteirosIds', mids);
+          setValue('funcoesIds', fids);
+          setShowEscopoSheet(false);
+        }}
+        ministeriosInteirosIds={ministeriosInteirosIds}
+        funcoesIds={funcoesIds}
+        ministerios={ministeriosData ?? []}
+        funcoes={allFuncoes ?? []}
+      />
     </FancyBottomSheetModal>
   );
 }

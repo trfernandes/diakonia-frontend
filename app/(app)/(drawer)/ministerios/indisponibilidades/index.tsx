@@ -192,14 +192,32 @@ export default function MinisterioIndisponibilidadesIndex() {
     [markedDates],
   );
 
+  // Escopo sempre restrito a este ministério. Backend faz união de ministeriosInteiros + funcoes,
+  // então mandar o ministério inteiro junto com funções anularia a escolha das funções.
+  // Limite mensal não aceita funções (vale pelo ministério todo).
+  const escopoDoMinisterio = useCallback(
+    (result: AddRegraModalResult) => {
+      const funcoesIds = result.tipo === 'LIMITE_MENSAL' ? [] : (result.funcoesIds ?? []);
+      return funcoesIds.length
+        ? { ministeriosInteirosIds: [], funcoesIds }
+        : { ministeriosInteirosIds: ministerioId ? [ministerioId] : [], funcoesIds: [] };
+    },
+    [ministerioId],
+  );
+
   const criar = useCallback(
     async (result: AddRegraModalResult) => {
       if (!voluntarioId || !igrejaId || !ministerioId) return;
-      await criarRegra({ ...result, voluntarioId, igrejaId, ministerioId });
+      await criarRegra({
+        ...result,
+        ...escopoDoMinisterio(result),
+        voluntarioId,
+        igrejaId,
+      });
       setShowRegraModal(false);
       setLazyToastOptions({ type: 'success', text1: 'Regra criada com sucesso!' });
     },
-    [criarRegra, voluntarioId, igrejaId, ministerioId],
+    [criarRegra, escopoDoMinisterio, voluntarioId, igrejaId, ministerioId],
   );
 
   const handleConfirmAddRegra = async (result: AddRegraModalResult) => {
@@ -256,7 +274,16 @@ export default function MinisterioIndisponibilidadesIndex() {
     // erro exibido inline no próprio modal; modal fica aberto p/ o usuário corrigir
     await atualizarRegra({
       id,
-      dto: { tipo, diasSemana, dataInicio, dataFim, recorrente, limiteMensal, motivo },
+      dto: {
+        tipo,
+        diasSemana,
+        dataInicio,
+        dataFim,
+        recorrente,
+        limiteMensal,
+        motivo,
+        ...escopoDoMinisterio(result),
+      },
     });
     setEditingRegra(null);
     setLazyToastOptions({ type: 'success', text1: 'Regra atualizada com sucesso!' });
@@ -573,7 +600,10 @@ export default function MinisterioIndisponibilidadesIndex() {
           }}
           onConfirm={handleConfirmAddRegra}
           voluntarioNome={voluntarioSelecionado?.nome}
+          voluntarioId={voluntarioId}
           initialValues={pendingAddRegra ?? undefined}
+          simplifiedMode={true}
+          ministerioIdFixo={ministerioId}
         />
       )}
 
@@ -582,8 +612,11 @@ export default function MinisterioIndisponibilidadesIndex() {
           visible={!!editingRegra}
           isEditing
           voluntarioNome={voluntarioSelecionado?.nome}
+          voluntarioId={voluntarioId}
           initialValues={{
             tipo: editingRegra.tipo,
+            ministeriosInteirosIds: editingRegra.ministeriosInteiros?.map((m) => m.id) ?? undefined,
+            funcoesIds: editingRegra.funcoes?.map((f) => f.id) ?? undefined,
             diasSemana: editingRegra.diasSemana ?? undefined,
             dataInicio: editingRegra.dataInicio ?? undefined,
             dataFim: editingRegra.dataFim ?? undefined,
@@ -593,6 +626,8 @@ export default function MinisterioIndisponibilidadesIndex() {
           }}
           onClose={() => setEditingRegra(null)}
           onConfirm={handleConfirmEditRegra}
+          simplifiedMode={true}
+          ministerioIdFixo={ministerioId}
         />
       )}
 

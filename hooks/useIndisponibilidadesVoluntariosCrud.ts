@@ -35,7 +35,7 @@ export function useIndisponibilidadesVoluntariosCrud({
       return IndisponibilidadesVoluntariosRepository.add(data);
     },
     update: (id, data) => {
-      return IndisponibilidadesVoluntariosRepository.update(id, data);
+      return IndisponibilidadesVoluntariosRepository.update(id, data, igrejaId);
     },
     remove: (id) => IndisponibilidadesVoluntariosRepository.remove(id),
     messages: {

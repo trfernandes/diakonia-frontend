@@ -1,0 +1,80 @@
+# Subflow: login
+# Uso: - runFlow: _login.yaml
+# Vars necessárias: APP_EMAIL, APP_PASSWORD
+#
+# Funciona tanto com APK de bundle embutido (e2e) quanto com dev client.
+#
+# Fluxo:
+#   1. waitForAnimationToEnd 30s — splash/bundle (e2e: ~3s, dev client: até 90s)
+#   2. Recovery dev client: picker Metro, onboarding menu
+#   3. Check de login — realiza login se necessário
+#   4. waitForAnimationToEnd 10s — aguarda redirect pós-login
+#   5. Segundo ciclo — captura redirect tardio de JWT expirado
+
+appId: com.church.artos
+---
+- waitForAnimationToEnd:
+    timeout: 30000
+
+# Dev client: reconecta ao servidor Metro se picker aparecer
+- runFlow:
+    when:
+      visible: 'http://10.0.2.2:8081'
+    file: _connect_metro.yaml
+
+# Dev client: onboarding menus
+- runFlow:
+    when:
+      visible: 'Continue'
+    file: _dismiss_expo_dev_menu.yaml
+- runFlow:
+    when:
+      visible: 'Go home'
+    file: _close_expo_full_menu.yaml
+
+# Onboarding do app (sessão limpa): vai para tela de login
+- runFlow:
+    when:
+      visible: 'Já tenho conta'
+    file: _go_to_login.yaml
+
+# Espera ativa e opcional: "when: visible" faz checagem pontual e desiste cedo
+# se a hierarquia estiver estável mas ainda carregando (bundle recém-compilado,
+# primeiro boot do processo JS no emulador de CI). optional:true não falha o
+# flow se a tela nunca aparecer (caso já esteja logado).
+- extendedWaitUntil:
+    visible: 'Entre na sua conta'
+    timeout: 90000
+    optional: true
+
+# Realiza login se tela de login estiver visível
+- runFlow:
+    when:
+      visible: 'Entre na sua conta'
+    file: _do_login.yaml
+
+# Aguarda redirect pós-login ou JWT expirado
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Segundo ciclo — captura redirect tardio
+- runFlow:
+    when:
+      visible: 'Continue'
+    file: _dismiss_expo_dev_menu.yaml
+- runFlow:
+    when:
+      visible: 'Go home'
+    file: _close_expo_full_menu.yaml
+- runFlow:
+    when:
+      visible: 'Já tenho conta'
+    file: _go_to_login.yaml
+- extendedWaitUntil:
+    visible: 'Entre na sua conta'
+    timeout: 30000
+    optional: true
+- runFlow:
+    when:
+      visible: 'Entre na sua conta'
+    file: _do_login.yaml

@@ -38,12 +38,15 @@ appId: com.church.artos
     timeout: 20000
 
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 
 - assertVisible: 'Gerenciar assinatura'
+# Status: active (conta staging)
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
 - takeScreenshot: billing-portal-antes-do-tap
 
 # Abrir portal — Chrome assume o foco

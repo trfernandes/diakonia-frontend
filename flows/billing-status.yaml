@@ -24,15 +24,16 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 15000
 
-# Aba "Assinatura" (index 1 pois index 0 eh o card de status no topo)
+# Aba "Assinatura" (accessibilityText da aba = '<icone>, Assinatura'; o card de status do topo tem so o texto)
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 
 # Verificar card de status carregou (conta de staging esta ativa)
 - assertVisible: 'Assinatura em dia'
+# Status pill
+- assertVisible: 'Ativa'
 
 # Unico botao de billing - Apple 3.1.1
 - assertVisible: 'Gerenciar assinatura'

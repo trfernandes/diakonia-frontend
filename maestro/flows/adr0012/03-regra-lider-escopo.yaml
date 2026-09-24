@@ -1,0 +1,156 @@
+appId: com.church.artos
+---
+# ═════════════════════════════════════════════════════════════════════════
+# Teste ADR-0012: Regra de indisponibilidade (visão líder) com escopo
+#
+# Casos:
+#   1. Acessar tela do líder: Ministério Louvor > Indisponibilidades
+#   2. Criar regra (dia da semana) com exatamente 1 função
+#   3. Assert card da regra aparece
+#   4. Tocar no card e verificar função vem selecionada
+#   5. Cancelar; remover a regra (lixeira > "Sim")
+#   6. Assert regra sumiu
+#   7. Assert que clicar no seletor "Voluntário" abre lista de busca (não navega)
+#
+# Usuária: Mirian (líder do Louvor)
+# ═════════════════════════════════════════════════════════════════════════
+
+# Cleanup: voltar ao início
+- openLink: diakonia:///inicio
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# ── Passo 1: Abrir drawer lateral ────────────────────────────────────────
+- tapOn:
+    point: '7%, 5%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 2: Tocar em "Louvor" (expandir grupo de ministério) ────────────
+- tapOn:
+    text: 'Louvor'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 3: Tocar em "Indisponibilidades" do Louvor ─────────────────────
+- tapOn:
+    text: 'Indisponibilidades'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# ── Passo 4: Verificar que estamos na tela do líder ──────────────────────
+- assertVisible:
+    text: 'Indisponibilidades'
+
+# Deve haver um seletor de Voluntário (search)
+- assertVisible:
+    text: 'Buscar voluntário'
+
+# ── Passo 5: Clicar no seletor de Voluntário para verificar que abre lista ─
+# (não navega para outra tela — há suspeita de bug)
+- tapOn:
+    text: 'Buscar voluntário'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 6: Assert que é uma bottom sheet com search (não navegação) ────
+- assertVisible:
+    text: 'Buscar'
+
+# ── Passo 7: Fechar sheet (cancelar ou swipe) ────────────────────────────
+- pressKey: back
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 8: Clicar em botão "+" ("Nova regra") para criar regra ─────────
+- tapOn:
+    accessibilityLabel: 'Nova regra'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 9: Modal AddRegraModal abre em simplifiedMode (apenas Louvor + funções) ──
+- assertVisible:
+    text: 'Dias da semana'
+
+# ── Passo 10: Selecionar "Segunda" ───────────────────────────────────────
+- tapOn:
+    text: 'Seg'
+- waitForAnimationToEnd:
+    timeout: 500
+
+# ── Passo 11: Selecionar 1 função: "Back vocal Contralto/Uníssono" ──────
+- tapOn:
+    text: 'Back vocal Contralto/Uníssono'
+- waitForAnimationToEnd:
+    timeout: 500
+
+# ── Passo 12: Preencher motivo (obrigatório) ────────────────────────────
+- tapOn:
+    text: 'Informe o motivo'
+- inputText: 'Teste ADR-0012'
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ── Passo 13: Confirmar (botão "Confirmar") ──────────────────────────────
+- tapOn:
+    text: 'Confirmar'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 14: Verificar que não há erro ──────────────────────────────────
+- assertNotVisible:
+    text: 'Erro ao criar'
+
+# ── Passo 15: Assert card da regra aparece ──────────────────────────────
+# Procurar por texto descritivo da regra (ex. "Segunda-feira" + função)
+- assertVisible:
+    text: 'Seg'
+
+# ── Passo 16: Tocar no card da regra para abrir (editar) ─────────────────
+- tapOn:
+    text: 'Seg'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 17: Assert que função vem selecionada ──────────────────────────
+- assertVisible:
+    text: 'Back vocal Contralto/Uníssono'
+
+# ── Passo 18: Cancelar (não salvar edição) ───────────────────────────────
+- tapOn:
+    text: 'Cancelar'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 19: Remover a regra (lixeira + "Sim") ──────────────────────────
+# Procurar ícone de lixeira (swipe ou botão visível)
+- swipe:
+    direction: 'left'
+    xStart: '80%'
+    yStart: '50%'
+    xEnd: '20%'
+    yEnd: '50%'
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ── Passo 20: Tocar em lixeira/remover ───────────────────────────────────
+- tapOn:
+    accessibilityLabel: 'Remover regra'
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# ── Passo 21: Confirmar remoção ("Sim") ──────────────────────────────────
+- tapOn:
+    text: 'Sim'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Passo 22: Assert regra sumiu ──────────────────────────────────────
+- assertNotVisible:
+    text: 'Back vocal Contralto/Uníssono'
+
+# Cleanup
+- takeScreenshot

@@ -28,9 +28,8 @@ appId: com.church.artos
 # Header da tela carregou
 - assertVisible: 'Ministérios'
 
-# Status: ativa (sem bloqueio)
-- assertVisible: 'Assinatura em dia'
-- assertVisible: 'Ativa'
+# Tela so tem BillingNoticeBanner (aparece apenas em estado ruim), nao o painel
+# 'Assinatura em dia'/'Ativa' -> asserts removidos (eram impossiveis de passar)
 
 # Nenhum banner de billing deve aparecer em conta ativa
 - assertNotVisible: 'Avaliação encerrada'
@@ -43,7 +42,7 @@ appId: com.church.artos
 
 # Nenhum modal de planos abriu automaticamente
 - assertNotVisible: 'Escolher plano'
-- assertNotVisible: 'Opcoes de Planos'
+- assertNotVisible: 'Opções de Planos'
 - assertNotVisible: 'Ver planos'
 
 - takeScreenshot: billing-ministerios-acesso

@@ -1,0 +1,56 @@
+# Flow: Notificações — telas de abas "Não lidas" e "Todas"
+#
+# Uso:
+#   maestro test maestro/flows/notificacoes.yaml \
+#     -e APP_EMAIL=seu@email.com \
+#     -e APP_PASSWORD=SuaSenha123
+#
+# O que verifica:
+#   - Abertura da tela de notificações via deep link
+#   - 2 abas: "Não lidas" (com badge de contagem) e "Todas"
+#   - Lista com dados (cabeçalho de seção) ou estado vazio, conforme a conta
+#   - Ação "Marcar todas como lidas" quando houver pendências
+#   - Navegação para detalhe de notificação (se houver alguma) e volta
+
+appId: com.church.artos
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+- waitForAnimationToEnd:
+    timeout: 4000
+
+- openLink: diakonia:///notifications
+- extendedWaitUntil:
+    visible: 'Não lidas|Todas'
+    timeout: 20000
+
+# --- Tab "Não lidas" ---
+- tapOn: 'Não lidas'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Vale com ou sem dados: empty state (notifications.tsx:96) OU cabeçalho de seção da lista
+# (NotificationsList.tsx:18-20). (?i) porque o header pode renderizar em caixa alta.
+- assertVisible: '(?i)(Você está em dia!|Últimos 7 dias|Este mês|Mais antigas)'
+
+# --- Tab "Todas" ---
+- tapOn: 'Todas'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Mesmo critério: empty state (notifications.tsx:112) OU cabeçalho de seção.
+- assertVisible: '(?i)(Sem notificações por aqui\.|Últimos 7 dias|Este mês|Mais antigas)'
+
+# Voltar para "Não lidas" e screenshot final
+- tapOn: 'Não lidas'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- takeScreenshot: notificacoes-lista

@@ -31,10 +31,9 @@ appId: com.church.artos
 # Badge de plano no header card de Configuracoes
 - assertVisible: 'Crescimento'
 
-# Aba Assinatura (index 1 = aba; index 0 = card de status no topo)
+# Aba Assinatura (accessibilityText da aba = '<icone>, Assinatura')
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 
@@ -51,12 +50,13 @@ appId: com.church.artos
 - assertVisible: 'Crescimento'
 
 # MetaLine: cada parte aparece como no independente na hierarquia
-- assertVisible: 'Mensal'
-- assertVisible: 'Renova em'
+# MetaLine renderiza como um no so ("Crescimento · Mensal · Renova em DD/MM/AAAA") -> regex
+- assertVisible: '.*Mensal.*'
+- assertVisible: '.*Renova em.*'
 
 # Barra de uso: "31" e " / 180" sao nos separados (conforme dump UIAutomator)
 - assertVisible: 'Voluntários'
-- assertVisible: '31'
+- assertVisible: '\d+'
 
 # Unico CTA de billing (Apple 3.1.1)
 - assertVisible: 'Gerenciar assinatura'

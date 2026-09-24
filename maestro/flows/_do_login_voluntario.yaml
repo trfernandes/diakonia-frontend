@@ -1,0 +1,12 @@
+# Subflow interno — nao chamar diretamente, usar _login_voluntario.yaml
+appId: com.church.artos
+---
+- tapOn: 'E-mail'
+- eraseText: 100
+- inputText: 'aline.pinto@seed.com'
+- tapOn: 'Senha'
+- eraseText: 100
+- inputText: 'Teste123!'
+- tapOn: 'Entrar'
+- waitForAnimationToEnd:
+    timeout: 90000

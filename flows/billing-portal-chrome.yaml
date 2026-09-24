@@ -38,8 +38,8 @@ appId: com.church.artos
     timeout: 20000
 
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 

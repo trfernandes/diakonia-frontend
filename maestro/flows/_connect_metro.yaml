@@ -1,0 +1,12 @@
+# Subflow: reconecta ao servidor Metro quando o Expo Dev Client mostra o picker
+# Aparece apos clearState ou instalacao limpa — nao chamar diretamente.
+# Uso em _login.yaml:
+#   - runFlow:
+#       when:
+#         visible: "http://10.0.2.2:8081"
+#       file: _connect_metro.yaml
+appId: com.church.artos
+---
+- tapOn: 'http://10.0.2.2:8081'
+- waitForAnimationToEnd:
+    timeout: 90000

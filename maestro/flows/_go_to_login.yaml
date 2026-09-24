@@ -1,0 +1,7 @@
+# Subflow: navega do onboarding "Como voce vai entrar?" para a tela de login
+# Aparece quando a sessao esta limpa (pos-clearState) e o JS bundle carrega sem sessao.
+appId: com.church.artos
+---
+- tapOn: 'Já tenho conta'
+- waitForAnimationToEnd:
+    timeout: 5000

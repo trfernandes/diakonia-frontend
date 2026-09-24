@@ -1,0 +1,21 @@
+# Subflow: faz logout do usuario atual via menu drawer
+# Uso: - runFlow: _logout.yaml
+# Pre-condicao: usuario logado na tela Início (drawer acessível)
+appId: com.church.artos
+---
+- openLink: diakonia:///inicio
+- waitForAnimationToEnd:
+    timeout: 15000
+# Tap no ícone hamburger (top-left corner, ~5%x / ~7%y da tela)
+- tapOn:
+    point: '5%,7%'
+- waitForAnimationToEnd:
+    timeout: 3000
+# "Sair" pode estar abaixo do fold — rolar drawer até aparecer
+- scrollUntilVisible:
+    element:
+      text: 'Sair'
+    direction: DOWN
+- tapOn: 'Sair'
+- waitForAnimationToEnd:
+    timeout: 15000

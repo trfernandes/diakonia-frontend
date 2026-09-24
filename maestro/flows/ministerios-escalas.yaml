@@ -1,18 +1,32 @@
+# Flow: Ministério Escalas — escalas do ministério (admin/líder)
+#
+# Distinto de /pessoal/escalas (escalas.yaml do pessoal).
+
 appId: com.church.artos
 ---
-# Escalas do ministério (visão admin/líder) — distinto de /pessoal/escalas (escalas.yaml).
-- openLink: diakonia:///inicio
-- waitForAnimationToEnd:
-    timeout: 5000
+- launchApp
+- waitForAnimationToEnd: { timeout: 5000 }
+- runFlow: _login.yaml
+- extendedWaitUntil: { visible: 'Início', timeout: 120000 }
+- waitForAnimationToEnd: { timeout: 4000 }
+- tapOn: { point: '6%,4%' }
+- waitForAnimationToEnd: { timeout: 2000 }
+# Louvor expande submenu no drawer. Casa pelo accessibilityText do item do drawer
+# ('Louvor,  - Líder, ...'): a Home atrás também tem texto 'Louvor' (card de evento),
+# e tocar nele cai no item 'Ajuda' do drawer. Sem retry: re-tap cai em outro item.
 - tapOn:
-    point: '6%,4%'
-- waitForAnimationToEnd:
-    timeout: 2000
+    text: 'Louvor, +- Líder.*'
+    retryTapIfNoChange: false
+- waitForAnimationToEnd: { timeout: 1500 }
+- scrollUntilVisible:
+    element: { text: '.+, Escalas' }
+    direction: DOWN
+    timeout: 10000
 - tapOn:
-    text: 'Audiovisual'
-- waitForAnimationToEnd:
-    timeout: 1500
-- tapOn:
-    text: 'Escalas'
-- waitForAnimationToEnd:
-    timeout: 4000
+    text: '.+, Escalas'
+    retryTapIfNoChange: false
+- waitForAnimationToEnd: { timeout: 4000 }
+# Drawer fechou (item de topo do menu não aparece mais)
+- assertNotVisible: 'Minhas Indisponibilidades'
+- assertVisible: 'Escalas'
+- takeScreenshot: ministerios-escalas

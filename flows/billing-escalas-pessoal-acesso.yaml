@@ -25,9 +25,8 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 15000
 
-# Status permissivo
-- assertVisible: 'Assinatura em dia'
-- assertVisible: 'Ativa'
+# Tela so tem BillingNoticeBanner (aparece apenas em estado ruim), nao o painel
+# 'Assinatura em dia'/'Ativa' -> asserts removidos (eram impossiveis de passar)
 
 # Tela carregou sem bloqueio de billing
 - assertNotVisible: 'Avaliação encerrada'
@@ -36,6 +35,6 @@ appId: com.church.artos
 - assertNotVisible: 'Assinatura cancelada'
 - assertNotVisible: 'Assinatura inativa'
 - assertNotVisible: 'Escolher plano'
-- assertNotVisible: 'Opcoes de Planos'
+- assertNotVisible: 'Opções de Planos'
 
 - takeScreenshot: billing-escalas-pessoal-acesso

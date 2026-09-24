@@ -1,19 +1,33 @@
-appId: com.church.artos
----
+# Flow: Ministério Agenda — visualizar agenda de eventos do ministério
+#
 # Rota /ministerios/agenda exige ?ministerioId= dinâmico — sem deep link direto.
 # Navega via drawer (tapOn por texto, precisa: nome depende dos dados seedados).
-- openLink: diakonia:///inicio
-- waitForAnimationToEnd:
-    timeout: 5000
+
+appId: com.church.artos
+---
+- launchApp
+- waitForAnimationToEnd: { timeout: 5000 }
+- runFlow: _login.yaml
+- extendedWaitUntil: { visible: 'Início', timeout: 120000 }
+- waitForAnimationToEnd: { timeout: 4000 }
+- tapOn: { point: '6%,4%' }
+- waitForAnimationToEnd: { timeout: 2000 }
+# Louvor expande submenu no drawer. Casa pelo accessibilityText do item do drawer
+# ('Louvor,  - Líder, ...'): a Home atrás também tem texto 'Louvor' (card de evento),
+# e tocar nele cai no item 'Ajuda' do drawer. Sem retry: re-tap cai em outro item.
 - tapOn:
-    point: '6%,4%'
-- waitForAnimationToEnd:
-    timeout: 2000
+    text: 'Louvor, +- Líder.*'
+    retryTapIfNoChange: false
+- waitForAnimationToEnd: { timeout: 1500 }
+- scrollUntilVisible:
+    element: { text: '.+, Agenda' }
+    direction: DOWN
+    timeout: 10000
 - tapOn:
-    text: 'Audiovisual'
-- waitForAnimationToEnd:
-    timeout: 1500
-- tapOn:
-    text: 'Agenda'
-- waitForAnimationToEnd:
-    timeout: 4000
+    text: '.+, Agenda'
+    retryTapIfNoChange: false
+- waitForAnimationToEnd: { timeout: 4000 }
+# Drawer fechou (item de topo do menu não aparece mais)
+- assertNotVisible: 'Minhas Indisponibilidades'
+- assertVisible: 'Agenda'
+- takeScreenshot: ministerios-agenda

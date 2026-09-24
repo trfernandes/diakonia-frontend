@@ -59,8 +59,7 @@ appId: com.church.artos
     visible: 'Assinatura'
     timeout: 15000
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 - assertVisible: 'Avaliação encerrada'

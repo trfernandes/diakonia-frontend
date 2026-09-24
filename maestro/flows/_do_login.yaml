@@ -1,0 +1,12 @@
+# Subflow interno — não chamar diretamente, usar _login.yaml
+appId: com.church.artos
+---
+- tapOn: 'E-mail'
+- eraseText: 100
+- inputText: '${APP_EMAIL}'
+- tapOn: 'Senha'
+- eraseText: 100
+- inputText: '${APP_PASSWORD}'
+- tapOn: 'Entrar'
+- waitForAnimationToEnd:
+    timeout: 90000

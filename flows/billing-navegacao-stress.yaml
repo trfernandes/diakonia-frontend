@@ -49,8 +49,8 @@ appId: com.church.artos
 - assertVisible: 'Ativa'
 
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 3000
 - assertVisible: 'Assinatura em dia'
@@ -71,8 +71,8 @@ appId: com.church.artos
     timeout: 3000
 
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+
+    text: '.+, Assinatura'
 - waitForAnimationToEnd:
     timeout: 15000
 

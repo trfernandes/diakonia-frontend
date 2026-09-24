@@ -1,17 +1,30 @@
+# Flow: Ministério Acessos — delegar acessos de liderança
+
 appId: com.church.artos
 ---
-- openLink: diakonia:///inicio
-- waitForAnimationToEnd:
-    timeout: 5000
+- launchApp
+- waitForAnimationToEnd: { timeout: 5000 }
+- runFlow: _login.yaml
+- extendedWaitUntil: { visible: 'Início', timeout: 120000 }
+- waitForAnimationToEnd: { timeout: 4000 }
+- tapOn: { point: '6%,4%' }
+- waitForAnimationToEnd: { timeout: 2000 }
+# Louvor expande submenu no drawer. Casa pelo accessibilityText do item do drawer
+# ('Louvor,  - Líder, ...'): a Home atrás também tem texto 'Louvor' (card de evento),
+# e tocar nele cai no item 'Ajuda' do drawer. Sem retry: re-tap cai em outro item.
 - tapOn:
-    point: '6%,4%'
-- waitForAnimationToEnd:
-    timeout: 2000
+    text: 'Louvor, +- Líder.*'
+    retryTapIfNoChange: false
+- waitForAnimationToEnd: { timeout: 1500 }
+- scrollUntilVisible:
+    element: { text: '.+, Acessos' }
+    direction: DOWN
+    timeout: 10000
 - tapOn:
-    text: 'Audiovisual'
-- waitForAnimationToEnd:
-    timeout: 1500
-- tapOn:
-    text: 'Acessos'
-- waitForAnimationToEnd:
-    timeout: 4000
+    text: '.+, Acessos'
+    retryTapIfNoChange: false
+- waitForAnimationToEnd: { timeout: 4000 }
+# Drawer fechou (item de topo do menu não aparece mais)
+- assertNotVisible: 'Minhas Indisponibilidades'
+- assertVisible: 'Líderes'
+- takeScreenshot: ministerios-acessos

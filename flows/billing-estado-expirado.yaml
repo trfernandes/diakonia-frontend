@@ -80,8 +80,7 @@ appId: com.church.artos
     visible: 'Assinatura'
     timeout: 15000
 - tapOn:
-    text: 'Assinatura'
-    index: 1
+    text: '.+, Assinatura'
 - extendedWaitUntil:
     visible: 'Avaliação encerrada'
     timeout: 30000

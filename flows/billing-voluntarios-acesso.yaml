@@ -25,15 +25,14 @@ appId: com.church.artos
 # Tela de voluntarios carregou (billing nao bloqueou)
 - assertVisible: 'Voluntários'
 
-# Lista populada: Total visivel indica que dados carregaram
-- assertVisible: 'Total'
+# Lista populada: aba 'Todos N' visivel indica que dados carregaram (nao existe label 'Total')
+- assertVisible: 'Todos.*'
 
-# Confirmar que o status eh permissivo (sem bloqueio)
-- assertVisible: 'Assinatura em dia'
-- assertVisible: 'Ativa'
+# Tela so tem BillingNoticeBanner (aparece apenas em estado ruim), nao o painel
+# 'Assinatura em dia'/'Ativa' -> asserts removidos (eram impossiveis de passar)
 
 # Nenhum modal de billing bloqueando
 - assertNotVisible: 'Escolher plano'
-- assertNotVisible: 'Opcoes de Planos'
+- assertNotVisible: 'Opções de Planos'
 
 - takeScreenshot: billing-voluntarios-acesso

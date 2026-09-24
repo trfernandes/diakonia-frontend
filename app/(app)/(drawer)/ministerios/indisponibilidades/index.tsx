@@ -1,4 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
+import LancamentoTimelineCard from '../../../../../components/pages/lancamentos-indisponibilidade/LancamentoTimelineCard';
+import { VoluntarioHierarquiaEnum } from '../../../../../domain/enums/MinisterioVoluntario/hierarquia.enum';
 import FancyPageView from '../../../../../components/containers/FancyPageView';
 import { InteractionManager, StyleSheet, View } from 'react-native';
 import DefaultIcons from '../../../../../components/FancyIcons';
@@ -64,6 +66,9 @@ export default function MinisterioIndisponibilidadesIndex() {
   const { ministerioId } = useLocalSearchParams<{ ministerioId?: string }>();
   const { igrejaAtiva } = useAuth();
   const igrejaId = igrejaAtiva?.id;
+  const ehLider =
+    igrejaAtiva?.ministerios?.find((m) => m.id === ministerioId)?.hierarquia?.toString() ===
+    VoluntarioHierarquiaEnum.Lider;
 
   const [showRegraModal, setShowRegraModal] = useState(false);
   const [pendingAddRegra, setPendingAddRegra] = useState<AddRegraModalResult | null>(null);
@@ -325,6 +330,13 @@ export default function MinisterioIndisponibilidadesIndex() {
         {tour.showBanner && (
           <>
             <TutorialBanner onStart={tour.start} onDismiss={tour.skip} />
+            <FancyVerticalSpacer height={15} />
+          </>
+        )}
+
+        {ministerioId && ehLider && (
+          <>
+            <LancamentoTimelineCard ministerioId={ministerioId} />
             <FancyVerticalSpacer height={15} />
           </>
         )}

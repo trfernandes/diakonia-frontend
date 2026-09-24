@@ -6,20 +6,24 @@ import { EscalaFormData } from '../../../../../domain/schemas/escalaSchema';
 import ControlledDateInput from '../../../../forms/ControlledDateInput';
 import ControlledTextInput from '../../../../forms/ControlledTextInput';
 import { usePallete } from '../../../../../hooks/usePallete';
+import PrazoAbertoCard from '../../../lancamentos-indisponibilidade/PrazoAbertoCard';
 
 type AssistenteParametrosStepProps = {
   isCheckingName?: boolean;
   onNomeBlur?: (nome: string) => void | Promise<void>;
+  ministerioId?: string;
 };
 
 export default function AssistenteParametrosStep({
   isCheckingName = false,
   onNomeBlur,
+  ministerioId,
 }: AssistenteParametrosStepProps) {
   const palette = usePallete();
   const form = useFormContext<EscalaFormData>();
   const nome = form.watch('nome');
   const dataInicio = form.watch('dataInicio');
+  const dataTermino = form.watch('dataTermino');
   const prevDataInicioRef = useRef<number | null>(
     dataInicio ? new Date(dataInicio).getTime() : null,
   );
@@ -52,6 +56,11 @@ export default function AssistenteParametrosStep({
       />
       <ControlledDateInput control={form.control} name='dataInicio' label='Data de Início' />
       <ControlledDateInput control={form.control} name='dataTermino' label='Data de Término' />
+      <PrazoAbertoCard
+        ministerioId={ministerioId}
+        dataInicio={dataInicio}
+        dataTermino={dataTermino}
+      />
     </View>
   );
 }

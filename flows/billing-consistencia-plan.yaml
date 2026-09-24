@@ -42,6 +42,8 @@ appId: com.church.artos
     timeout: 15000
 - assertVisible: 'Crescimento'
 - assertVisible: 'Assinatura em dia'
+# Status pill
+- assertVisible: 'Ativa'
 # MetaLine: partes estaveis (sem data para evitar stale apos renovacao)
 - assertVisible: 'Mensal'
 - assertVisible: 'Renova em'

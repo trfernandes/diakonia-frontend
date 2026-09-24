@@ -71,10 +71,14 @@ appId: com.church.artos
 # Mesmo layout que trial-warning: titulo fixo para trial nao expirado
 - assertVisible: 'Versão avaliativa'
 - assertVisible: 'Período avaliativo ativo'
+# Pill de status para trial
 - assertVisible: 'Teste'
+# Ausência de outros estados
 - assertNotVisible: 'Assinatura em dia'
 - assertNotVisible: 'Expirada'
 - assertNotVisible: 'Ativa'
+- assertNotVisible: 'Pendente'
+- assertNotVisible: 'Cancelada'
 - takeScreenshot: billing-trial-ending-configuracoes
 
 # ── Passo 2: Voluntarios — sem banner (trial nao bloqueia sem limite) ─────────

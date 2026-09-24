@@ -81,10 +81,15 @@ appId: com.church.artos
     visible: 'Pagamento pendente'
     timeout: 30000
 # BillingStatusPanel: resolveStatusCopy para overdue -> "Pagamento pendente"
+# Eyebrow padrão
+- assertVisible: 'Assinatura'
 - assertVisible: 'Pagamento pendente'
+# Pill de status para overdue
 - assertVisible: 'Pendente'
 # Gerenciar assinatura e o unico CTA (primaryLabel override)
 - assertVisible: 'Gerenciar assinatura'
+# Ausência de outros estados
 - assertNotVisible: 'Assinatura em dia'
 - assertNotVisible: 'Ativa'
+- assertNotVisible: 'Expirada'
 - takeScreenshot: billing-overdue-configuracoes

@@ -38,6 +38,9 @@ appId: com.church.artos
 
 # Unico CTA de billing visivel (compliance 3.1.1)
 - assertVisible: 'Gerenciar assinatura'
+# Status: active (conta de staging)
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
 - takeScreenshot: billing-gerenciar-antes
 
 # Tocar abre browser externo — app nao deve crashar

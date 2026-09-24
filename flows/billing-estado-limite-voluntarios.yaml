@@ -65,8 +65,11 @@ appId: com.church.artos
 - extendedWaitUntil:
     visible: 'Capacidade excedida'
     timeout: 15000
+# Banner de alerta por limite atingido
 - assertVisible: 'Capacidade excedida'
 - assertVisible: 'Seu uso atual já ultrapassa o plano contratado'
+# Ainda ativo (não bloqueado)
+- assertVisible: 'Ativa'
 - assertNotVisible: 'Avaliação encerrada'
 - assertNotVisible: 'Pagamento em atraso'
 - takeScreenshot: billing-limite-voluntarios-banner

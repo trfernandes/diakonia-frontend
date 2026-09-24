@@ -73,7 +73,10 @@ appId: com.church.artos
     visible: 'Assinatura em dia'
     timeout: 20000
 - assertVisible: 'Assinatura em dia'
+# Status pill visível mesmo para voluntário
+- assertVisible: 'Ativa'
 - assertVisible: 'Crescimento'
+# Mensagem de acesso apenas para admin
 - assertVisible: 'Fale com o administrador da igreja para gerenciar a assinatura.'
 - assertNotVisible: 'Gerenciar assinatura'
 - takeScreenshot: voluntario-assinatura-tab-readonly

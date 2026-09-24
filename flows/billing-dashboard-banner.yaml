@@ -21,6 +21,10 @@ appId: com.church.artos
 # Aguardar header carregar (independente do conteudo do dashboard estar pronto)
 - assertVisible: 'Início'
 
+# Status ativo (dashboard com account ativa)
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
+
 # [COMPLIANCE 3.1.1] Nenhum modal de billing deve abrir automaticamente
 - assertNotVisible: 'Opcoes de Planos'
 - assertNotVisible: 'Escolher plano'

@@ -25,6 +25,10 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 15000
 
+# Status permissivo
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
+
 # Tela carregou sem bloqueio de billing
 - assertNotVisible: 'Avaliação encerrada'
 - assertNotVisible: 'Pagamento em atraso'

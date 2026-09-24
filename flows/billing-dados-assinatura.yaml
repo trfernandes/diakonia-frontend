@@ -44,6 +44,9 @@ appId: com.church.artos
 # Pill de status
 - assertVisible: 'Ativa'
 
+# Eyebrow/header do painel de status
+- assertVisible: 'Assinatura'
+
 # Crescimento aparece no badge do header (no separado)
 - assertVisible: 'Crescimento'
 

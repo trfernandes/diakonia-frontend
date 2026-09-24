@@ -31,6 +31,8 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 15000
 - assertVisible: 'Início'
+# Status: ativa (varredura sem banners)
+- assertVisible: 'Assinatura em dia'
 - assertNotVisible: 'Avaliação encerrada'
 - assertNotVisible: 'Sua cobrança está pendente'
 - assertNotVisible: 'Pagamento em atraso'

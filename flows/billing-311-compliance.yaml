@@ -36,6 +36,9 @@ appId: com.church.artos
 - waitForAnimationToEnd:
     timeout: 15000
 
+# Status visível (baseline para compliance)
+- assertVisible: 'Assinatura em dia'
+
 # [COMPLIANCE 3.1.1] Unico botao de billing permitido no app
 - assertVisible: 'Gerenciar assinatura'
 

@@ -91,8 +91,13 @@ appId: com.church.artos
 - extendedWaitUntil:
     visible: 'Cancelada'
     timeout: 30000
+# Pill de status para cancelado bloqueado
 - assertVisible: 'Cancelada'
+# CTA de billing
 - assertVisible: 'Gerenciar assinatura'
+# Ausência de outros estados
 - assertNotVisible: 'Ativa'
 - assertNotVisible: 'Assinatura em dia'
+- assertNotVisible: 'Expirada'
+- assertNotVisible: 'Teste'
 - takeScreenshot: billing-cancelado-bloqueado-configuracoes

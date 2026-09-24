@@ -44,5 +44,7 @@ appId: com.church.artos
 # [ADVERSARIAL] Status deve continuar correto - sem stale
 - assertVisible: 'Gerenciar assinatura'
 - assertVisible: 'Assinatura em dia'
+# Status pill persiste mesmo apos re-navegacao
+- assertVisible: 'Ativa'
 
 - takeScreenshot: billing-nav-visita-2

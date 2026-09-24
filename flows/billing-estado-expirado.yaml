@@ -88,9 +88,13 @@ appId: com.church.artos
 # BillingStatusPanel: resolveStatusCopy para expired
 - assertVisible: 'Avaliação encerrada'
 - assertVisible: 'Seu período avaliativo terminou'
+# Pill de status para expired
 - assertVisible: 'Expirada'
 # Unico CTA da aba (primaryLabel override = "Gerenciar assinatura")
 - assertVisible: 'Gerenciar assinatura'
+# Ausência de outros estados
 - assertNotVisible: 'Assinatura em dia'
 - assertNotVisible: 'Ativa'
+- assertNotVisible: 'Teste'
+- assertNotVisible: 'Pendente'
 - takeScreenshot: billing-expirado-configuracoes

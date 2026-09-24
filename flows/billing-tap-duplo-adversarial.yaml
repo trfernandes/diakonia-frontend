@@ -33,6 +33,9 @@ appId: com.church.artos
     timeout: 15000
 
 - assertVisible: 'Gerenciar assinatura'
+# Status: active (conta staging)
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
 - takeScreenshot: billing-tap-antes
 
 # Tap unico — Chrome abre (comportamento correto)

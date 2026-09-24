@@ -28,6 +28,10 @@ appId: com.church.artos
 # Header da tela carregou
 - assertVisible: 'Ministérios'
 
+# Status: ativa (sem bloqueio)
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
+
 # Nenhum banner de billing deve aparecer em conta ativa
 - assertNotVisible: 'Avaliação encerrada'
 - assertNotVisible: 'Pagamento em atraso'

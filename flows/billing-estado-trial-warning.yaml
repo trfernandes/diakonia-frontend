@@ -72,9 +72,13 @@ appId: com.church.artos
 #   title e "Periodo avaliativo ativo" (hardcoded para trial nao expirado)
 - assertVisible: 'Versão avaliativa'
 - assertVisible: 'Período avaliativo ativo'
+# Pill de status para trial warning
 - assertVisible: 'Teste'
+# Ausência de outros estados
 - assertNotVisible: 'Assinatura em dia'
 - assertNotVisible: 'Expirada'
+- assertNotVisible: 'Ativa'
+- assertNotVisible: 'Pendente'
 - takeScreenshot: billing-trial-warning-configuracoes
 
 # ── Passo 2: Voluntarios acessivel (sem banner, sem bloqueio) ───────────────

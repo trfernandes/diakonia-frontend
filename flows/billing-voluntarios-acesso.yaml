@@ -28,6 +28,10 @@ appId: com.church.artos
 # Lista populada: Total visivel indica que dados carregaram
 - assertVisible: 'Total'
 
+# Confirmar que o status eh permissivo (sem bloqueio)
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
+
 # Nenhum modal de billing bloqueando
 - assertNotVisible: 'Escolher plano'
 - assertNotVisible: 'Opcoes de Planos'

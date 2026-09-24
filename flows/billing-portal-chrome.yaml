@@ -44,6 +44,9 @@ appId: com.church.artos
     timeout: 15000
 
 - assertVisible: 'Gerenciar assinatura'
+# Status: active (conta staging)
+- assertVisible: 'Assinatura em dia'
+- assertVisible: 'Ativa'
 - takeScreenshot: billing-portal-antes-do-tap
 
 # Abrir portal — Chrome assume o foco

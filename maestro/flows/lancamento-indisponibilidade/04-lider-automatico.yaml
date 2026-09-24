@@ -1,0 +1,40 @@
+# Líder liga o automático, pula/volta um mês e desliga (evita envio real no staging)
+appId: com.church.artos
+env:
+  MINISTERIO_ID: 00000000-e2e0-4000-8000-000000000301
+---
+- runFlow: _entrar.yaml
+- openLink: diakonia:///ministerios/indisponibilidades?ministerioId=${MINISTERIO_ID}
+- extendedWaitUntil:
+    visible: 'Automático'
+    timeout: 20000
+# contagem subiu depois do voluntário marcar
+- assertVisible:
+    text: '.* · 1 de \d+'
+- tapOn: 'Automático'
+- extendedWaitUntil:
+    visible: 'Ligado'
+    timeout: 15000
+- tapOn: 'Sim'
+- assertVisible: 'Enviar dia'
+- assertVisible: 'Prazo dia'
+- tapOn: 'Salvar'
+- extendedWaitUntil:
+    visible: 'Próximos envios'
+    timeout: 15000
+- takeScreenshot: 04a-proximos-envios
+- tapOn:
+    text: 'Pular'
+    index: 0
+- extendedWaitUntil:
+    visible: 'pulado por você'
+    timeout: 15000
+- tapOn: 'Voltar a enviar'
+- extendedWaitUntil:
+    notVisible: 'pulado por você'
+    timeout: 15000
+- tapOn: 'Não'
+- tapOn: 'Salvar'
+- extendedWaitUntil:
+    notVisible: 'Próximos envios'
+    timeout: 15000

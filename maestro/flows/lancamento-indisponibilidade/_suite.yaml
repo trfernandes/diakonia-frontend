@@ -1,0 +1,8 @@
+# Ordem: 01 cria o lançamento usado pelos outros. Cada fluxo com runFlow _entrar.yaml
+# troca de conta usando APP_EMAIL/APP_PASSWORD da linha de comando:
+#   maestro test 01-lider-cria-lancamento.yaml 02-lider-ve-faltantes.yaml -e APP_EMAIL=e2e.lider@diakonia.app -e APP_PASSWORD=...   (01 exige nenhum lançamento aberto no Louvor E2E)
+#   maestro test 03-voluntario-ja-lancei.yaml -e APP_EMAIL=e2e.voluntario@diakonia.app -e APP_PASSWORD=...
+#   maestro test 04-lider-automatico.yaml 05-assistente-prazo-aberto.yaml -e APP_EMAIL=e2e.lider@diakonia.app -e APP_PASSWORD=...
+appId: com.church.artos
+---
+- runFlow: 01-lider-cria-lancamento.yaml

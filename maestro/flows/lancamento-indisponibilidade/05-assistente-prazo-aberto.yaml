@@ -1,0 +1,17 @@
+# Assistente de escala avisa (sem bloquear) que o prazo do lançamento ainda está aberto
+appId: com.church.artos
+env:
+  MINISTERIO_ID: 00000000-e2e0-4000-8000-000000000301
+---
+- openLink: diakonia:///ministerios/escalas/assistant?ministerioId=${MINISTERIO_ID}
+- extendedWaitUntil:
+    visible: 'Prazo ainda aberto'
+    timeout: 20000
+- takeScreenshot: 05-prazo-aberto
+- tapOn: 'Ver quem falta'
+- extendedWaitUntil:
+    visible: 'Ainda não marcaram'
+    timeout: 15000
+- back
+- tapOn: 'Gerar mesmo assim'
+- assertNotVisible: 'Prazo ainda aberto'

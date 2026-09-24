@@ -1,0 +1,30 @@
+# Líder cria lançamento manual no Louvor E2E (período padrão = próximo mês, prazo = hoje+7)
+# Pré: nenhum lançamento aberto no Louvor E2E
+appId: com.church.artos
+env:
+  MINISTERIO_ID: 00000000-e2e0-4000-8000-000000000301
+---
+- runFlow: _entrar.yaml
+- openLink: diakonia:///ministerios/indisponibilidades?ministerioId=${MINISTERIO_ID}
+- extendedWaitUntil:
+    visible: 'Pedir as indisponibilidades da equipe'
+    timeout: 20000
+- tapOn: 'Novo lançamento'
+- extendedWaitUntil:
+    visible: 'Avisos que vão sair'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: 'Enviar para \d+ voluntários?'
+    direction: DOWN
+- tapOn:
+    text: 'Enviar para \d+ voluntários?'
+- extendedWaitUntil:
+    visible:
+      text: '.* · 0 de \d+'
+    timeout: 20000
+- assertVisible:
+    text: 'Enviado .*'
+- assertVisible:
+    text: 'Prazo .*'
+- takeScreenshot: 01-timeline-lider

@@ -1,0 +1,46 @@
+# Troca a sessão pra conta de APP_EMAIL/APP_PASSWORD (passar via -e na linha de comando)
+appId: com.church.artos
+---
+- openLink: diakonia:///inicio
+- waitForAnimationToEnd:
+    timeout: 10000
+# só faz logout se ainda estiver logado
+- runFlow:
+    when:
+      notVisible: 'Entre na sua conta'
+    file: ../_logout.yaml
+- extendedWaitUntil:
+    visible: 'Entre na sua conta'
+    timeout: 30000
+# e-mail lembrado ("Lembrar-se") chega async; espera antes de mexer
+- waitForAnimationToEnd:
+    timeout: 3000
+# toque na ponta direita do campo põe o cursor no fim do texto, aí o erase apaga tudo
+# (tocar no rótulo "E-mail" deixava o cursor no meio e sobrava lixo, ex. "...appp")
+- tapOn:
+    point: '85%,38%'
+- eraseText: 80
+- inputText: ${APP_EMAIL}
+# teclado aberto empurra o layout; fecha antes do próximo toque por coordenada
+- hideKeyboard
+- tapOn:
+    point: '60%,48%'
+- eraseText: 40
+- inputText: ${APP_PASSWORD}
+- hideKeyboard
+- tapOn: 'Entrar'
+- extendedWaitUntil:
+    notVisible: 'Entre na sua conta'
+    timeout: 60000
+# pós-login o app redireciona pra Início; deep link antes disso é sobrescrito
+- extendedWaitUntil:
+    visible: 'Visão geral|Início'
+    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 5000
+# pós-login o app redireciona pra Início; deep link antes disso é sobrescrito
+- extendedWaitUntil:
+    visible: 'Visão geral|Início'
+    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 5000

@@ -1,0 +1,27 @@
+# Voluntário vê o pedido, marca "Já lancei", desfaz e marca de novo
+appId: com.church.artos
+---
+- runFlow: _entrar.yaml
+- openLink: diakonia:///pessoal/indisponibilidade
+- extendedWaitUntil:
+    visible: 'Já lancei minhas datas'
+    timeout: 20000
+- assertVisible: 'Louvor E2E pede'
+- assertVisible:
+    text: 'Cadastre suas datas de .*'
+- takeScreenshot: 03a-card-pendente
+- tapOn: 'Já lancei minhas datas'
+- extendedWaitUntil:
+    visible:
+      text: '.*você marcou em .*'
+    timeout: 15000
+- takeScreenshot: 03b-card-marcado
+- tapOn: 'Desfazer'
+- extendedWaitUntil:
+    visible: 'Já lancei minhas datas'
+    timeout: 15000
+- tapOn: 'Já lancei minhas datas'
+- extendedWaitUntil:
+    visible:
+      text: '.*você marcou em .*'
+    timeout: 15000

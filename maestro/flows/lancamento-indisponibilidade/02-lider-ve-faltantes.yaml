@@ -1,0 +1,18 @@
+# Líder abre a lista de quem ainda não marcou "Já lancei"
+appId: com.church.artos
+env:
+  MINISTERIO_ID: 00000000-e2e0-4000-8000-000000000301
+---
+- openLink: diakonia:///ministerios/indisponibilidades?ministerioId=${MINISTERIO_ID}
+- extendedWaitUntil:
+    visible:
+      text: 'Ver os \d+ que faltam'
+    timeout: 20000
+- tapOn:
+    text: 'Ver os \d+ que faltam'
+- extendedWaitUntil:
+    visible: 'Ainda não marcaram'
+    timeout: 15000
+- assertVisible: '[E2E] Voluntário Teste'
+- takeScreenshot: 02-faltantes
+- back

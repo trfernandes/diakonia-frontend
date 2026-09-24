@@ -1,0 +1,47 @@
+# Flow: "Marcar todas como lidas" zera o contador do sino e da aba (caso E2E 4.3)
+#
+# Pré-condição (staging, igreja E2E E2ETEST): 3 notificações não lidas do
+# e2e.voluntario@diakonia.app, com data.churchId da igreja E2E. Inserir direto no banco
+# (não dispara push):
+#   INSERT INTO notificacoes (tipo, titulo, mensagem, data, "voluntarioId")
+#   SELECT 'GENERIC', 'E2E 4.3 aviso ' || g, 'E2E 4.3 mensagem ' || g,
+#     '{"type":"GENERIC","churchId":"00000000-e2e0-4000-8000-000000000001"}'::jsonb,
+#     '00000000-e2e0-4000-8000-000000000102' FROM generate_series(1,3) g;
+# Rodar com -e APP_EMAIL=e2e.voluntario@diakonia.app -e APP_PASSWORD=...
+#
+# O que verifica: sino mostra "3 não lidas"; na tela, "Marcar todas como lidas" esvazia a
+# aba "Não lidas"; de volta ao Início o sino não anuncia mais não lidas.
+# Limpeza: DELETE FROM notificacoes WHERE titulo LIKE 'E2E 4.3 %'.
+
+appId: com.church.artos
+---
+- launchApp
+- runFlow: _login.yaml
+- openLink: diakonia:///inicio
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+- extendedWaitUntil:
+    visible: 'Notificações, 3 não lidas'
+    timeout: 30000
+- takeScreenshot: notif-sino-antes
+- tapOn: 'Notificações, 3 não lidas'
+- extendedWaitUntil:
+    visible: '.*E2E 4.3 mensagem.*'
+    timeout: 30000
+- takeScreenshot: notif-lista-antes
+- tapOn: 'Marcar todas como lidas'
+- extendedWaitUntil:
+    visible: 'Você está em dia!'
+    timeout: 15000
+- takeScreenshot: notif-lista-depois
+- assertNotVisible: '.*E2E 4.3 mensagem.*'
+- back
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 30000
+- extendedWaitUntil:
+    visible: 'Notificações'
+    timeout: 15000
+- assertNotVisible: 'Notificações, .* não lidas'
+- takeScreenshot: notif-sino-depois

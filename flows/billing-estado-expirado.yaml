@@ -82,10 +82,10 @@ appId: com.church.artos
 - tapOn:
     text: '.+, Assinatura'
 - extendedWaitUntil:
-    visible: 'Avaliação encerrada'
+    visible: 'Seu período avaliativo terminou'
     timeout: 30000
-# BillingStatusPanel: resolveStatusCopy para expired
-- assertVisible: 'Avaliação encerrada'
+# BillingStatusPanel: eyebrow do painel agora e sempre "ASSINATURA" (o texto
+# "Avaliação encerrada" so aparece no banner das listas, passos 1 e 2)
 - assertVisible: 'Seu período avaliativo terminou'
 # Pill de status para expired
 - assertVisible: 'Expirada'

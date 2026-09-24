@@ -1,0 +1,39 @@
+# Flow: Conta cancelada e bloqueada vista por voluntário comum (caso E2E 3.5)
+#
+# Pré-condição: igreja E2E (E2ETEST) cancelada com período vencido. O período precisa ser
+# movido por inteiro, porque a API recalcula currentPeriodEnd a partir de currentPeriodStart:
+#   UPDATE subscriptions SET status='cancelled', "cancelledAt"=NOW(),
+#     "currentPeriodStart"=NOW()-INTERVAL '1 month 2 days', "currentPeriodEnd"=NOW()-INTERVAL '2 days'
+#     WHERE id='00000000-e2e0-4000-8000-000000000002';
+#   UPDATE igrejas SET "subscriptionStatus"='cancelled' WHERE id='00000000-e2e0-4000-8000-000000000001';
+# Rodar com app limpo (adb shell pm clear com.church.artos) e
+#   -e APP_EMAIL=e2e.voluntario@diakonia.app -e APP_PASSWORD=...
+#
+# O que verifica: voluntário comum não vê a mensagem de cobrança do líder ("Gerenciar
+# assinatura", "Retomar pagamento"), porque ele não pode pagar.
+# Limpeza: SQL de revert do billing-estado-cancelado-bloqueado.yaml (volta para 'active').
+
+appId: com.church.artos
+---
+- launchApp
+- runFlow: _login.yaml
+- openLink: diakonia:///inicio
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: vol-cancelada-inicio
+- assertNotVisible: 'Gerenciar assinatura'
+- assertNotVisible: 'Retomar pagamento'
+- openLink: diakonia:///pessoal/escalas
+- waitForAnimationToEnd:
+    timeout: 15000
+- takeScreenshot: vol-cancelada-escalas
+- assertNotVisible: 'Gerenciar assinatura'
+- assertNotVisible: 'Retomar pagamento'
+- openLink: diakonia:///configuracoes
+- waitForAnimationToEnd:
+    timeout: 15000
+- takeScreenshot: vol-cancelada-configuracoes
+- assertNotVisible: 'Gerenciar assinatura'

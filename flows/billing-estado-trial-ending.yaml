@@ -65,10 +65,11 @@ appId: com.church.artos
 - tapOn:
     text: '.+, Assinatura'
 - extendedWaitUntil:
-    visible: 'Versão avaliativa'
+    visible: 'Período avaliativo ativo'
     timeout: 30000
-# Mesmo layout que trial-warning: titulo fixo para trial nao expirado
-- assertVisible: 'Versão avaliativa'
+# Mesmo layout que trial-warning: titulo fixo para trial nao expirado.
+# Eyebrow do painel agora e sempre "ASSINATURA" ("Versão avaliativa" saiu).
+# Achado E2E 24/09: sem contagem de dias nem tom de alerta a 2 dias do fim (tarefa no Notion).
 - assertVisible: 'Período avaliativo ativo'
 # Pill de status para trial
 - assertVisible: 'Teste'

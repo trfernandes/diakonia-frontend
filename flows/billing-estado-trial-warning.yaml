@@ -64,12 +64,11 @@ appId: com.church.artos
 - tapOn:
     text: '.+, Assinatura'
 - extendedWaitUntil:
-    visible: 'Versão avaliativa'
+    visible: 'Período avaliativo ativo'
     timeout: 30000
 # BillingStatusPanel para trial warning:
-#   eyebrow vem de resolveBillingNoticeContent(trial-warning).eyebrow = "Versao avaliativa"
+#   eyebrow do painel agora e sempre "ASSINATURA" ("Versão avaliativa" saiu)
 #   title e "Periodo avaliativo ativo" (hardcoded para trial nao expirado)
-- assertVisible: 'Versão avaliativa'
 - assertVisible: 'Período avaliativo ativo'
 # Pill de status para trial warning
 - assertVisible: 'Teste'

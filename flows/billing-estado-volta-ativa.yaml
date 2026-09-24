@@ -1,0 +1,33 @@
+# Flow: Atrasada vira paga — desbloqueia sem sair e entrar (caso E2E 3.2)
+#
+# Pré-condição: app já logado como líder/admin da igreja E2E (E2ETEST), logo depois de
+# rodar billing-estado-overdue.yaml. NÃO reabre o app nem faz login de novo: o objetivo é
+# ver se a mesma sessão percebe o pagamento.
+#
+# SQL entre os dois flows (staging, igreja E2E):
+#   UPDATE subscriptions SET status='active' WHERE id='00000000-e2e0-4000-8000-000000000002';
+#   UPDATE igrejas SET "subscriptionStatus"='active' WHERE id='00000000-e2e0-4000-8000-000000000001';
+#
+# Limpeza: nenhuma (o estado final já é o normal, 'active').
+
+appId: com.church.artos
+---
+- openLink: diakonia:///admin/voluntarios
+- extendedWaitUntil:
+    visible: 'Voluntários'
+    timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertNotVisible: 'Pagamento em atraso'
+- takeScreenshot: billing-volta-ativa-voluntarios
+- openLink: diakonia:///configuracoes
+- extendedWaitUntil:
+    visible: 'Assinatura'
+    timeout: 15000
+- tapOn:
+    text: '.+, Assinatura'
+- extendedWaitUntil:
+    visible: 'Assinatura em dia'
+    timeout: 30000
+- assertNotVisible: 'Pagamento pendente'
+- takeScreenshot: billing-volta-ativa-configuracoes

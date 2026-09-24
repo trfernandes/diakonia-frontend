@@ -1,0 +1,56 @@
+# Flow: Voluntário não vê regra de indisponibilidade criada pelo líder (caso E2E 1.5, ADR-0012)
+#
+# Pré-condição (staging, igreja E2E E2ETEST), para e2e.voluntario@diakonia.app:
+#   - regra criada pelo líder (autorId != voluntarioId): motivo 'E2E lider regra qua' (DIAS_SEMANA, quarta)
+#     e 'E2E lider periodo 10/11' (PERIODO 10/11/2026). Criar via API como e2e.lider se não existirem.
+#   - regra criada pelo próprio voluntário: motivo 'E2E ferias' (PERIODO 20/12/2026 a 05/01/2027),
+#     usada como controle positivo (a tela carregou e mostra as regras dele).
+# Rodar com app limpo (adb shell pm clear com.church.artos) e
+#   -e APP_EMAIL=e2e.voluntario@diakonia.app -e APP_PASSWORD=...
+#
+# Regra do dono: a regra do líder é invisível pro voluntário, mas continua bloqueando escala.
+# Se o voluntário ver a regra do líder, é FAIL (bug, referência ADR-0012).
+# Limpeza: nenhuma (não cria nem altera dado).
+
+appId: com.church.artos
+---
+- launchApp
+- runFlow: _login.yaml
+- openLink: diakonia:///inicio
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+- openLink: diakonia:///pessoal/indisponibilidade
+- extendedWaitUntil:
+    visible: 'Minhas Indisponibilidades'
+    timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 15000
+# Aba Calendário: novembro/2026 não pode marcar o dia 10 (período do líder) nem as quartas
+# (regra DIAS_SEMANA do líder). Só as avulsas do próprio voluntário (19, 20, 22, 24).
+# Conferência visual pelo screenshot (Maestro não lê a cor do dia).
+- scrollUntilVisible:
+    element:
+      text: 'Novembro'
+    direction: DOWN
+    timeout: 20000
+- takeScreenshot: vol-indisponibilidade-calendario-novembro
+# Aba Regras: a lista mostra a descrição gerada ("Indisponível de 20/12 a 05/01"), não o motivo.
+# Controle positivo: regra 'E2E ferias' do próprio voluntário.
+- tapOn: 'Regras'
+- waitForAnimationToEnd:
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      text: 'Indisponível de 20/12 a 05/01.*'
+    direction: DOWN
+    timeout: 20000
+- takeScreenshot: vol-indisponibilidade-regras
+# Regras do líder: período 10/11 e dias da semana (quarta). Nenhuma pode aparecer.
+- assertNotVisible: '.*10/11.*'
+- assertNotVisible: '.*[Qq]uarta.*'
+- assertNotVisible: '.*E2E lider.*'
+- scroll
+- takeScreenshot: vol-indisponibilidade-fim
+- assertNotVisible: '.*10/11.*'
+- assertNotVisible: '.*[Qq]uarta.*'

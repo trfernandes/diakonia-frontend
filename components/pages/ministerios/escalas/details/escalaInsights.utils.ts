@@ -1,5 +1,6 @@
 import { ResponseEscalaItemDto } from '../../../../../domain/dtos/Escala/escala-item.response';
 import { ResponseEscalaDto } from '../../../../../domain/dtos/Escala/escala.response';
+import { ResponseMinisterioVoluntarioDto } from '../../../../../domain/dtos/MinisterioVoluntario/ministerio-voluntario.response';
 import { DateUtilsApi } from '../../../../../utils/date_utils';
 
 export type EscalaInsightsPersonRow = {
@@ -112,6 +113,33 @@ export function buildCurrentEscalaInsights(itens: ResponseEscalaItemDto[]): Esca
     menorCarga,
     cargaMediaAtual: mediaEscalasPorPessoaAtual,
   };
+}
+
+export function buildTodoMundoRows(
+  rankingAtual: EscalaInsightsPersonRow[],
+  ministerioVoluntarios: ResponseMinisterioVoluntarioDto[],
+): EscalaInsightsPersonRow[] {
+  const rows = new Map<string, EscalaInsightsPersonRow>();
+
+  for (const row of rankingAtual) {
+    rows.set(row.voluntarioId, row);
+  }
+
+  for (const mv of ministerioVoluntarios) {
+    if (rows.has(mv.id)) continue;
+    rows.set(mv.id, {
+      voluntarioId: mv.id,
+      nome: mv.voluntario?.nome?.trim() || 'Voluntário',
+      qtdAtual: 0,
+      fotoUrl: (mv.voluntario as any)?.fotoUrl,
+      fotoThumbUrl: (mv.voluntario as any)?.fotoThumbUrl,
+    });
+  }
+
+  return Array.from(rows.values()).sort((a, b) => {
+    if (b.qtdAtual !== a.qtdAtual) return b.qtdAtual - a.qtdAtual;
+    return a.nome.localeCompare(b.nome, 'pt-BR');
+  });
 }
 
 export function buildHistoricalEscalaInsights(

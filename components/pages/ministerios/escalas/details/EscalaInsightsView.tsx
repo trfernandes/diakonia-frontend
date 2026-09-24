@@ -26,11 +26,17 @@ import { useThemedStyles } from '../../../../../hooks/useThemedStyles';
 import { ColorUtils } from '../../../../../utils/color_utils';
 import { DateUtilsApi } from '../../../../../utils/date_utils';
 import DashboardCard from '../../../inicio/DashboardCard';
-import { buildCurrentEscalaInsights, buildHistoricalEscalaInsights } from './escalaInsights.utils';
+import FancyVerticalSpacer from '../../../../FancyVerticalSpacer';
+import FancySegmentedControl from '../../../../fields/FancySegmentedControl';
+import {
+  buildCurrentEscalaInsights,
+  buildHistoricalEscalaInsights,
+  buildTodoMundoRows,
+} from './escalaInsights.utils';
 import { getFirstAndLastName } from '../../../../../utils/text_utils';
+import { useVoluntariosDoMinisterioCrud } from '../../../../../hooks/useVoluntariosDoMinisterioCrud';
 
 const HISTORY_MONTHS_WINDOW = 6;
-const MAX_RANKING_ROWS = 12;
 type InsightsSectionKey = 'resumo' | 'cobertura' | 'pessoas' | 'equilibrio';
 
 type InfoKey =
@@ -193,6 +199,7 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
   const [openSections, setOpenSections] = useState<Set<InsightsSectionKey>>(new Set(['resumo']));
   const [activeInfo, setActiveInfo] = useState<ActiveInfo | null>(null);
   const [pendingSection, setPendingSection] = useState<InsightsSectionKey | null>(null);
+  const [pessoasFiltro, setPessoasFiltro] = useState<'escalados' | 'todos'>('escalados');
   const openFrameRef = useRef<number | null>(null);
   const clearPendingFrameRef = useRef<number | null>(null);
 
@@ -250,6 +257,13 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
   const currentInsights = useMemo(
     () => buildCurrentEscalaInsights(escala.itens ?? []),
     [escala.itens],
+  );
+
+  const { ministerioVoluntariosList } = useVoluntariosDoMinisterioCrud(ministerioId);
+
+  const todoMundoRows = useMemo(
+    () => buildTodoMundoRows(currentInsights.rankingAtual, ministerioVoluntariosList ?? []),
+    [currentInsights.rankingAtual, ministerioVoluntariosList],
   );
 
   const historyPeriodStart = useMemo(
@@ -328,7 +342,8 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
     [historyQuery.data, historyPeriodStart, historyPeriodEnd],
   );
 
-  const topRanking = currentInsights.rankingAtual.slice(0, MAX_RANKING_ROWS);
+  const pessoasRows =
+    pessoasFiltro === 'todos' ? todoMundoRows : currentInsights.rankingAtual;
   const gapBetweenExtremes =
     currentInsights.maiorCarga && currentInsights.menorCarga
       ? currentInsights.maiorCarga.qtdAtual - currentInsights.menorCarga.qtdAtual
@@ -538,14 +553,27 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
             containerContainerStyle={styles.accordeonContainer}
             containerExpandedContainerStyle={styles.accordeonContainerExpanded}
           >
-            {topRanking.length === 0 ? (
+            <FancySegmentedControl
+              label='Filtro'
+              value={pessoasFiltro}
+              onChange={setPessoasFiltro}
+              options={[
+                { label: 'Escalados', value: 'escalados', count: currentInsights.rankingAtual.length },
+                { label: 'Todo mundo', value: 'todos', count: todoMundoRows.length },
+              ]}
+              size='sm'
+            />
+            <FancyVerticalSpacer height={10} />
+            {pessoasRows.length === 0 ? (
               <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
-                Nenhuma pessoa escalada nesta escala.
+                {pessoasFiltro === 'todos'
+                  ? 'Nenhum voluntário no ministério.'
+                  : 'Nenhuma pessoa escalada nesta escala.'}
               </FancyText>
             ) : (
               <View style={styles.tableWrapper}>
                 <View>
-                  {topRanking.map((row, index) => {
+                  {pessoasRows.map((row, index) => {
                     const mediaPessoa =
                       historicalInsights.mediaEscalasMesPorPessoa[row.voluntarioId] ?? 0;
                     const mediaPessoaLabel = historyQuery.isLoading
@@ -558,7 +586,7 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
                         key={row.voluntarioId}
                         style={[
                           styles.tableDataRow,
-                          index === topRanking.length - 1 && styles.tableLastRow,
+                          index === pessoasRows.length - 1 && styles.tableLastRow,
                         ]}
                       >
                         <View style={[styles.cellBase, styles.cellName, styles.cellPersona]}>

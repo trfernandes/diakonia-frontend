@@ -15,7 +15,6 @@ import DefaultIcons from '../../../../FancyIcons';
 import FancyAccordeon from '../../../../FancyAccordeon';
 import FancyAvatarImage from '../../../../images/FancyImage';
 import { AppImages } from '../../../../../assets/app_images';
-import FancyButton from '../../../../buttons/FancyButton';
 import FancyChips from '../../../../FancyChips';
 import FancySearchBar from '../../../../FancySearchBar';
 import FancyText from '../../../../FancyText';
@@ -28,7 +27,6 @@ import { useThemedStyles } from '../../../../../hooks/useThemedStyles';
 import { ColorUtils } from '../../../../../utils/color_utils';
 import { DateUtilsApi } from '../../../../../utils/date_utils';
 import DashboardCard from '../../../inicio/DashboardCard';
-import FancyVerticalSpacer from '../../../../FancyVerticalSpacer';
 import FancySegmentedControl from '../../../../fields/FancySegmentedControl';
 import {
   buildCurrentEscalaInsights,
@@ -41,19 +39,11 @@ import { useVoluntariosDoMinisterioCrud } from '../../../../../hooks/useVoluntar
 const HISTORY_MONTHS_WINDOW = 6;
 type InsightsSectionKey = 'resumo' | 'cobertura' | 'pessoas' | 'equilibrio';
 
-type PessoasSortMode = 'nome-asc' | 'nome-desc' | 'escalas-asc' | 'escalas-desc';
-const PESSOAS_SORT_CYCLE: PessoasSortMode[] = [
-  'nome-asc',
-  'nome-desc',
-  'escalas-asc',
-  'escalas-desc',
+type PessoasSortMode = 'escalas-desc' | 'nome-asc';
+const PESSOAS_SORT_OPTIONS: { value: PessoasSortMode; label: string }[] = [
+  { value: 'escalas-desc', label: 'Mais escalas' },
+  { value: 'nome-asc', label: 'A–Z' },
 ];
-const PESSOAS_SORT_LABEL: Record<PessoasSortMode, string> = {
-  'nome-asc': 'Nome ↑',
-  'nome-desc': 'Nome ↓',
-  'escalas-asc': 'Escalas ↑',
-  'escalas-desc': 'Escalas ↓',
-};
 
 type InfoKey =
   | 'kpi_eventos'
@@ -360,8 +350,7 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
     [historyQuery.data, historyPeriodStart, historyPeriodEnd],
   );
 
-  const pessoasRowsBase =
-    pessoasFiltro === 'todos' ? todoMundoRows : currentInsights.rankingAtual;
+  const pessoasRowsBase = pessoasFiltro === 'todos' ? todoMundoRows : currentInsights.rankingAtual;
 
   const pessoasRows = useMemo(() => {
     const busca = pessoasBusca.trim().toLowerCase();
@@ -370,26 +359,11 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
       : pessoasRowsBase;
 
     const sorted = [...filtradas].sort((a, b) => {
-      switch (pessoasSort) {
-        case 'nome-asc':
-          return a.nome.localeCompare(b.nome, 'pt-BR');
-        case 'nome-desc':
-          return b.nome.localeCompare(a.nome, 'pt-BR');
-        case 'escalas-asc':
-          return a.qtdAtual - b.qtdAtual;
-        case 'escalas-desc':
-          return b.qtdAtual - a.qtdAtual;
-      }
+      if (pessoasSort === 'nome-asc') return a.nome.localeCompare(b.nome, 'pt-BR');
+      return b.qtdAtual - a.qtdAtual || a.nome.localeCompare(b.nome, 'pt-BR');
     });
     return sorted;
   }, [pessoasRowsBase, pessoasBusca, pessoasSort]);
-
-  const cyclePessoasSort = useCallback(() => {
-    setPessoasSort((prev) => {
-      const index = PESSOAS_SORT_CYCLE.indexOf(prev);
-      return PESSOAS_SORT_CYCLE[(index + 1) % PESSOAS_SORT_CYCLE.length];
-    });
-  }, []);
   const gapBetweenExtremes =
     currentInsights.maiorCarga && currentInsights.menorCarga
       ? currentInsights.maiorCarga.qtdAtual - currentInsights.menorCarga.qtdAtual
@@ -604,29 +578,39 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
               value={pessoasFiltro}
               onChange={setPessoasFiltro}
               options={[
-                { label: 'Escalados', value: 'escalados', count: currentInsights.rankingAtual.length },
+                {
+                  label: 'Escalados',
+                  value: 'escalados',
+                  count: currentInsights.rankingAtual.length,
+                },
                 { label: 'Todos', value: 'todos', count: todoMundoRows.length },
               ]}
               size='sm'
             />
-            <FancyVerticalSpacer height={10} />
-            <View style={styles.pessoasToolbar}>
-              <FancySearchBar
-                value={pessoasBusca}
-                onSearch={setPessoasBusca}
-                placeholder='Buscar por nome'
-                containerStyle={styles.pessoasSearchBar}
-              />
-              <FancyButton
-                type='light'
-                label={PESSOAS_SORT_LABEL[pessoasSort]}
-                icon={{ library: 'MaterialCommunityIcons', name: 'swap-vertical', size: 16 }}
-                onPress={cyclePessoasSort}
-                accessibilityLabel='Ordenar pessoas'
-                containerStyle={styles.pessoasSortButton}
-              />
+            <FancySearchBar
+              value={pessoasBusca}
+              onSearch={setPessoasBusca}
+              placeholder='Buscar por nome'
+            />
+            <View style={styles.pessoasSortRow}>
+              <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
+                Ordenar:
+              </FancyText>
+              {PESSOAS_SORT_OPTIONS.map((option) => {
+                const active = pessoasSort === option.value;
+                return (
+                  <FancyChips
+                    key={option.value}
+                    label={option.label}
+                    size='medium'
+                    color={active ? palette.primary : palette.fonts.inactive}
+                    backgroundColor={active ? undefined : 'transparent'}
+                    style={!active && { borderColor: palette.borderCard }}
+                    onPress={() => setPessoasSort(option.value)}
+                  />
+                );
+              })}
             </View>
-            <FancyVerticalSpacer height={10} />
             {pessoasRowsBase.length === 0 ? (
               <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
                 {pessoasFiltro === 'todos'
@@ -689,7 +673,8 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
                                 ? { uri: row.fotoThumbUrl || row.fotoUrl }
                                 : AppImages.emptyProfile
                             }
-                            size={20}
+                            size={24}
+                            fallbackName={row.nome}
                             style={styles.rankingAvatar}
                           />
                           <FancyText
@@ -883,9 +868,7 @@ function createStyles(palette: ThemePalette) {
       justifyContent: 'center',
     },
     infoButtonPressed: { opacity: 0.72 },
-    pessoasToolbar: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    pessoasSearchBar: { flex: 1 },
-    pessoasSortButton: { flexShrink: 0 },
+    pessoasSortRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     tableWrapper: {
       borderWidth: 0,
       borderRadius: 0,
@@ -921,7 +904,7 @@ function createStyles(palette: ThemePalette) {
     cellName: { flex: 2 },
     cellCenter: { flex: 1, textAlign: 'center' },
     cellPersona: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    rankingAvatar: { width: 20, height: 20, borderRadius: 10, flexShrink: 0 },
+    rankingAvatar: { width: 24, height: 24, borderRadius: 12, flexShrink: 0 },
     equilibrioRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
     infoRow: {
       flexDirection: 'row',

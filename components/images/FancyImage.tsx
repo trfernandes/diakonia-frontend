@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, ImageSourcePropType, ImageStyle, StyleProp, View } from 'react-native';
 import { Image } from 'expo-image';
 import { ImageUtils } from '../../utils/image_utils';
@@ -35,6 +36,9 @@ export default function FancyImage({
     return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase();
   })();
   const showInitials = isEmptyProfilePlaceholder && initials.length > 0;
+  // Enquanto a foto remota carrega, mostra as iniciais no lugar do círculo vazio.
+  const [photoLoaded, setPhotoLoaded] = useState(false);
+  const showLoadingInitials = !isEmptyProfilePlaceholder && initials.length > 0 && !photoLoaded;
 
   // IMPORTANTE: NUNCA montar/desmontar nem trocar o tipo de elemento nativo no
   // mesmo slot. Alternar <Image> <-> ícone (ou montar/desmontar um deles) faz o
@@ -74,6 +78,7 @@ export default function FancyImage({
         priority='low'
         cachePolicy='memory-disk'
         source={isEmptyProfilePlaceholder ? undefined : resolvedSource}
+        onLoad={() => setPhotoLoaded(true)}
         style={[
           { width: size, height: size },
           disabled && resolvedSource !== undefined && styles.blackAndWhiteFilter,
@@ -93,10 +98,10 @@ export default function FancyImage({
       <FancyText
         type='bold'
         color={palette.primary}
-        size={Math.max(12, Math.round(size * 0.36))}
+        size={size < 32 ? Math.round(size * 0.4) : Math.max(12, Math.round(size * 0.36))}
         style={{
           position: 'absolute',
-          opacity: showInitials ? 1 : 0,
+          opacity: showInitials || showLoadingInitials ? 1 : 0,
         }}
       >
         {initials}

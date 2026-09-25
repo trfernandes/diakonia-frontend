@@ -5,6 +5,8 @@ export enum TentativaStatusEnum {
   Recusada = 'Recusada',
   ExpiradaPrazo = 'ExpiradaPrazo',
   VetadaPeloLider = 'VetadaPeloLider',
+  // Candidato aceitou oferecendo troca (ADR-0013); falta o solicitante confirmar.
+  AguardandoConfirmacaoSolicitante = 'AguardandoConfirmacaoSolicitante',
 }
 
 export const TentativaStatusEnumLabel: Record<TentativaStatusEnum, string> = {
@@ -14,4 +16,5 @@ export const TentativaStatusEnumLabel: Record<TentativaStatusEnum, string> = {
   [TentativaStatusEnum.Recusada]: 'Recusada',
   [TentativaStatusEnum.ExpiradaPrazo]: 'Prazo expirado',
   [TentativaStatusEnum.VetadaPeloLider]: 'Vetada pelo líder',
+  [TentativaStatusEnum.AguardandoConfirmacaoSolicitante]: 'Troca aguardando confirmação',
 };

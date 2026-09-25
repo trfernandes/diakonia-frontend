@@ -6,7 +6,8 @@ import FancySegmentedControl from '../../../../../components/fields/FancySegment
 import FancyText from '../../../../../components/FancyText';
 import FancyLoading from '../../../../../components/FancyLoading';
 import FancyList from '../../../../../components/list/FancyList';
-import { FancyListEmptyProps } from '../../../../../components/list/FancyListEmpty';
+import FancyListEmpty, { FancyListEmptyProps } from '../../../../../components/list/FancyListEmpty';
+import FancyButton from '../../../../../components/buttons/FancyButton';
 import { useAuth } from '../../../../../contexts/AuthContext';
 import { usePallete } from '../../../../../hooks/usePallete';
 import { useSubstituicaoPedidosCrud } from '../../../../../hooks/useSubstituicaoPedidosCrud';
@@ -56,6 +57,7 @@ export default function SubstituicoesScreen() {
   const {
     meusPedidos,
     isLoadingMeusPedidos,
+    isErrorMeusPedidos,
     isRefetchingMeusPedidos,
     refetchMeusPedidos,
     aceitar,
@@ -64,6 +66,7 @@ export default function SubstituicoesScreen() {
     indicarVoluntario,
     buscarNovamente,
     removerFuncao,
+    responderTroca,
   } = useSubstituicaoPedidosCrud();
 
   const userId = user?.user?.id;
@@ -176,6 +179,23 @@ export default function SubstituicoesScreen() {
 
       {isLoading ? (
         <FancyLoading />
+      ) : isErrorMeusPedidos && meusPedidos.length === 0 ? (
+        // Falha de rede não pode parecer "nenhum pedido" (E2E 2.8).
+        <View style={styles.errorWrap}>
+          <FancyListEmpty
+            label='Não conseguimos carregar os pedidos'
+            helperText='Nenhum pedido foi perdido. Confira sua internet e toque em "Tentar de novo".'
+            icon={{ library: 'MaterialCommunityIcons', name: 'wifi-alert', size: 55 }}
+            muted={false}
+          />
+          <FancyButton
+            type='contained'
+            label='Tentar de novo'
+            onPress={() => refetchMeusPedidos()}
+            isLoading={isRefetchingMeusPedidos}
+            disabled={isRefetchingMeusPedidos}
+          />
+        </View>
       ) : (
         <FancyList
           containerStyle={styles.listContainer}
@@ -194,7 +214,8 @@ export default function SubstituicoesScreen() {
               );
             }
             const p = item.data;
-            const isSolicitante = p.pedido.solicitante?.voluntario?.id === userId;
+            const isSolicitante =
+              p.papel === 'solicitante' || p.pedido.solicitante?.voluntario?.id === userId;
             return (
               <PedidoCard
                 item={p}
@@ -207,6 +228,16 @@ export default function SubstituicoesScreen() {
                 onIndicarVoluntario={() => setIndicarPedido(p)}
                 onBuscarNovamente={() => runAction(p.pedido.id, () => buscarNovamente(p.pedido.id))}
                 onRemoverFuncao={() => handleRemoverFuncao(p.pedido.id)}
+                onConfirmarTroca={() =>
+                  runAction(p.pedido.id, () =>
+                    responderTroca({ pedidoId: p.pedido.id, confirmar: true }),
+                  )
+                }
+                onRecusarTroca={() =>
+                  runAction(p.pedido.id, () =>
+                    responderTroca({ pedidoId: p.pedido.id, confirmar: false }),
+                  )
+                }
               />
             );
           }}
@@ -255,6 +286,11 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
     marginTop: 16,
+  },
+  errorWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 16,
   },
   sectionHeader: {
     paddingTop: 4,

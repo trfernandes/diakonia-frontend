@@ -157,6 +157,23 @@ class SubstituicaoPedidosApiClass extends BaseApi<
     }
   }
 
+  // Troca (ADR-0013): solicitante confirma ou recusa a data que o candidato ofereceu.
+  async responderTroca(
+    pedidoId: string,
+    acao: 'confirmar-troca' | 'recusar-troca',
+  ): Promise<ResponseSubstituicaoPedidoDto> {
+    try {
+      const response = await apiClient.put<ApiEnvelope<ResponseSubstituicaoPedidoDto>>(
+        `/${this.resourceName}/${pedidoId}/${acao}`,
+        {},
+      );
+      return response.data.data;
+    } catch (error) {
+      this.logAxiosError('responderTroca', error, { pedidoId, acao });
+      throw error;
+    }
+  }
+
   async removerFuncao(pedidoId: string): Promise<ResponseSubstituicaoPedidoDto> {
     try {
       const response = await apiClient.put<ApiEnvelope<ResponseSubstituicaoPedidoDto>>(

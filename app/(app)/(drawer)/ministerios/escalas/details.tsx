@@ -41,6 +41,12 @@ import { UpdateEscalaItemDto } from '../../../../../domain/dtos/Escala/escala-it
 import { useAnalytics } from '../../../../../core/analytics/AnalyticsContext';
 import { AnalyticsEvent, buildEscalaPublicadaProps } from '../../../../../core/analytics/events';
 import ResolverConflitosModal from '../../../../../components/pages/ministerios/escalas/details/ResolverConflitosModal';
+import { EscalaProblemasProvider } from '../../../../../components/pages/ministerios/escalas/details/EscalaProblemasContext';
+import {
+  agruparProblemasPorItem,
+  extrairProblemasPublicacao,
+  ProblemaPublicacao,
+} from '../../../../../domain/utils/escala_bloqueio_utils';
 import {
   ConflitoMultiMinisteriosType,
   PublicarEscalaAcaoEnum,
@@ -117,6 +123,7 @@ export default function MinisterioEscalasDetailsPage() {
   const [isAuditoriaOpen, setIsAuditoriaOpen] = useState(false);
   const [conflitos, setConflitos] = useState<ResponseConflitosMultiMinisteriosDto | null>(null);
   const [isConflitosModalOpen, setIsConflitosModalOpen] = useState(false);
+  const [problemasPublicacao, setProblemasPublicacao] = useState<ProblemaPublicacao[]>([]);
   const palette = usePallete();
   const prevStatusRef = useRef<EscalaStatusEnum | undefined>(undefined);
   const { salvarResponsavelSetlist, isSavingResponsavelSetlist } = useEventoSetlistResponsavel();
@@ -199,6 +206,42 @@ export default function MinisterioEscalasDetailsPage() {
         .catch(() => {});
     }
   }, [escalaData?.[0]?.status]);
+
+  // E2E 2.3 rascunho / 2.2b: em rascunho, marca quem está indisponível ou em conflito de horário
+  // assim que a tela abre e a cada troca — o líder vê antes de tentar publicar.
+  const escalaParaDetectar = escalaData?.[0];
+  useEffect(() => {
+    if (
+      !igrejaAtiva?.id ||
+      viewMode === 'view' ||
+      escalaParaDetectar?.status !== EscalaStatusEnum.Gerada
+    ) {
+      setProblemasPublicacao([]);
+      return;
+    }
+    let cancelado = false;
+    EscalaRepository.publicar(escalaId, {
+      igrejaId: igrejaAtiva.id,
+      acao: PublicarEscalaAcaoEnum.Detectar,
+    })
+      .then((resultado: any) => {
+        if (!cancelado) {
+          setProblemasPublicacao(Array.isArray(resultado?.problemas) ? resultado.problemas : []);
+        }
+      })
+      // Falha na detecção não trava a tela; o 409 ao publicar ainda marca as pessoas.
+      .catch(() => {});
+    return () => {
+      cancelado = true;
+    };
+  }, [escalaParaDetectar, escalaId, igrejaAtiva?.id, viewMode]);
+
+  const problemasPorItem = useMemo(
+    () => agruparProblemasPorItem(problemasPublicacao),
+    [problemasPublicacao],
+  );
+  const qtdPessoasMarcadas = problemasPorItem.size;
+  const temIndisponivelMarcado = problemasPublicacao.some((p) => p.tipo === 'INDISPONIVEL');
 
   //   const {
   //     data: escalaItensData,
@@ -657,6 +700,16 @@ export default function MinisterioEscalasDetailsPage() {
       );
       await refetchEscala();
     } catch (error) {
+      const problemas = extrairProblemasPublicacao(error);
+      if (problemas) {
+        setProblemasPublicacao(problemas);
+        Toast.show({
+          type: 'error',
+          text1: 'Escala não publicada.',
+          text2: 'Troque as pessoas marcadas na lista e tente de novo.',
+        });
+        return;
+      }
       Toast.show({
         type: 'error',
         text1: 'Não foi possível publicar.',
@@ -805,7 +858,48 @@ export default function MinisterioEscalasDetailsPage() {
           onGeneratePress={handleGeneratePress}
           onDeletePress={handleDeletePress}
           onParametrizacaoPress={() => setIsParametrizacaoOpen(true)}
+          qtdPessoasMarcadas={qtdPessoasMarcadas}
         />
+
+        {qtdPessoasMarcadas > 0 && !isGerando && (
+          <View
+            style={[
+              styles.statusBanner,
+              styles.bloqueioBanner,
+              {
+                backgroundColor: ColorUtils.withAlpha(
+                  temIndisponivelMarcado ? palette.error : palette.warning,
+                  0.08,
+                ),
+              },
+            ]}
+          >
+            <View style={styles.bloqueioTitulo}>
+              <DefaultIcons.Custom
+                library='MaterialCommunityIcons'
+                name='lock-outline'
+                size={18}
+                color={temIndisponivelMarcado ? palette.error : palette.warning}
+              />
+              <FancyText
+                size='small'
+                type='semiBold'
+                color={temIndisponivelMarcado ? palette.error : palette.warning}
+                style={{ flex: 1 }}
+              >
+                {`Troque as ${qtdPessoasMarcadas} ${
+                  qtdPessoasMarcadas === 1 ? 'pessoa marcada' : 'pessoas marcadas'
+                } para publicar`}
+              </FancyText>
+            </View>
+            <FancyText size='extraSmall' type='medium' color={palette.fonts.dark}>
+              Vermelho: a pessoa marcou que não pode nesse dia. Laranja: ela já está escalada no
+              mesmo horário em outro ministério. Toque nos três pontinhos ao lado do nome e escolha
+              “Substituir voluntário”. O botão de publicar libera sozinho quando ninguém mais
+              estiver marcado.
+            </FancyText>
+          </View>
+        )}
 
         {isGerando && (
           <View style={styles.statusBanner}>
@@ -908,29 +1002,31 @@ export default function MinisterioEscalasDetailsPage() {
         )}
 
         {!isGerando && eventosData.length > 0 && (
-          <EscalaHorizontalPager
-            eventosData={eventosData}
-            viewMode={viewMode}
-            ministerioId={ministerioId}
-            escalaId={escalaId}
-            canEditSetlistOwner={canEditSetlistOwner}
-            isUpdatingSetlistOwner={isSavingResponsavelSetlist}
-            onUpdateResponsavelSetlist={handleUpdateResponsavelSetlist}
-            onChangeVoluntario={handleSubstituirVoluntario}
-            onAddVoluntario={handleAdicionarVoluntario}
-            onRemoveVoluntario={handleRemoverVoluntario}
-            onDeleteEvento={handleDeleteEvento}
-            onAdicionarFuncao={handleAdicionarFuncao}
-            onExcluirFuncao={handleExcluirFuncao}
-            onExcluirFuncaoAvulsa={handleExcluirFuncaoAvulsa}
-            onAdicionarEvento={
-              escalaData[0].origem === EscalaOrigemEnum.Manual &&
-              (!viewMode || viewMode === 'edit') &&
-              !isBlockingScreen
-                ? () => setIsAdicionarItemManualOpen(true)
-                : undefined
-            }
-          />
+          <EscalaProblemasProvider value={problemasPorItem}>
+            <EscalaHorizontalPager
+              eventosData={eventosData}
+              viewMode={viewMode}
+              ministerioId={ministerioId}
+              escalaId={escalaId}
+              canEditSetlistOwner={canEditSetlistOwner}
+              isUpdatingSetlistOwner={isSavingResponsavelSetlist}
+              onUpdateResponsavelSetlist={handleUpdateResponsavelSetlist}
+              onChangeVoluntario={handleSubstituirVoluntario}
+              onAddVoluntario={handleAdicionarVoluntario}
+              onRemoveVoluntario={handleRemoverVoluntario}
+              onDeleteEvento={handleDeleteEvento}
+              onAdicionarFuncao={handleAdicionarFuncao}
+              onExcluirFuncao={handleExcluirFuncao}
+              onExcluirFuncaoAvulsa={handleExcluirFuncaoAvulsa}
+              onAdicionarEvento={
+                escalaData[0].origem === EscalaOrigemEnum.Manual &&
+                (!viewMode || viewMode === 'edit') &&
+                !isBlockingScreen
+                  ? () => setIsAdicionarItemManualOpen(true)
+                  : undefined
+              }
+            />
+          </EscalaProblemasProvider>
         )}
       </FancyPageView>
 
@@ -991,6 +1087,16 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   container: { flex: 1 },
+  bloqueioBanner: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 6,
+  },
+  bloqueioTitulo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   statusBanner: {
     flexDirection: 'row',
     alignItems: 'center',

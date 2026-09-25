@@ -21,6 +21,7 @@ import { useThemedStyles } from '../../../../../hooks/useThemedStyles';
 import { useAppTheme } from '../../../../../hooks/useAppTheme';
 import { ColorUtils } from '../../../../../utils/color_utils';
 import { getFirstAndLastName } from '../../../../../utils/text_utils';
+import { useProblemasPorItem } from './EscalaProblemasContext';
 
 const ACTION_HIT_SLOP = { top: 16, bottom: 16, left: 16, right: 16 } as const;
 
@@ -89,6 +90,7 @@ export default function ListaVoluntariosTable({
   const voluntarioStatusChipParams = getVoluntarioStatusChipParams(palette, isDark);
   const { data: voluntariosData } = useVoluntariosCrud({ autoFetch: true });
   const voluntariosList = voluntariosData ?? [];
+  const problemasPorItem = useProblemasPorItem();
   const [voluntarioDetailsProps, setVoluntarioDetailsProps] = useState<{
     isVisible: boolean;
     ministerioVoluntarioId?: string;
@@ -119,6 +121,13 @@ export default function ListaVoluntariosTable({
           const isAvulso = !hasVoluntario && !!equipeItem.nomeAvulso;
           const isPreenchido = hasVoluntario || isAvulso;
           const isFuncaoAvulsa = !equipeItem.funcao?.id && !!equipeItem.nomeFuncaoAvulsa;
+
+          // E2E 2.3 rascunho (vermelho) / 2.2b (laranja): pessoa que trava a publicação.
+          const problemas = isPreenchido
+            ? (problemasPorItem.get(equipeItem.idEscalaItem) ?? [])
+            : [];
+          const temIndisponivel = problemas.some((p) => p.tipo === 'INDISPONIVEL');
+          const corProblema = temIndisponivel ? palette.error : palette.warning;
 
           const isVago = !isPreenchido;
           const rowPressesToAdd = isVago && isEditMode;
@@ -199,19 +208,47 @@ export default function ListaVoluntariosTable({
                           ? ' · pessoa sem cadastro'
                           : ''}
                 </FancyText>
-                {hasVoluntario ? (
-                  <FancyText type='semiBold' size='small'>
-                    {getFirstAndLastName(equipeItem.voluntario?.nome)}
-                  </FancyText>
-                ) : isAvulso ? (
-                  <FancyText type='semiBold' size='small' numberOfLines={1}>
-                    {equipeItem.nomeAvulso}
-                  </FancyText>
+                {hasVoluntario || isAvulso ? (
+                  <View style={styles.nomeRow}>
+                    <FancyText type='semiBold' size='small' numberOfLines={1} style={styles.nome}>
+                      {hasVoluntario
+                        ? getFirstAndLastName(equipeItem.voluntario?.nome)
+                        : equipeItem.nomeAvulso}
+                    </FancyText>
+                    {problemas.length > 0 && (
+                      <View
+                        style={[
+                          styles.seloProblema,
+                          { backgroundColor: ColorUtils.withAlpha(corProblema, 0.14) },
+                        ]}
+                      >
+                        <DefaultIcons.Custom
+                          library='MaterialCommunityIcons'
+                          name={temIndisponivel ? 'calendar-remove' : 'clock-alert-outline'}
+                          size={12}
+                          color={corProblema}
+                        />
+                        <FancyText type='semiBold' size='extraSmall' color={corProblema}>
+                          {temIndisponivel ? 'Indisponível' : 'Mesmo horário'}
+                        </FancyText>
+                      </View>
+                    )}
+                  </View>
                 ) : (
                   <FancyText type='semiBold' size='medium' color={palette.fonts.inactive}>
                     Sem Voluntário
                   </FancyText>
                 )}
+                {problemas.map((problema) => (
+                  <FancyText
+                    key={`${problema.tipo}-${problema.detalhe}`}
+                    type='medium'
+                    size='extraSmall'
+                    color={problema.tipo === 'INDISPONIVEL' ? palette.error : palette.warning}
+                  >
+                    {problema.detalhe}
+                  </FancyText>
+                ))}
               </View>
 
               {/* Ações */}
@@ -387,6 +424,22 @@ function createStyles(palette: ThemePalette) {
       flex: 1,
       gap: 2,
       justifyContent: 'center',
+    },
+    nomeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    nome: {
+      flexShrink: 1,
+    },
+    seloProblema: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 8,
     },
     dotsButton: {
       width: 30,

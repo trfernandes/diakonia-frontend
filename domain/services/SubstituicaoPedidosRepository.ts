@@ -41,6 +41,10 @@ class SubstituicaoPedidosRepositoryClass extends BaseRepository<
     return SubstituicaoPedidosApi.recusar(pedidoId);
   }
 
+  responderTroca(pedidoId: string, acao: 'confirmar-troca' | 'recusar-troca') {
+    return SubstituicaoPedidosApi.responderTroca(pedidoId, acao);
+  }
+
   cancelar(pedidoId: string, motivoCancelamento?: string) {
     return SubstituicaoPedidosApi.cancelar(pedidoId, motivoCancelamento);
   }

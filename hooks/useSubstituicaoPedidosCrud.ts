@@ -90,6 +90,26 @@ export function useSubstituicaoPedidosCrud() {
     onError: handleError('Erro ao recusar substituição.'),
   });
 
+  const responderTroca = useMutation({
+    mutationFn: ({ pedidoId, confirmar }: { pedidoId: string; confirmar: boolean }) =>
+      SubstituicaoPedidosRepository.responderTroca(
+        pedidoId,
+        confirmar ? 'confirmar-troca' : 'recusar-troca',
+      ),
+    onSuccess: (_, { confirmar }) => {
+      invalidateAll();
+      Toast.show({
+        type: 'success',
+        text1: confirmar ? 'Troca confirmada!' : 'Troca recusada.',
+        text2: confirmar
+          ? 'As duas escalas já foram atualizadas.'
+          : 'Vamos seguir buscando outro substituto.',
+        position: 'top',
+      });
+    },
+    onError: handleError('Erro ao responder a troca.'),
+  });
+
   const cancelar = useMutation({
     mutationFn: ({
       pedidoId,
@@ -142,11 +162,14 @@ export function useSubstituicaoPedidosCrud() {
   return {
     meusPedidos: meusPedidosQuery.data ?? [],
     isLoadingMeusPedidos: meusPedidosQuery.isLoading,
+    // Sem isso a tela confundia falha de rede com "nenhum pedido" (E2E 2.8).
+    isErrorMeusPedidos: meusPedidosQuery.isError,
     isRefetchingMeusPedidos: meusPedidosQuery.isRefetching,
     refetchMeusPedidos: meusPedidosQuery.refetch,
 
     pendentesParaLider: liderPendentesQuery.data ?? [],
     isLoadingPendentesParaLider: liderPendentesQuery.isLoading,
+    isErrorPendentesParaLider: liderPendentesQuery.isError,
     isRefetchingPendentesParaLider: liderPendentesQuery.isRefetching,
     refetchPendentesParaLider: liderPendentesQuery.refetch,
 
@@ -161,6 +184,9 @@ export function useSubstituicaoPedidosCrud() {
 
     recusar: recusar.mutateAsync,
     isRecusando: recusar.isPending,
+
+    responderTroca: responderTroca.mutateAsync,
+    isRespondendoTroca: responderTroca.isPending,
 
     cancelar: cancelar.mutateAsync,
     isCancelando: cancelar.isPending,

@@ -25,6 +25,7 @@ function getTentativaVisual(status: TentativaStatusEnum | null | undefined, pale
     case TentativaStatusEnum.VetadaPeloLider:
       return { color: palette.error, icon: 'block' };
     case TentativaStatusEnum.AguardandoGateLider:
+    case TentativaStatusEnum.AguardandoConfirmacaoSolicitante:
       return { color: palette.warning, icon: 'hourglass-empty' };
     case TentativaStatusEnum.Convidada:
     default:

@@ -16,6 +16,7 @@ import {
   SubstituicaoPedidoStatusEnum,
   SubstituicaoPedidoStatusEnumLabel,
 } from '../../../../../domain/enums/SubstituicaoPedido/substituicao-pedido-status.enum';
+import { TentativaStatusEnum } from '../../../../../domain/enums/SubstituicaoPedido/tentativa-status.enum';
 import TentativaTimeline from '../../../common/TentativaTimeline';
 
 function getStatusVisual(status: SubstituicaoPedidoStatusEnum, palette: ThemePalette) {
@@ -42,6 +43,8 @@ type Props = {
   onIndicarVoluntario: () => void;
   onBuscarNovamente: () => void;
   onRemoverFuncao: () => void;
+  onConfirmarTroca: () => void;
+  onRecusarTroca: () => void;
 };
 
 export default function PedidoCard({
@@ -55,6 +58,8 @@ export default function PedidoCard({
   onIndicarVoluntario,
   onBuscarNovamente,
   onRemoverFuncao,
+  onConfirmarTroca,
+  onRecusarTroca,
 }: Props) {
   const palette = usePallete();
   const [expanded, setExpanded] = useState(false);
@@ -82,6 +87,19 @@ export default function PedidoCard({
   const podeResponder =
     !isSolicitante && isSuaVez && pedido.status === SubstituicaoPedidoStatusEnum.Aberto;
   const semCandidato = isSolicitante && pedido.status === SubstituicaoPedidoStatusEnum.SemCandidato;
+
+  // Troca (ADR-0013): candidato topou cobrir o dia do solicitante se ele cobrir um dia dele.
+  const trocaPendente = isSolicitante
+    ? pedido.tentativas?.find(
+        (t) => t.tentativaStatus === TentativaStatusEnum.AguardandoConfirmacaoSolicitante,
+      )
+    : undefined;
+  const nomeTroca = trocaPendente?.substituto?.voluntario?.nome?.trim().split(/\s+/)[0] ?? 'Alguém';
+  const dataTroca = trocaPendente?.dataOferecidaEmTroca
+    ? format(DateUtilsApi.dateOnlyFromApi(trocaPendente.dataOferecidaEmTroca), "EEE, dd 'de' MMM", {
+        locale: ptBR,
+      })
+    : '—';
 
   return (
     <View style={styles.cardWrapper}>
@@ -159,6 +177,85 @@ export default function PedidoCard({
                   type='contained'
                   label='Aceitar'
                   onPress={onAceitar}
+                  isLoading={isActing}
+                  disabled={isActing}
+                  containerStyle={styles.actionBtn}
+                />
+              </View>
+            </>
+          ) : null}
+
+          {trocaPendente ? (
+            <>
+              <FancySeparator />
+              <View
+                style={[
+                  styles.trocaBox,
+                  {
+                    backgroundColor: ColorUtils.withAlpha(palette.warning, 0.1),
+                    borderColor: ColorUtils.withAlpha(palette.warning, 0.4),
+                  },
+                ]}
+              >
+                <View style={styles.metaRow}>
+                  <DefaultIcons.Custom
+                    library='MaterialIcons'
+                    name='swap-horiz'
+                    size={16}
+                    color={palette.warning}
+                  />
+                  <FancyText size='small' type='bold' color={palette.warning}>
+                    AGUARDANDO VOCÊ
+                  </FancyText>
+                </View>
+                <FancyText size='small' type='medium' color={palette.fonts.dark}>
+                  {nomeTroca} topa te substituir se você cobrir o dia dele.
+                </FancyText>
+                <View style={styles.trocaLinha}>
+                  <FancyText size='small' type='semiBold' color={palette.error}>
+                    Você sai
+                  </FancyText>
+                  <FancyText
+                    size='small'
+                    type='medium'
+                    color={palette.fonts.dark}
+                    style={styles.flex}
+                  >
+                    {eventoNome} · {dataFormatada}
+                  </FancyText>
+                </View>
+                <View style={styles.trocaLinha}>
+                  <FancyText size='small' type='semiBold' color={palette.confirm}>
+                    Você entra
+                  </FancyText>
+                  <FancyText
+                    size='small'
+                    type='medium'
+                    color={palette.fonts.dark}
+                    style={styles.flex}
+                  >
+                    {dataTroca}
+                    {funcaoNome ? ` · ${funcaoNome}` : ''}
+                  </FancyText>
+                </View>
+                <FancyText size='extraSmall' type='normal' color={palette.fonts.inactive}>
+                  Ao confirmar, as duas escalas mudam na hora. Se recusar, seguimos buscando outra
+                  pessoa.
+                </FancyText>
+              </View>
+              <View style={styles.actionsRow}>
+                <FancyButton
+                  type='outlined'
+                  label='Recusar'
+                  onPress={onRecusarTroca}
+                  isLoading={isActing}
+                  disabled={isActing}
+                  containerStyle={styles.actionBtn}
+                />
+                <FancyButton
+                  type='contained'
+                  label='Confirmar troca'
+                  onPress={onConfirmarTroca}
                   isLoading={isActing}
                   disabled={isActing}
                   containerStyle={styles.actionBtn}
@@ -254,6 +351,9 @@ const styles = StyleSheet.create({
   actionsRow: { flexDirection: 'row', gap: 8 },
   actionBtn: { flex: 1 },
   exitsCol: { gap: 8 },
+  trocaBox: { borderRadius: 10, borderWidth: 1, padding: 10, gap: 6 },
+  trocaLinha: { flexDirection: 'row', gap: 8 },
+  flex: { flex: 1 },
   expandRow: {
     flexDirection: 'row',
     alignItems: 'center',

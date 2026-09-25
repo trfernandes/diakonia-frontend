@@ -19,6 +19,7 @@ export default function Header({
   onGeneratePress,
   onDeletePress,
   onParametrizacaoPress,
+  qtdPessoasMarcadas = 0,
 }: {
   escala?: ResponseEscalaDto;
   viewMode?: 'view' | 'edit';
@@ -30,6 +31,8 @@ export default function Header({
   onGeneratePress: () => void;
   onDeletePress: () => void;
   onParametrizacaoPress?: () => void;
+  // E2E 2.3 rascunho / 2.2b: pessoas indisponíveis ou em conflito travam o Publicar.
+  qtdPessoasMarcadas?: number;
 }) {
   if (!escala) return null;
 
@@ -122,11 +125,17 @@ export default function Header({
           ...(primaryStatusAction ? [primaryStatusAction] : []),
           {
             key: 'publish',
-            icon: { library: 'MaterialCommunityIcons' as const, name: 'rocket-launch-outline' },
-            label: 'Publicar escala',
+            icon: {
+              library: 'MaterialCommunityIcons' as const,
+              name: qtdPessoasMarcadas > 0 ? 'lock-outline' : 'rocket-launch-outline',
+            },
+            label:
+              qtdPessoasMarcadas > 0
+                ? `Troque as ${qtdPessoasMarcadas} ${qtdPessoasMarcadas === 1 ? 'pessoa marcada' : 'pessoas marcadas'}`
+                : 'Publicar escala',
             variant: primaryStatusAction ? ('neutral' as const) : ('primary' as const),
             isLoading: isPublishing,
-            disabled: isScreenBlocked,
+            disabled: isScreenBlocked || qtdPessoasMarcadas > 0,
             onPress: onPublishPress,
           },
         ]

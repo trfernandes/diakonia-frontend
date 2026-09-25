@@ -16,6 +16,12 @@ import AddRegraModal, {
   AddRegraModalResult,
 } from '../../../../../components/pages/pessoal/indisponibilidade/AddRegraModal';
 import BlockedDayDetailsModal from '../../../../../components/pages/pessoal/indisponibilidade/BlockedDayDetailsModal';
+import EscaladoNoDiaSheet from '../../../../../components/pages/pessoal/indisponibilidade/EscaladoNoDiaSheet';
+import {
+  extrairItensEscalaPublicada,
+  ItemEscalaAfetado,
+} from '../../../../../domain/utils/escala_bloqueio_utils';
+import { router } from 'expo-router';
 import DateUtils, { DateUtilsApi } from '../../../../../utils/date_utils';
 import FancyLoading from '../../../../../components/FancyLoading';
 import { UpsertIndisponibilidadeVoluntarioItemDto } from '../../../../../domain/dtos/IndisponibilidadeVoluntario/upsert-indisponibilidade-voluntario-item.dto';
@@ -78,6 +84,10 @@ export default function IndisponibilidadeIndexPage() {
   const [editingRegra, setEditingRegra] =
     useState<ResponseRegraIndisponibilidadeVoluntarioDto | null>(null);
   const [hasSettled, setHasSettled] = useState(false);
+  const [escaladoNoDia, setEscaladoNoDia] = useState<{
+    date?: Date;
+    itens: ItemEscalaAfetado[];
+  } | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const meusLancamentos = useMeusLancamentos();
   const lancamentosDaIgreja = meusLancamentos.lancamentos.filter((l) => l.igrejaId === igrejaId);
@@ -354,6 +364,11 @@ export default function IndisponibilidadeIndexPage() {
         show: true,
       });
     } catch (error) {
+      const itens = extrairItensEscalaPublicada(error);
+      if (itens) {
+        setEscaladoNoDia({ itens });
+        return;
+      }
       console.error('Erro ao registrar período:', error);
       setLazyToastOptions({
         type: 'error',
@@ -560,6 +575,11 @@ export default function IndisponibilidadeIndexPage() {
         });
       }
     } catch (error) {
+      const itens = extrairItensEscalaPublicada(error);
+      if (itens) {
+        setEscaladoNoDia({ date, itens });
+        return;
+      }
       console.error('Erro ao atualizar data:', error);
       setLazyToastOptions({
         type: 'error',
@@ -895,6 +915,17 @@ export default function IndisponibilidadeIndexPage() {
         selectedDate={selectedBlockedDay}
         regras={regras}
         indisponibilidadesPontuais={data}
+      />
+
+      <EscaladoNoDiaSheet
+        visible={!!escaladoNoDia}
+        date={escaladoNoDia?.date}
+        itens={escaladoNoDia?.itens ?? []}
+        onEscolherOutroDia={() => setEscaladoNoDia(null)}
+        onPedirSubstituicao={() => {
+          setEscaladoNoDia(null);
+          router.push('/(app)/(drawer)/pessoal/escalas');
+        }}
       />
 
       <TutorialOverlay tour={tour} />

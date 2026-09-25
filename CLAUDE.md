@@ -80,6 +80,14 @@ login/recovery/cadastro (telas existentes).
 Conteúdo do form de toda tela de auth deve ser **centralizado verticalmente** (logo do login é
 exceção).
 
+## Login — SecureStore "lembrar-me"
+`app/(auth)/login.tsx:49-61` carrega e-mail/senha salvos do Keychain (`SecureStore`) e preenche os
+campos silenciosamente no mount — sem aviso, sem diff visual pro usuário. Sobrevive a
+delete+reinstall do app (Keychain não é limpo por desinstalar no iOS). Se usuário reportar "senha
+certa mas credenciais inválidas" e testar múltiplas contas sem sucesso: suspeitar de credencial
+velha sendo reenviada, não do backend — conferir corpo real do POST /auth/login no log do Render
+antes de investigar config/URL/OTA.
+
 ## Padrões mobile — telas de app
 
 - Container: `FancyPageView` (já tem padding 15px — não adicionar padding extra)

@@ -16,6 +16,7 @@ import FancyAccordeon from '../../../../FancyAccordeon';
 import FancyAvatarImage from '../../../../images/FancyImage';
 import { AppImages } from '../../../../../assets/app_images';
 import FancyChips from '../../../../FancyChips';
+import FancySearchBar from '../../../../FancySearchBar';
 import FancyText from '../../../../FancyText';
 import { ThemePalette } from '../../../../../constants/colors';
 import { ResponseEscalaDto } from '../../../../../domain/dtos/Escala/escala.response';
@@ -26,7 +27,6 @@ import { useThemedStyles } from '../../../../../hooks/useThemedStyles';
 import { ColorUtils } from '../../../../../utils/color_utils';
 import { DateUtilsApi } from '../../../../../utils/date_utils';
 import DashboardCard from '../../../inicio/DashboardCard';
-import FancyVerticalSpacer from '../../../../FancyVerticalSpacer';
 import FancySegmentedControl from '../../../../fields/FancySegmentedControl';
 import {
   buildCurrentEscalaInsights,
@@ -38,6 +38,12 @@ import { useVoluntariosDoMinisterioCrud } from '../../../../../hooks/useVoluntar
 
 const HISTORY_MONTHS_WINDOW = 6;
 type InsightsSectionKey = 'resumo' | 'cobertura' | 'pessoas' | 'equilibrio';
+
+type PessoasSortMode = 'escalas-desc' | 'nome-asc';
+const PESSOAS_SORT_OPTIONS: { value: PessoasSortMode; label: string }[] = [
+  { value: 'escalas-desc', label: 'Mais escalas' },
+  { value: 'nome-asc', label: 'A–Z' },
+];
 
 type InfoKey =
   | 'kpi_eventos'
@@ -200,6 +206,8 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
   const [activeInfo, setActiveInfo] = useState<ActiveInfo | null>(null);
   const [pendingSection, setPendingSection] = useState<InsightsSectionKey | null>(null);
   const [pessoasFiltro, setPessoasFiltro] = useState<'escalados' | 'todos'>('escalados');
+  const [pessoasBusca, setPessoasBusca] = useState('');
+  const [pessoasSort, setPessoasSort] = useState<PessoasSortMode>('escalas-desc');
   const openFrameRef = useRef<number | null>(null);
   const clearPendingFrameRef = useRef<number | null>(null);
 
@@ -342,8 +350,20 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
     [historyQuery.data, historyPeriodStart, historyPeriodEnd],
   );
 
-  const pessoasRows =
-    pessoasFiltro === 'todos' ? todoMundoRows : currentInsights.rankingAtual;
+  const pessoasRowsBase = pessoasFiltro === 'todos' ? todoMundoRows : currentInsights.rankingAtual;
+
+  const pessoasRows = useMemo(() => {
+    const busca = pessoasBusca.trim().toLowerCase();
+    const filtradas = busca
+      ? pessoasRowsBase.filter((row) => row.nome.toLowerCase().includes(busca))
+      : pessoasRowsBase;
+
+    const sorted = [...filtradas].sort((a, b) => {
+      if (pessoasSort === 'nome-asc') return a.nome.localeCompare(b.nome, 'pt-BR');
+      return b.qtdAtual - a.qtdAtual || a.nome.localeCompare(b.nome, 'pt-BR');
+    });
+    return sorted;
+  }, [pessoasRowsBase, pessoasBusca, pessoasSort]);
   const gapBetweenExtremes =
     currentInsights.maiorCarga && currentInsights.menorCarga
       ? currentInsights.maiorCarga.qtdAtual - currentInsights.menorCarga.qtdAtual
@@ -558,20 +578,89 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
               value={pessoasFiltro}
               onChange={setPessoasFiltro}
               options={[
-                { label: 'Escalados', value: 'escalados', count: currentInsights.rankingAtual.length },
-                { label: 'Todo mundo', value: 'todos', count: todoMundoRows.length },
+                {
+                  label: 'Escalados',
+                  value: 'escalados',
+                  count: currentInsights.rankingAtual.length,
+                },
+                { label: 'Todos', value: 'todos', count: todoMundoRows.length },
               ]}
               size='sm'
             />
-            <FancyVerticalSpacer height={10} />
-            {pessoasRows.length === 0 ? (
+            <FancySearchBar
+              value={pessoasBusca}
+              onSearch={setPessoasBusca}
+              placeholder='Buscar por nome'
+            />
+            <View style={styles.pessoasSortRow}>
+              <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
+                Ordenar:
+              </FancyText>
+              {PESSOAS_SORT_OPTIONS.map((option, index) => {
+                const active = pessoasSort === option.value;
+                return (
+                  <React.Fragment key={option.value}>
+                    {index > 0 && (
+                      <FancyText size='extraSmall' color={palette.fonts.inactive}>
+                        ·
+                      </FancyText>
+                    )}
+                    <Pressable
+                      accessibilityRole='button'
+                      accessibilityState={{ selected: active }}
+                      hitSlop={{ top: 14, bottom: 14, left: 6, right: 6 }}
+                      onPress={() => setPessoasSort(option.value)}
+                    >
+                      <FancyText
+                        size='extraSmall'
+                        type={active ? 'bold' : 'medium'}
+                        color={active ? palette.primary : palette.fonts.inactive}
+                      >
+                        {option.label}
+                      </FancyText>
+                    </Pressable>
+                  </React.Fragment>
+                );
+              })}
+            </View>
+            {pessoasRowsBase.length === 0 ? (
               <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
                 {pessoasFiltro === 'todos'
                   ? 'Nenhum voluntário no ministério.'
                   : 'Nenhuma pessoa escalada nesta escala.'}
               </FancyText>
+            ) : pessoasRows.length === 0 ? (
+              <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
+                Nenhuma pessoa encontrada pra "{pessoasBusca.trim()}".
+              </FancyText>
             ) : (
               <View style={styles.tableWrapper}>
+                <View style={styles.tableHeaderRow}>
+                  <FancyText
+                    size='extraSmall'
+                    type='semiBold'
+                    color={palette.fonts.inactive}
+                    style={[styles.cellBase, styles.cellName]}
+                  >
+                    Pessoa
+                  </FancyText>
+                  <FancyText
+                    size='extraSmall'
+                    type='semiBold'
+                    color={palette.fonts.inactive}
+                    style={[styles.cellBase, styles.cellCenter]}
+                  >
+                    Escalas
+                  </FancyText>
+                  <FancyText
+                    size='extraSmall'
+                    type='semiBold'
+                    color={palette.fonts.inactive}
+                    style={[styles.cellBase, styles.cellCenter]}
+                  >
+                    Média/mês
+                  </FancyText>
+                </View>
                 <View>
                   {pessoasRows.map((row, index) => {
                     const mediaPessoa =
@@ -596,7 +685,8 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
                                 ? { uri: row.fotoThumbUrl || row.fotoUrl }
                                 : AppImages.emptyProfile
                             }
-                            size={20}
+                            size={24}
+                            fallbackName={row.nome}
                             style={styles.rankingAvatar}
                           />
                           <FancyText
@@ -790,6 +880,7 @@ function createStyles(palette: ThemePalette) {
       justifyContent: 'center',
     },
     infoButtonPressed: { opacity: 0.72 },
+    pessoasSortRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     tableWrapper: {
       borderWidth: 0,
       borderRadius: 0,
@@ -825,7 +916,7 @@ function createStyles(palette: ThemePalette) {
     cellName: { flex: 2 },
     cellCenter: { flex: 1, textAlign: 'center' },
     cellPersona: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    rankingAvatar: { width: 20, height: 20, borderRadius: 10, flexShrink: 0 },
+    rankingAvatar: { width: 24, height: 24, borderRadius: 12, flexShrink: 0 },
     equilibrioRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
     infoRow: {
       flexDirection: 'row',

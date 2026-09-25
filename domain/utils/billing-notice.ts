@@ -126,10 +126,20 @@ export function shouldShowBillingNoticeBanner(assinatura?: ResponseIgrejaAssinat
     assinatura.status === 'trial' ||
     assinatura.status === 'expired' ||
     assinatura.status === 'overdue' ||
+    Boolean(assinatura.pagamentoEmConfirmacao) ||
     hasPendingCheckout(assinatura) ||
     hasExceededPlanCapacity(assinatura) ||
     isSubscriptionWriteBlocked(assinatura)
   );
+}
+
+function formatDiaMes(iso?: string | null): string | null {
+  if (!iso) return null;
+  const data = new Date(iso);
+  if (Number.isNaN(data.getTime())) return null;
+  const dia = String(data.getDate()).padStart(2, '0');
+  const mes = String(data.getMonth() + 1).padStart(2, '0');
+  return `${dia}/${mes}`;
 }
 
 function formatDayCount(daysRemaining: number) {
@@ -164,6 +174,17 @@ export function resolveBillingNoticeContent(
         : 'O pagamento não foi confirmado e o acesso está limitado.',
       ctaLabel,
       tone: 'critical',
+    };
+  }
+
+  if (assinatura.pagamentoEmConfirmacao) {
+    const ate = formatDiaMes(assinatura.carenciaAte);
+    return {
+      eyebrow: 'Pagamento em confirmação',
+      title: ate ? `Confirmando seu pagamento até ${ate}` : 'Confirmando seu pagamento',
+      body: 'O período pago terminou e o pagamento ainda não foi confirmado. Tudo segue funcionando normalmente enquanto isso. Se não for confirmado até essa data, o app passa a só permitir consulta.',
+      ctaLabel,
+      tone: 'warning',
     };
   }
 

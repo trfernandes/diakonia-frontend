@@ -210,10 +210,19 @@ export default function LoginIndexPage() {
           });
         } else {
           clearPendingLoginAttempt();
+
+          // Credencial rejeitada pelo backend: se veio de "lembrar-me" (SecureStore/Keychain,
+          // sobrevive a reinstall), limpar aqui — evita reenvio silencioso da mesma senha errada
+          // pra sempre. Ver artos_frontend/CLAUDE.md "Login — SecureStore lembrar-me".
+          await SecureStore.deleteItemAsync(REMEMBER_EMAIL_KEY);
+          await SecureStore.deleteItemAsync(REMEMBER_PASSWORD_KEY);
+          setRememberMe(false);
+          setPassword('');
+
           Toast.show({
             type: 'error',
             text1: 'Credenciais inválidas',
-            text2: 'E-mail ou senha incorretos.',
+            text2: 'E-mail ou senha incorretos. Senha salva removida — digite novamente.',
           });
         }
         return;

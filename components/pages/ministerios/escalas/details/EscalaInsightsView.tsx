@@ -596,18 +596,30 @@ export default function EscalaInsightsView({ escala, ministerioId }: EscalaInsig
               <FancyText size='extraSmall' type='medium' color={palette.fonts.inactive}>
                 Ordenar:
               </FancyText>
-              {PESSOAS_SORT_OPTIONS.map((option) => {
+              {PESSOAS_SORT_OPTIONS.map((option, index) => {
                 const active = pessoasSort === option.value;
                 return (
-                  <FancyChips
-                    key={option.value}
-                    label={option.label}
-                    size='medium'
-                    color={active ? palette.primary : palette.fonts.inactive}
-                    backgroundColor={active ? undefined : 'transparent'}
-                    style={!active && { borderColor: palette.borderCard }}
-                    onPress={() => setPessoasSort(option.value)}
-                  />
+                  <React.Fragment key={option.value}>
+                    {index > 0 && (
+                      <FancyText size='extraSmall' color={palette.fonts.inactive}>
+                        ·
+                      </FancyText>
+                    )}
+                    <Pressable
+                      accessibilityRole='button'
+                      accessibilityState={{ selected: active }}
+                      hitSlop={{ top: 14, bottom: 14, left: 6, right: 6 }}
+                      onPress={() => setPessoasSort(option.value)}
+                    >
+                      <FancyText
+                        size='extraSmall'
+                        type={active ? 'bold' : 'medium'}
+                        color={active ? palette.primary : palette.fonts.inactive}
+                      >
+                        {option.label}
+                      </FancyText>
+                    </Pressable>
+                  </React.Fragment>
                 );
               })}
             </View>

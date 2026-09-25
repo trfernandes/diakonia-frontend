@@ -72,13 +72,13 @@ const mapEscalaFormToDto = (
         let equipe:
           CreateEscalaEventoEquipePorTemplateDto | CreateEscalaEventoEquipePersonalizadaDto | null;
 
-        if (evento.template.templateBase) {
-          const templateId =
-            'id' in evento.template.templateBase
-              ? (evento.template.templateBase as { id?: string }).id
-              : undefined;
+        const templateId =
+          evento.template.templateBase && 'id' in evento.template.templateBase
+            ? (evento.template.templateBase as { id?: string }).id
+            : undefined;
 
-          if (!templateId || !UUID_REGEX.test(templateId)) {
+        if (templateId) {
+          if (!UUID_REGEX.test(templateId)) {
             throw new Error(
               `O evento "${evento.nome}" usa um template inválido. Selecione novamente a equipe antes de gerar a escala.`,
             );

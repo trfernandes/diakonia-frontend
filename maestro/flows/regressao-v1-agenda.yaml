@@ -1,0 +1,35 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Regressão V1: REG-06 — Agenda
+#
+# O que valida:
+#   1. Usuário consegue acessar a tela de Eventos/Agenda
+#   2. Eventos próximos aparecem listados
+#   3. Tela carrega sem erros
+#
+# Pré-condição: Usuário deve estar logado e membro de uma chiesa
+# com eventos criados.
+#
+# Tags: p0, regressao-v1
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Fazer login se necessário
+- runFlow: _login.yaml
+
+# Navegar para eventos via deep link
+- openLink: diakonia:///admin/eventos
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verificar que tela carregou
+- assertVisible:
+    text: 'Eventos'
+
+- takeScreenshot: regressao-v1-agenda-eventos

@@ -1,0 +1,18 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Regressão V1: REG-05 — Onboarding/Tutorial
+#
+# O que valida:
+#   1. Tutorial guiado fica acessível na tela de indisponibilidades
+#   2. Usuário consegue navegar pelos passos do tutorial
+#   3. Tutorial se conclui corretamente
+#
+# Este flow reutiliza a cobertura do tutorial-guiado.yaml com marcação
+# de regressão.
+#
+# Tags: p0, regressao-v1
+# ═══════════════════════════════════════════════════════════════════
+
+# Reutilizar o flow existente de tutorial guiado
+- runFlow: tutorial-guiado.yaml

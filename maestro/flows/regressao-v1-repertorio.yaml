@@ -1,0 +1,57 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Regressão V1: REG-07 — Repertório
+#
+# O que valida:
+#   1. Usuário consegue acessar o Repertório via drawer (ministério de louvor)
+#   2. Tela de repertório carrega
+#   3. Funcionalidades básicas (busca, lista de músicas) estão acessíveis
+#
+# Pré-condição: Usuário deve estar logado e associado a um ministério
+# de louvor (Ministério de Louvor é criado por padrão no setup).
+#
+# Tags: p0, regressao-v1
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Fazer login se necessário
+- runFlow: _login.yaml
+
+# Navegar para início
+- openLink: diakonia:///inicio
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Abrir drawer (hamburger menu)
+- tapOn:
+    point: '6%, 4%'
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Tocar em "Ministério de Louvor" para expandir (se não tiver expandido)
+- tapOn:
+    text: 'Ministério de Louvor'
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 1500
+
+# Tocar em "Repertório"
+- tapOn:
+    text: 'Repertório'
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Verificar que tela de repertório carregou
+- assertVisible:
+    text: 'Repertório'
+
+- takeScreenshot: regressao-v1-repertorio

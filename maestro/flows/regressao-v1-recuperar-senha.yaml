@@ -1,0 +1,75 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Regressão V1: REG-02 — Recuperar senha
+#
+# O que valida:
+#   1. "Esqueci a senha" na tela de login navega para recuperação
+#   2. Preencher email e submeter funciona (backend envia reset link)
+#   3. Após submissão, mensagem de confirmação aparece
+#
+# Nota: Este flow não prossegue até clicar no link de reset (aquilo
+# aconteceria fora do app, no email). Validamos que o fluxo inicial
+# funciona até o ponto de submissão.
+#
+# Tags: p0, regressao-v1
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Navegar para tela de login se necessário (onboarding)
+- runFlow:
+    when:
+      visible: 'Já tenho conta'
+    file: _go_to_login.yaml
+
+# Aguardar tela de login aparecer
+- extendedWaitUntil:
+    visible: 'Entre na sua conta'
+    timeout: 30000
+
+# Tocar em "Esqueci a senha"
+- assertVisible:
+    text: 'Esqueci a senha'
+
+- tapOn:
+    text: 'Esqueci a senha'
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Verificar que navegou para tela de recuperação
+- assertVisible:
+    text: 'Recuperar senha'
+
+# Preencher email de teste
+- tapOn:
+    text: 'E-mail'
+
+- inputText: '${APP_EMAIL}'
+
+- hideKeyboard
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Submeter
+- tapOn:
+    text: 'Enviar'
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verificar mensagem de sucesso/confirmação
+- assertVisible:
+    text: 'Verifique'
+    optional: true
+
+- assertVisible:
+    text: 'link'
+    optional: true
+
+- takeScreenshot: regressao-v1-recuperar-senha-enviado

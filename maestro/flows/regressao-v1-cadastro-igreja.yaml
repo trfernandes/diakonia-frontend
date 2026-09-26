@@ -1,0 +1,164 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Regressão V1: REG-03 — Cadastro igreja
+#
+# O que valida:
+#   1. Novo usuário consegue acessar fluxo de "Cadastrar minha igreja"
+#   2. Preenchimento de dados básicos (nome, estado, cidade) funciona
+#   3. Preenchimento de dados de contato (responsável, email, senha) funciona
+#   4. Submissão completa o cadastro
+#   5. Novo usuário se torna líder da igleja criada
+#
+# Pré-condição: testar com conta nova ou email único para cada run
+#
+# Tags: p0, regressao-v1
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Onboarding: ir para tela de login
+- runFlow:
+    when:
+      visible: 'Já tenho conta'
+    commands:
+      - tapOn: 'Criar conta'
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Acessar fluxo de cadastro de igreja via deep link ou botão
+- openLink: diakonia:///create-igreja-account
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- assertVisible:
+    text: 'Cadastrar minha igreja'
+
+# ─────────────────────────────────────────────────────────────────
+# Etapa 1: Dados da Igreja
+# ─────────────────────────────────────────────────────────────────
+
+- tapOn:
+    text: 'Qual o nome da sua igreja?'
+
+- inputText: 'Igreja Teste Regressao'
+
+# Estado
+- tapOn:
+    text: 'Estado'
+
+- inputText: 'São Paulo'
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'São Paulo'
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Cidade
+- tapOn:
+    text: 'Cidade'
+
+- inputText: 'São Paulo'
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'São Paulo'
+    index: 0
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Código é gerado automaticamente — se houver sugestão, usar
+- runFlow:
+    when:
+      visible: 'Usar sugestão'
+    commands:
+      - tapOn: 'Usar sugestão'
+
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Avançar para próxima etapa
+- tapOn:
+    text: 'Próximo'
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# ─────────────────────────────────────────────────────────────────
+# Etapa 2: Dados de Contato
+# ─────────────────────────────────────────────────────────────────
+
+- assertVisible:
+    text: 'Nome do Responsável'
+
+- tapOn:
+    text: 'Nome do Responsável'
+
+- inputText: 'Lider Teste'
+
+# Email
+- tapOn:
+    text: 'E-mail'
+
+- inputText: 'regressao.${RANDOM_ID}@teste.com'
+
+# Senha
+- tapOn:
+    text: 'Senha'
+
+- inputText: 'TesteSenha123!'
+
+# Confirmar Senha
+- tapOn:
+    text: 'Confirmar Senha'
+
+- inputText: 'TesteSenha123!'
+
+# WhatsApp
+- tapOn:
+    text: 'WhatsApp'
+
+- inputText: '11999999999'
+
+- hideKeyboard
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    text: 'Próximo'
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# ─────────────────────────────────────────────────────────────────
+# Etapa 3: Revisão
+# ─────────────────────────────────────────────────────────────────
+
+- assertVisible:
+    text: 'Tudo pronto'
+
+# Submeter cadastro
+- tapOn:
+    text: 'Confirmar'
+
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# Verificar que redirecionou para home após cadastro
+- assertVisible:
+    text: 'Início'
+
+- takeScreenshot: regressao-v1-cadastro-igreja-completo

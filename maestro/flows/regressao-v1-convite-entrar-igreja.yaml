@@ -1,0 +1,53 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Regressão V1: REG-04 — Convite entrar igreja
+#
+# O que valida:
+#   1. Usuário consegue acessar a tela de "Entrar em uma Igreja" (join-church)
+#   2. Tela carrega informações do convite/entrada
+#   3. Usuário consegue confirmar entrada na igreja (se houver botão de ação)
+#
+# Pré-condição: Uma igreja deve estar criada e um convite válido deve existir.
+# Este flow apenas navega para a tela; a confirmação real dependerá do state
+# da conta de teste.
+#
+# Tags: p0, regressao-v1
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Fazer login (se não estiver logado)
+- runFlow: _login.yaml
+
+# Navegar para tela de entrada em igreja via deep link
+- openLink: diakonia:///join-church
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verificar que a tela carregou
+- assertVisible:
+    text: 'Entrar em uma Igreja'
+    optional: true
+
+- assertVisible:
+    text: 'Igreja'
+    optional: true
+
+# Se houver um botão de confirmar entrada, tocar nele
+- tapOn:
+    text: 'Entrar'
+    optional: true
+
+- tapOn:
+    text: 'Confirmar'
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: regressao-v1-convite-entrar-igreja

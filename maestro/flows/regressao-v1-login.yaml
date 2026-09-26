@@ -1,0 +1,37 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Regressão V1: REG-01 — Login
+#
+# O que valida:
+#   1. Usuário com email/senha válido consegue fazer login
+#   2. App redireciona para home após login bem-sucedido
+#   3. Tela inicial carrega corretamente
+#
+# Variáveis de ambiente necessárias:
+#   APP_EMAIL, APP_PASSWORD
+#
+# Tags: p0, regressao-v1
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Usar flow de login existente que trata de casos de dev client/onboarding
+- runFlow: _login.yaml
+
+# Verificar que não está mais na tela de login
+- assertNotVisible:
+    text: 'Entrar'
+
+# Verificar que tela inicial carregou
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 30000
+
+- assertVisible:
+    text: 'Ministérios'
+
+- takeScreenshot: regressao-v1-login-success

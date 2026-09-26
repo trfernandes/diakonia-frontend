@@ -1,0 +1,18 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Regressão V1: REG-09 — Quiz vendas
+#
+# O que valida:
+#   1. Quiz de vendas é acessível via deep link
+#   2. Usuário consegue navegar pelas perguntas
+#   3. Submissão calcula resultado corretamente
+#   4. Tela de funcionalidades carrega após quiz
+#
+# Este flow reutiliza a cobertura completa do quiz-vendas.yaml
+# existente com marcação de regressão.
+#
+# Tags: p0, regressao-v1
+# ═══════════════════════════════════════════════════════════════════
+
+- runFlow: quiz-vendas.yaml

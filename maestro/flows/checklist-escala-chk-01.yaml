@@ -1,0 +1,63 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Teste: CHK-01 (P0) — Ministério sem funções cadastradas
+#
+# O que valida:
+#   Pré-condição: ministério sem funções cadastradas
+#   Passos: 1. Entrar em Configurar Escala; 2. Verificar lista de checklist
+#   Esperado: item aparece com msg "sem funções"
+#
+# Requer seed: ministério "Kids" sem nenhuma função (ou criar via API antes)
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Navegar via drawer até Escalas do ministério Kids
+- tapOn:
+    point: '7%, 5%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Toque no ministério Kids → Escalas (index 0 é Kids)
+- tapOn:
+    text: 'Escalas'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Abrir FAB para nova escala
+- tapOn:
+    point: '90%, 87%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Selecionar "Gerar automaticamente"
+- assertVisible:
+    text: 'Nova escala'
+- tapOn:
+    text: 'Gerar automaticamente'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Aguardar passo de Pré-checagem / Configuração
+- extendedWaitUntil:
+    visible: 'sem funções'
+    timeout: 15000
+
+# Validar que o item de "sem funções" aparece no checklist
+- assertVisible:
+    text: 'sem funções'
+
+- takeScreenshot: chk-01-sem-funcoes

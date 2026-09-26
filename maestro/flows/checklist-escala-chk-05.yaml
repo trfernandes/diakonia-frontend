@@ -1,0 +1,78 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Teste: CHK-05 (P0) — Função com todos integrantes indisponíveis no mês
+#
+# O que valida:
+#   Pré-condição: função onde todos os integrantes têm indisponibilidade no período
+#   Passos: 1. Entrar Configurar Escala; 2. Verificar função
+#   Esperado: item aparece com "todos indisponíveis no período"
+#
+# Requer seed:
+#   - Ministério com função "Violão" com 2-3 integrantes
+#   - Todos esses integrantes têm indisponibilidade (regra ou evento) cobrindo
+#     o período de escala (ex: 01 a 30 próximo mês)
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Navegar via drawer até Escalas do ministério Louvor
+- tapOn:
+    point: '7%, 5%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Escalas'
+    index: 1
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Abrir FAB para nova escala
+- tapOn:
+    point: '90%, 87%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Selecionar "Gerar automaticamente"
+- tapOn:
+    text: 'Gerar automaticamente'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Passo 1: Preencher dados
+- assertVisible:
+    text: 'Como quer chamar essa escala?'
+
+- tapOn:
+    text: 'Como quer chamar essa escala?'
+- inputText: 'Escala CHK-05 Indisponíveis'
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    text: 'Próximo'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Passo 2: Aguardar pré-checagem com msg de indisponibilidade
+- extendedWaitUntil:
+    visible: 'indisponí'
+    timeout: 15000
+
+- assertVisible:
+    text: 'indisponí'
+
+- takeScreenshot: chk-05-todos-indisponiveis

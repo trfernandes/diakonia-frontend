@@ -1,0 +1,60 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Teste: CHK-02 (P0) — Função sem integrantes ativos
+#
+# O que valida:
+#   Pré-condição: função sem integrantes ativos no ministério
+#   Passos: 1. Entrar Configurar Escala; 2. Procurar função
+#   Esperado: item aparece com indicador "sem integrantes"
+#
+# Requer seed: função "Guitarra" (ou similar) no ministério sem integrantes
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Navegar via drawer até Escalas do ministério Louvor
+- tapOn:
+    point: '7%, 5%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Escalas'
+    index: 1
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Abrir FAB para nova escala
+- tapOn:
+    point: '90%, 87%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Selecionar "Gerar automaticamente"
+- tapOn:
+    text: 'Gerar automaticamente'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Aguardar passo de Pré-checagem
+- extendedWaitUntil:
+    visible: 'sem integrantes'
+    timeout: 15000
+
+# Validar que o item aparece com aviso de "sem integrantes"
+- assertVisible:
+    text: 'sem integrantes'
+
+- takeScreenshot: chk-02-sem-integrantes

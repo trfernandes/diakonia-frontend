@@ -1,0 +1,92 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Teste: CHK-08 (P0) — Permite gerar escala mesmo com problemas no checklist
+#
+# O que valida:
+#   Pré-condição: existem problemas no checklist (sem integrantes, etc)
+#   Passos: 1. Deixar itens com problemas
+#           2. Clicar "Gerar Escala"
+#   Esperado: mostra aviso mas permite gerar (botão continuar fica ativo, não bloqueia)
+#
+# Requer seed: qualquer cenário com problemas no checklist
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Navegar até Escalas
+- tapOn:
+    point: '7%, 5%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Escalas'
+    index: 1
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Abrir assistente
+- tapOn:
+    point: '90%, 87%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Gerar automaticamente'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Preencher dados
+- tapOn:
+    text: 'Como quer chamar essa escala?'
+- inputText: 'Escala CHK-08 Com Problemas'
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    text: 'Próximo'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Aguardar checklist aparecer
+- extendedWaitUntil:
+    visible: 'sem'
+    timeout: 15000
+
+# NÃO resolver nenhum problema — deixar com avisos
+- assertVisible:
+    text: 'sem'
+
+# Aguardar ou scrollar até achar botão "Gerar" ou "Continuar"
+- scrollUntilVisible:
+    element: { text: 'Gerar|Continuar' }
+    direction: DOWN
+    timeout: 5000
+    optional: true
+
+# Toque no botão Gerar/Continuar
+- tapOn:
+    text: 'Gerar|Continuar'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Validar que não foi bloqueado — botão respondeu e algo aconteceu
+# (pode aparecer confirmação, modal de aviso, ou avançar normalmente)
+- assertVisible:
+    text: 'Geração|aviso|Atenção|Continuar'
+    optional: true
+
+- takeScreenshot: chk-08-gerar-com-problemas

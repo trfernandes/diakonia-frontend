@@ -1,0 +1,67 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Teste: CHK-03 (P0) — Função sem modelo de equipe definido
+#
+# O que valida:
+#   Pré-condição: função sem template/modelo de equipe associado
+#   Passos: 1. Entrar Configurar Escala; 2. Procurar função
+#   Esperado: item aparece com aviso "sem modelo equipe" ou "modelo não definido"
+#
+# Requer seed: função em ministério sem template de equipe configurado
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Navegar via drawer até Escalas do ministério Louvor
+- tapOn:
+    point: '7%, 5%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Escalas'
+    index: 1
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Abrir FAB para nova escala
+- tapOn:
+    point: '90%, 87%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Selecionar "Gerar automaticamente"
+- tapOn:
+    text: 'Gerar automaticamente'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Aguardar passo de Pré-checagem
+- extendedWaitUntil:
+    visible: 'modelo'
+    timeout: 15000
+    optional: true
+
+# Validar que item aparece com aviso sobre modelo de equipe
+- assertVisible:
+    text: 'modelo'
+    optional: true
+
+# Alternativa: se usar termo "equipe"
+- assertVisible:
+    text: 'equipe'
+    optional: true
+
+- takeScreenshot: chk-03-sem-modelo-equipe

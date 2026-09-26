@@ -1,0 +1,103 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Teste: CHK-09 (P1) — Review visual de msgs do checklist
+#
+# O que valida:
+#   Pré-condição: checklist com itens problema
+#   Passos: 1. Ler cada msg de item
+#           2. Verificar se explica o que fazer
+#   Esperado: cada aviso diz claramente ação necessária, não só "sem integrantes" cru
+#            — esse é um caso de REVISÃO de UX, não de asserção de teste
+#
+# Estratégia: capturar screenshots de cada tipo de item do checklist
+#            deixando para revisão manual visual posterior
+#
+# Requer seed: cenários variados (sem funções, sem integrantes, sem modelo, etc)
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Navegar até Escalas do ministério Kids (mais provável ter múltiplos problemas)
+- tapOn:
+    point: '7%, 5%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Escalas'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Abrir assistente
+- tapOn:
+    point: '90%, 87%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Gerar automaticamente'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Preencher nome de escala
+- tapOn:
+    text: 'Como quer chamar essa escala?'
+- inputText: 'Escala CHK-09 Review Visual'
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    text: 'Próximo'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Aguardar checklist
+- extendedWaitUntil:
+    visible: 'sem'
+    timeout: 15000
+
+- assertVisible:
+    text: 'sem'
+
+# Capturar tela inicial do checklist
+- takeScreenshot: chk-09-checklist-completo
+
+# Rolar pra cima (em caso de vários itens abaixo)
+- scroll:
+    direction: UP
+    amount: 3
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Capturar topo do checklist
+- takeScreenshot: chk-09-checklist-topo
+
+# Rolar pra baixo pra ver mais items
+- scroll:
+    direction: DOWN
+    amount: 5
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Capturar itens adicionais se houver
+- takeScreenshot: chk-09-checklist-itens-adicionais
+
+# Validação básica: só conferir que checklist existe (review manual das msgs)
+- assertVisible:
+    text: 'sem'

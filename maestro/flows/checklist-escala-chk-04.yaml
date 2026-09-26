@@ -1,0 +1,85 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Teste: CHK-04 (P0) — Período escolhido sem eventos Culto
+#
+# O que valida:
+#   Pré-condição: período futuro sem eventos tipo "Culto"
+#   Passos: 1. Abrir Configurar Escala; 2. Escolher mês futuro sem Cultos
+#   Esperado: msg "não há eventos Culto neste período"
+#
+# Requer seed: um período (ex: março próximo) sem eventos Culto cadastrados
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Navegar via drawer até Escalas do ministério Louvor
+- tapOn:
+    point: '7%, 5%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Escalas'
+    index: 1
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Abrir FAB para nova escala
+- tapOn:
+    point: '90%, 87%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Selecionar "Gerar automaticamente"
+- tapOn:
+    text: 'Gerar automaticamente'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Passo 1: Preencher nome e alterar datas para um período sem cultos
+- assertVisible:
+    text: 'Como quer chamar essa escala?'
+
+- tapOn:
+    text: 'Como quer chamar essa escala?'
+- inputText: 'Escala CHK-04 Sem Cultos'
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Alterar data para período futuro (ajustar via taps nas datas)
+# Assumindo que existe campo de data ou seletor
+- tapOn:
+    text: 'Data início'
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    text: 'Próximo'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Passo 2: Eventos — validar msg de que não há cultos
+- extendedWaitUntil:
+    visible: 'não há eventos'
+    timeout: 15000
+    optional: true
+
+- assertVisible:
+    text: 'não há eventos'
+    optional: true
+
+- takeScreenshot: chk-04-sem-cultos

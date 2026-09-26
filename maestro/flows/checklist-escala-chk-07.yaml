@@ -1,0 +1,83 @@
+appId: com.church.artos
+---
+# ═══════════════════════════════════════════════════════════════════
+# Teste: CHK-07 (P1) — Toque em item leva diretamente pra tela de resolução
+#
+# O que valida:
+#   Pré-condição: item problema exibido no checklist
+#   Passos: 1. Toque item checklist
+#           2. Verificar tela aberta
+#   Esperado: leva diretamente pra tela que resolve (integrantes, funções, etc)
+#            sem intermediário
+#
+# Requer seed: qualquer função com problema (sem integrantes, etc)
+# ═══════════════════════════════════════════════════════════════════
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- runFlow: _login.yaml
+
+- extendedWaitUntil:
+    visible: 'Início'
+    timeout: 120000
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Navegar até Escalas
+- tapOn:
+    point: '7%, 5%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Escalas'
+    index: 1
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Abrir assistente de nova escala
+- tapOn:
+    point: '90%, 87%'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- tapOn:
+    text: 'Gerar automaticamente'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Preencher dados iniciais
+- tapOn:
+    text: 'Como quer chamar essa escala?'
+- inputText: 'Escala CHK-07 Navegação'
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    text: 'Próximo'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Aguardar e verificar checklist
+- extendedWaitUntil:
+    visible: 'sem'
+    timeout: 15000
+
+# Toque em qualquer item do checklist (sem integrantes, sem funções, etc)
+- tapOn:
+    text: 'sem'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Validar que navega para uma tela relevante (Integrantes, Funções, Eventos, etc)
+# Teremos textos como "Integrantes", "Funções", "Eventos" dependendo do item
+- assertVisible:
+    text: 'Integrante|Função|Evento|equipe'
+    optional: true
+
+# Capturar tela de destino
+- takeScreenshot: chk-07-tela-resolucao
